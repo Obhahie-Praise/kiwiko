@@ -2,7 +2,7 @@ import React from "react"
 import MagneticCursor from "./Magnetic"
 
 const cardStyle =
-  "border border-zinc-300 bg-linear-to-b from-zinc-200/20 to-zinc-500/20 backdrop-blur-md rounded-full h-25 w-25 flex items-center justify-center text-sm font-medium text-zinc-600 absolute"
+  "border border-zinc-300 bg-black text-white backdrop-blur-md rounded-full h-25 w-25 flex items-center justify-center text-sm font-medium absolute"
 
 const FloatingCards = () => {
   return (

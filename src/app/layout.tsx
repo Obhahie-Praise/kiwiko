@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ReactLenis } from "../utils/lenis";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,10 +15,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Kiwiko | A new way to discover early stage startups",
-  description: "Discover and invest in early stage startups with Kiwiko. Explore innovative companies, connect with founders, and be part of the next big thing.",
+  description:
+    "Discover and invest in early stage startups with Kiwiko. Explore innovative companies, connect with founders, and be part of the next big thing.",
   icons: {
-    icon: "/favicon.svg",
-  }
+    icon: "/neutral-logo.svg",
+  },
 };
 
 export default function RootLayout({
@@ -27,11 +29,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
-      >
-        {children}
-      </body>
+      <ReactLenis root>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
+        >
+          {children}
+        </body>
+      </ReactLenis>
     </html>
   );
 }
