@@ -192,3 +192,51 @@ export const testimonials = [
       "There’s no way to hide behind engagement here. Either you shipped something or you didn’t. That constraint actually makes the platform more motivating, not less.",
   },
 ];
+
+import {
+  Home,
+  Compass,
+  Banknote,
+  Activity,
+  BookOpen,
+  Settings,
+} from "lucide-react";
+
+export const sidebarNav = [
+  {
+    label: "Home",
+    href: "/home",
+    icon: Home,
+    description: "Your startup dashboard",
+  },
+  {
+    label: "Discover",
+    href: "/discover",
+    icon: Compass,
+    description: "Explore founders and startups",
+  },
+  {
+    label: "Funding",
+    href: "/funding",
+    icon: Banknote,
+    description: "Track funding rounds and signals",
+  },
+  {
+    label: "Updates",
+    href: "/updates",
+    icon: Activity,
+    description: "Your progress and milestones",
+  },
+  {
+    label: "Resources",
+    href: "/resources",
+    icon: BookOpen,
+    description: "Guides, tools, and frameworks",
+  },
+  {
+    label: "Settings",
+    href: "/settings",
+    icon: Settings,
+    description: "Account and startup preferences",
+  },
+];

@@ -18,7 +18,7 @@ const Navbar = () => {
       </nav>
       <div className="space-x-6">
         <Link href="/sign-in" className="py-2 px-4 border-2 border-zinc-200 hover:border-zinc-400 text-black hover:text-zinc-500 rounded-lg transition-colors">Login</Link>
-        <Link href="/sign-up" className="py-2 px-4 border-2 bg-black border-black hover:bg-zinc-800 hover:border-zinc-800 text-white hover:text-zinc-400 transition-colors rounded-lg">
+        <Link href="/onboarding" className="py-2 px-4 border-2 bg-black border-black hover:bg-zinc-800 hover:border-zinc-800 text-white hover:text-zinc-400 transition-colors rounded-lg">
           Get Started
         </Link>
       </div>
