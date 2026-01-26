@@ -1,4 +1,4 @@
-import { submitSetup } from "@/lib/actions/auth-client";
+import { submitSetup } from "@/lib/actions/server-actions";
 import { ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -33,7 +33,7 @@ const Page3 = ({
       redirect("/onboarding/setup?page=1");
     }
   }, []);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
   const [isSubmiting, setIsSubmiting] = useState(false);
   const isComplete = firstUpdateTitle != "" && firstUpdateDesc != "";
   const completed = isComplete;
@@ -94,8 +94,8 @@ const Page3 = ({
             <p className="">Prev</p>
           </Link>
           <button
-            onClick={() => {
-              submitSetup({
+            onClick={ async () => {
+              const result = await submitSetup({
                 userRole,
                 startupName,
                 startupDesc,
@@ -104,9 +104,15 @@ const Page3 = ({
                 firstUpdateTitle,
                 firstUpdateDesc,
                 completed,
-                setError,
               });
               setIsSubmiting(true);
+
+              if (!result.success) {
+                setError(result.error)
+                return
+              }
+
+              redirect("/onboarding/setup?page=4")
             }}
             className={`flex items-center font-medium bg-black border border-black text-white rounded-full  py-2 px-3 ${
               isComplete ? "cursor-pointer" : "opacity-20 cursor-not-allowed"
@@ -116,8 +122,10 @@ const Page3 = ({
             <ChevronRight />
           </button>
         </div>
-        <p className="flex items-center justify-center">
-          <LoaderCircle width={30} height={30} className="animate-spin" />
+        <p className="flex items-center justify-center mt-20">
+          {isSubmiting ? (
+            <LoaderCircle className="animate-spin text-zinc-600" />
+          ) : null }
         </p>
         <p className="text-red-500 font-medium">{error}</p>
       </div>

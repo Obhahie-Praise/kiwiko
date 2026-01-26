@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @plugin 'lightswind/plugin';
 @import "tw-animate-css";
 
@@ -8,10 +8,87 @@
     display: none;
   } */
 
-  body {
-    @apply bg-zinc-100 text-foreground font-sans;
-  }
-  
+body {
+  @apply bg-zinc-100 text-foreground font-sans;
+}
+
+.scroll-mod::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+.scroll-mod::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Track color */
+}
+
+.scroll-mod::-webkit-scrollbar-thumb {
+  background: #888; /* Thumb color */
+  border-radius: 2px; /* Rounded corners */
+}
+
+.scroll-mod::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Hover color */
+}
+
+/* Base */
+.react-calendar-heatmap .color-empty {
+  fill: #f4f4f5;
+}
+
+/* GitHub commits – darkest */
+.react-calendar-heatmap .exec-github_commit {
+  fill: #09090b;
+}
+
+/* Social posts */
+.react-calendar-heatmap .exec-social_post {
+  fill: #18181b;
+}
+
+/* Milestones */
+.react-calendar-heatmap .exec-milestone {
+  fill: #27272a;
+}
+
+/* Investor views */
+.react-calendar-heatmap .exec-investor_view {
+  fill: #3f3f46;
+}
+
+/* Investor messages */
+.react-calendar-heatmap .exec-investor_message {
+  fill: #52525b;
+}
+
+/* Funding */
+.react-calendar-heatmap .exec-funding_event {
+  fill: #71717a;
+}
+
+/* Product release */
+.react-calendar-heatmap .exec-product_release {
+  fill: #a1a1aa;
+}
+.react-calendar-heatmap {
+  max-width: 100%;
+}
+
+.react-calendar-heatmap rect:hover {
+  filter: brightness(1.15);
+  cursor: pointer;
+}
+
+/* Rounded heatmap cells */
+.react-calendar-heatmap rect {
+  rx: 3px;
+  ry: 3px;
+}
+
+/* Slight spacing illusion */
+.react-calendar-heatmap .react-calendar-heatmap-day {
+  stroke: #ffffff;
+  stroke-width: 1px;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

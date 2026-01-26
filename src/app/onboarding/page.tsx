@@ -9,6 +9,7 @@ import { useState } from "react";
 const StartUpOnboarding = () => {
   const [isGoogleAuthenticating, setIsGoogleAuthenticating] = useState(false);
   const [isGithubAuthenticating, setIsGithubAuthenticating] = useState(false);
+  const [ongoingRequest, setOngoingRequest] = useState(0);
   const handleSocial = async (provider: "google" | "github") => {
     await signIn.social({ provider, callbackURL: "/onboarding/setup?page=1" });
   };
@@ -31,8 +32,12 @@ const StartUpOnboarding = () => {
           <button
             className="relative cursor-pointer"
             onClick={() => {
+              if (ongoingRequest === 1) {
+                return;
+              }
               handleSocial("github");
               setIsGithubAuthenticating(true);
+              setOngoingRequest(1);
             }}
           >
             <GithubIcon
@@ -52,8 +57,12 @@ const StartUpOnboarding = () => {
           <button
             className="relative cursor-pointer"
             onClick={() => {
+              if (ongoingRequest === 1) {
+                return;
+              }
               handleSocial("google");
               setIsGoogleAuthenticating(true);
+              setOngoingRequest(1);
             }}
           >
             <Image

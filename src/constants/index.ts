@@ -6,7 +6,7 @@ export const recentActivity = [
     lastUpdate: "Shipped v0.3 of dashboard – 3 days ago",
     miniMetric: "+120 users this week",
     tags: ["Fintech", "Payments", "SaaS"],
-    profileLink: "/startups/novapay"
+    profileLink: "/novapay",
   },
   {
     name: "GreenLeaf AI",
@@ -15,7 +15,7 @@ export const recentActivity = [
     lastUpdate: "Deployed v1.1 bug fixes – today",
     miniMetric: "+8% engagement growth",
     tags: ["AI", "Sustainability", "Analytics"],
-    profileLink: "/startups/greenleaf-ai"
+    profileLink: "/greenleaf-ai",
   },
   {
     name: "Evently",
@@ -24,7 +24,7 @@ export const recentActivity = [
     lastUpdate: "Launched new RSVP flow – 1 day ago",
     miniMetric: "+45 signups",
     tags: ["Events", "SaaS", "Productivity"],
-    profileLink: "/startups/evently"
+    profileLink: "/evently",
   },
   {
     name: "TrackMate",
@@ -33,7 +33,7 @@ export const recentActivity = [
     lastUpdate: "Released driver tracking map – 2 days ago",
     miniMetric: "+15% delivery speed",
     tags: ["Logistics", "Tracking", "SaaS"],
-    profileLink: "/startups/trackmate"
+    profileLink: "/trackmate",
   },
   {
     name: "Codo",
@@ -42,7 +42,7 @@ export const recentActivity = [
     lastUpdate: "Added dark mode feature – today",
     miniMetric: "+200 active users",
     tags: ["Productivity", "Coding", "Collaboration"],
-    profileLink: "/startups/codo"
+    profileLink: "/codo",
   },
   {
     name: "FitLoop",
@@ -51,7 +51,7 @@ export const recentActivity = [
     lastUpdate: "Updated workout analytics – 4 days ago",
     miniMetric: "+35 new subscribers",
     tags: ["Health", "Fitness", "SaaS"],
-    profileLink: "/startups/fitloop"
+    profileLink: "/fitloop",
   },
   {
     name: "ShopSwift",
@@ -60,7 +60,7 @@ export const recentActivity = [
     lastUpdate: "Integrated Stripe payments – today",
     miniMetric: "+75 transactions processed",
     tags: ["E-commerce", "Fintech", "SaaS"],
-    profileLink: "/startups/shopswift"
+    profileLink: "/shopswift",
   },
   {
     name: "MindScope",
@@ -69,7 +69,7 @@ export const recentActivity = [
     lastUpdate: "Launched mood tracker v2 – 2 days ago",
     miniMetric: "+150 daily active users",
     tags: ["AI", "Health", "Analytics"],
-    profileLink: "/startups/mindscope"
+    profileLink: "/mindscope",
   },
   {
     name: "Planrly",
@@ -78,7 +78,7 @@ export const recentActivity = [
     lastUpdate: "Released timeline view – yesterday",
     miniMetric: "+30 projects created",
     tags: ["Productivity", "Project Management", "SaaS"],
-    profileLink: "/startups/planrly"
+    profileLink: "/planrly",
   },
   {
     name: "ByteBloom",
@@ -87,7 +87,7 @@ export const recentActivity = [
     lastUpdate: "Shipped blog generator v1.2 – 3 days ago",
     miniMetric: "+60 blogs generated",
     tags: ["AI", "Content", "SaaS"],
-    profileLink: "/startups/bytebloom"
+    profileLink: "/bytebloom",
   },
   {
     name: "EcoRoute",
@@ -96,7 +96,7 @@ export const recentActivity = [
     lastUpdate: "Updated routing algorithm – today",
     miniMetric: "-12% CO₂ emissions",
     tags: ["Logistics", "Sustainability", "AI"],
-    profileLink: "/startups/ecoroute"
+    profileLink: "/ecoroute",
   },
   {
     name: "LearnLoop",
@@ -105,7 +105,7 @@ export const recentActivity = [
     lastUpdate: "Added gamification badges – yesterday",
     miniMetric: "+80 learners this week",
     tags: ["Education", "SaaS", "Gamification"],
-    profileLink: "/startups/learnloop"
+    profileLink: "/learnloop",
   },
   {
     name: "TaskHive",
@@ -114,7 +114,7 @@ export const recentActivity = [
     lastUpdate: "Released recurring tasks feature – 2 days ago",
     miniMetric: "+40 active teams",
     tags: ["Productivity", "Task Management", "Collaboration"],
-    profileLink: "/startups/taskhive"
+    profileLink: "/taskhive",
   },
   {
     name: "SnapCart",
@@ -123,7 +123,7 @@ export const recentActivity = [
     lastUpdate: "Added QR checkout – today",
     miniMetric: "+300 checkouts processed",
     tags: ["E-commerce", "Retail", "Fintech"],
-    profileLink: "/startups/snapcart"
+    profileLink: "/snapcart",
   },
   {
     name: "VoltEdge",
@@ -132,7 +132,7 @@ export const recentActivity = [
     lastUpdate: "Released dashboard v1.5 – 1 day ago",
     miniMetric: "+10% energy savings",
     tags: ["Energy", "Analytics", "SaaS"],
-    profileLink: "/startups/voltedge"
+    profileLink: "/voltedge",
   },
 ];
 
@@ -197,9 +197,15 @@ import {
   Home,
   Compass,
   Banknote,
-  Activity,
   BookOpen,
-  Settings,
+  User2,
+  Bell,
+  Inbox,
+  UserCheck,
+  Link,
+  UsersRound,
+  CircleDollarSign,
+  UserRoundPen,
 } from "lucide-react";
 
 export const sidebarNav = [
@@ -222,10 +228,24 @@ export const sidebarNav = [
     description: "Track funding rounds and signals",
   },
   {
-    label: "Updates",
-    href: "/updates",
-    icon: Activity,
-    description: "Your progress and milestones",
+    label: "Inbox",
+    href: "/inbox",
+    icon: Inbox,
+    description: "View email reach outs from investors",
+    badge: "3",
+  },
+  {
+    label: "Notifications",
+    href: "/notifications",
+    icon: Bell,
+    description: "Recieve updates about startups",
+    badge: "7",
+  },
+  {
+    label: "Teams",
+    href: "/teams",
+    icon: UsersRound,
+    description: "Your team, members and roles",
   },
   {
     label: "Resources",
@@ -234,9 +254,268 @@ export const sidebarNav = [
     description: "Guides, tools, and frameworks",
   },
   {
-    label: "Settings",
-    href: "/settings",
-    icon: Settings,
+    label: "Profile",
+    href: "/profile",
+    icon: User2,
     description: "Account and startup preferences",
+  },
+];
+
+export const completeOnboarding = [
+  {
+    id: "create-account",
+    name: "Create New Account",
+    description: "Get started with kiwiko",
+    icon: UserCheck,
+    type: "system",
+    isCompleted: true,
+    href: "/profile",
+  },
+  {
+    id: "account-setup",
+    name: "Setup Your Account",
+    description: "Helps investors understand your startup",
+    icon: UserRoundPen,
+    type: "system",
+    isCompleted: true,
+    href: "/profile",
+  },
+  {
+    id: "social-linking",
+    name: "Link External Account",
+    description: "Help us automate updates for excuetions",
+    icon: Link,
+    type: "system",
+    isCompleted: false,
+    href: "/profile",
+  },
+  {
+    id: "create-teams",
+    name: "Create team members",
+    description: "Get the whole team onboard",
+    icon: UsersRound,
+    type: "system",
+    isCompleted: false,
+    href: "/profile",
+  },
+  {
+    id: "funding-setup",
+    name: "Setup Funding Process",
+    description: "Setup how you would like recieve funding",
+    icon: CircleDollarSign,
+    type: "system",
+    isCompleted: false,
+    href: "/profile",
+  },
+];
+
+import {
+  Code2,
+  Megaphone,
+  Users,
+  Eye,
+  Sparkles,
+} from "lucide-react";
+
+export const recentActivities = [
+  {
+    id: "code-commit",
+    type: "product",
+    title: "Committed Dark Mode",
+    description: "UI theming support merged into main branch",
+    icon: Code2,
+    source: "GitHub",
+    timestamp: "2 days ago",
+    confidence: "high", // derived automatically later
+  },
+  {
+    id: "social-post",
+    type: "growth",
+    title: "Posted on X",
+    description: "Shared update about onboarding 50 new users",
+    icon: Megaphone,
+    source: "X (Twitter)",
+    timestamp: "3 days ago",
+  },
+  {
+    id: "user-growth",
+    type: "traction",
+    title: "User growth detected",
+    description: "+12 new users joined this week",
+    icon: Users,
+    source: "Product analytics",
+    timestamp: "5 days ago",
+  },
+  {
+    id: "investor-view",
+    type: "investor",
+    title: "Investor attention",
+    description: "2 investors viewed your startup profile",
+    icon: Eye,
+    source: "Kiwiku",
+    timestamp: "6 days ago",
+  },
+  {
+    id: "milestone",
+    type: "system",
+    title: "Startup went public",
+    description: "Your profile is now visible to investors",
+    icon: Sparkles,
+    source: "System",
+    timestamp: "1 week ago",
+  },
+];
+
+export const notifications = [
+  {
+    id: "n1",
+    title: "Investor viewed your startup",
+    message: "An investor viewed your profile 2 hours ago",
+    type: "engagement", // engagement | update | system
+    seen: true,
+    createdAt: "2h ago",
+    icon: "eye", // map to icon component
+  },
+  {
+    id: "n2",
+    title: "Update published",
+    message: "Your progress update is now visible to investors",
+    type: "update",
+    seen: true,
+    createdAt: "5h ago",
+    icon: "rocket",
+  },
+  {
+    id: "n3",
+    title: "New investor message",
+    message: "You received a message from a potential investor",
+    type: "message",
+    seen: false,
+    createdAt: "1d ago",
+    icon: "mail",
+  },
+  {
+    id: "n4",
+    title: "Startup gaining traction",
+    message: "Your startup had 12 profile views this week",
+    type: "analytics",
+    seen: false,
+    createdAt: "2d ago",
+    icon: "trending-up",
+  },
+  {
+    id: "n5",
+    title: "Complete your onboarding",
+    message: "Finish setting up your startup profile to increase visibility",
+    type: "system",
+    seen: false,
+    createdAt: "3d ago",
+    icon: "alert",
+  },
+  {
+    id: "n6",
+    title: "New funding round added",
+    message: "A new funding round was posted in your niche",
+    type: "funding",
+    seen: false,
+    createdAt: "4d ago",
+    icon: "banknote",
+  },
+];
+
+import { TrendingUp, Wallet, Flame, Hourglass } from "lucide-react";
+
+export const metrics = [
+  {
+    id: 1,
+    label: "Monthly Revenue",
+    value: "$1,200",
+    change: "+12%",
+    icon: TrendingUp,
+  },
+  {
+    id: 2,
+    label: "Total Funding",
+    value: "$15k",
+    change: "Pre-seed",
+    icon: Wallet,
+  },
+  {
+    id: 3,
+    label: "Monthly Burn",
+    value: "$800",
+    change: "-5%",
+    icon: Flame,
+  },
+  {
+    id: 4,
+    label: "Runway",
+    value: "18 months",
+    change: "Stable",
+    icon: Hourglass,
+  },
+];
+
+import { History, Spotlight } from "lucide-react";
+
+export const activityMetrics = [
+  {
+    id: "last-update",
+    title: "Last update",
+    value: 3,
+    suffix: "days ago",
+    delta: "+2 vs last month",
+    icon: History,
+  },
+  {
+    id: "investor-views",
+    title: "Investor views",
+    value: 4,
+    suffix: "this week",
+    meta: "Last viewed 3 days ago",
+    icon: Spotlight,
+  },
+  {
+    id: "github-activity",
+    title: "Github",
+    tag: "External activity",
+    value: 4,
+    suffix: "commits this week",
+    delta: "+1 vs last week",
+    icon: History,
+  },
+];
+
+
+export const executionEvents = [
+  {
+    date: "2025-01-03",
+    count: 3,
+    types: ["github_commit", "social_post"],
+    events: ["3 GitHub commits", "Posted on X"],
+  },
+  {
+    date: "2025-01-05",
+    count: 1,
+    types: ["milestone"],
+    events: ["Reached 100 users"],
+  },
+  {
+    date: "2025-01-08",
+    count: 2,
+    types: ["investor_view", "investor_message"],
+    events: ["Investor profile viewed", "Inbound investor message"],
+  },
+  {
+    date: "2025-01-12",
+    count: 1,
+    types: ["funding_event"],
+    events: ["Grant application submitted"],
+  },
+  {
+    date: "2025-01-14",
+    count: 4,
+    types: ["github_commit", "product_release"],
+    events: ["Major release shipped", "Multiple commits"],
   },
 ];

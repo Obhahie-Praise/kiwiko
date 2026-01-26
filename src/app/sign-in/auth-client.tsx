@@ -1,5 +1,5 @@
 "use client";
-import { authCallBack } from "@/lib/actions/auth-client";
+import { authCallBack } from "@/lib/actions/server-actions";
 import { signIn } from "@/lib/auth-client";
 import { EyeClosedIcon, EyeIcon, LoaderCircle } from "lucide-react";
 import { useState } from "react";

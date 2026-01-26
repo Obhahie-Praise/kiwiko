@@ -10,8 +10,8 @@ const SignUpPage = () => {
   const [userRole, setUserRole] = useState<string>("");
   const [startupName, setstartupName] = useState<string>("");
   const [startupDesc, setstartupDesc] = useState<string>("");
-  const [stage, setStage] = useState<string>("FinTech");
-  const [niche, setNiche] = useState<string>("An Idea");
+  const [stage, setStage] = useState<string>("An Idea");
+  const [niche, setNiche] = useState<string>("Fintech");
   const [firstUpdateTitle, setfirstUpdateTitle] = useState<string>("");
   const [firstUpdateDesc, setfirstUpdateDesc] = useState<string>("");
   const position = useSearchParams().get("page");
