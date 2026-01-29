@@ -4,102 +4,103 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import React, { useEffect } from "react";
 
-const Page4 = ({
+const Page6 = ({
   position,
   userRole,
-  stage,
-  setStage,
-  setLinkToProduct,
-  linkToProduct,
+  teamSize,
+  setTeamSize,
+  leaderStatus,
+  setLeaderStatus,
 }: {
-  stage: string;
   position: string;
   userRole: string;
-  setStage: React.Dispatch<React.SetStateAction<string>>;
-  setLinkToProduct: React.Dispatch<React.SetStateAction<string>>;
-  linkToProduct: string;
+  teamSize: string;
+  setTeamSize: React.Dispatch<React.SetStateAction<string>>;
+  leaderStatus: string | null;
+  setLeaderStatus: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
+  const isComplete = teamSize && leaderStatus ? true : false;
+  const completed = isComplete;
   useEffect(() => {
     if (userRole === "") {
       redirect("/onboarding/setup?page=1");
     }
   }, []);
-  const isComplete = stage && linkToProduct ? true : false;
-  const completed = isComplete;
   return (
     <div className="min-h-screen flex items-center">
       <div className="flex items-center justify-center flex-1">
-        <Image src="/page-4.svg" width={766} height={750} alt="page-1-main" />
+        <Image src="/page-6.svg" width={766} height={750} alt="page-1-main" />
       </div>
       <div className="bg-white w-120 min-h-screen relative">
         <div className="mb-10 mt-20 px-6 space-y-20">
           <div className="">
-            <label htmlFor="stage" className="text-2xl font-medium">
-              Current Stage
+            <label htmlFor="revenue" className="text-2xl font-medium">
+              Team size
             </label>
             <div className="space-y-3 mt-3">
               <div
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() => {
-                  setStage("Idea");
+                  setTeamSize("Solo");
                 }}
               >
                 <div
-                  className={`${stage === "Idea" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
+                  className={`${teamSize === "Solo" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
                 />
-                <p className="text-2xl font-medium">Idea</p>
+                <p className="text-2xl font-medium">Solo</p>
               </div>
               <div
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() => {
-                  setStage("MVP built");
+                  setTeamSize("2-3");
                 }}
               >
                 <div
-                  className={`${stage === "MVP built" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
+                  className={`${teamSize === "2-3" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
                 />
-                <p className="text-2xl font-medium">MVP built</p>
+                <p className="text-2xl font-medium">2-3</p>
               </div>
               <div
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() => {
-                  setStage("Live users");
+                  setTeamSize("4+");
                 }}
               >
                 <div
-                  className={`${stage === "Live users" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
+                  className={`${teamSize === "4+" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
                 />
-                <p className="text-2xl font-medium">Live users</p>
-              </div>
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => {
-                  setStage("Revenue");
-                }}
-              >
-                <div
-                  className={`${stage === "Revenue" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
-                />
-                <p className="text-2xl font-medium">Revenue</p>
+                <p className="text-2xl font-medium">4+</p>
               </div>
             </div>
           </div>
           <div className="flex flex-col space-y-2">
             <label htmlFor="the-solution" className="text-2xl font-medium">
-              Link to product / demo / repo{" "}
-              <span className="text-sm text-zinc-500"> (optional)</span>
+              Are you leading development on this project?
             </label>
-            <input
-              type="text"
-              value={linkToProduct}
-              onChange={(e) => {
-                setLinkToProduct(e.target.value);
-              }}
-              name="the-solution"
-              className="p-2 text-zinc-600 border border-zinc-600 rounded-lg w-full"
-              placeholder="atlasmage.vercel.app"
-              id="the-solution"
-            ></input>
+            <div className="space-y-3 mt-3">
+                <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => {
+                  setLeaderStatus("Yes");
+                }}
+              >
+                <div
+                  className={`${leaderStatus === "Yes" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
+                />
+                <p className="text-2xl font-medium">Yes</p>
+              </div>
+                <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => {
+                  setLeaderStatus("No");
+                }}
+              >
+                <div
+                  className={`${leaderStatus === "No" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
+                />
+                <p className="text-2xl font-medium">No</p>
+              </div>
+            </div>
           </div>
         </div>
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-4">
@@ -125,4 +126,4 @@ const Page4 = ({
   );
 };
 
-export default Page4;
+export default Page6;

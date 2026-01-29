@@ -76,21 +76,34 @@ model Verification {
   @@map("verification")
 }
 
-model OnboardingSetup {
-  id     String @id @default(cuid())
-  userId String @unique
+model StartupOnboarding {
+  id                 String   @id @default(cuid())
 
-  userRole    String
-  startupName String
-  startupDesc String
-  stage       String
-  niche       String
+  userId             String   @unique
+  userRole           String
 
-  firstfirstUpdateTitle String
-  firstfirstUpdateDesc  String
+  projectName        String
+  projectDesc        String
+  catergory          String
 
-  completed Boolean @default(true)
+  theProblem         String
+  theSolution        String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  stage              String
+
+  linkToProduct      String   @unique
+  userCount          String
+  revenue            String
+  teamSize           String
+
+  leaderStatus       String?
+  fundsSeekingStatus String
+  fundingStage       String
+
+  consent            String
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("startup_onboarding")
 }
