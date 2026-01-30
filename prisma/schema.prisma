@@ -100,7 +100,7 @@ model StartupOnboarding {
   fundsSeekingStatus String
   fundingStage       String
 
-  consent            String
+  consent            Boolean
 
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt

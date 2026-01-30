@@ -136,6 +136,7 @@ const SignUpPage = () => {
         leaderStatus={leaderStatus}
         fundsSeekingStatus={fundsSeekingStatus}
         fundingStage={fundingStage}
+        consent={consent}
       />
     );
   }

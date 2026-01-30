@@ -37,7 +37,7 @@ const HomeNavProfileBtn = ({
         />
         <div className="text-left">
           <p className="text-sm text-zinc-900 font-medium leading-none">
-            {startup?.startupName}
+            {startup?.projectName}
           </p>
           <span className="text-xs text-zinc-500 font-medium capitalize">
             {startup.userRole}
@@ -56,7 +56,7 @@ const HomeNavProfileBtn = ({
           {/* Identity */}
           <div className="px-3 py-2">
             <p className="text-sm font-medium text-zinc-900">
-              {startup?.startupName}
+              {startup?.projectName}
             </p>
             <p className="text-xs text-zinc-500">Founder • Pre-seed</p>
           </div>

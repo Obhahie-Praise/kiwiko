@@ -10,9 +10,28 @@ const StartUpOnboarding = () => {
   const [isGoogleAuthenticating, setIsGoogleAuthenticating] = useState(false);
   const [isGithubAuthenticating, setIsGithubAuthenticating] = useState(false);
   const [ongoingRequest, setOngoingRequest] = useState(0);
+  const [error, setError] = useState<string | null>()
   const handleSocial = async (provider: "google" | "github") => {
-    await signIn.social({ provider, callbackURL: "/onboarding/setup?page=1" });
-  };
+  try {
+    if (provider === "google")
+    {
+      setIsGoogleAuthenticating(true)
+    } else {
+      setIsGithubAuthenticating(true)
+    }
+    await signIn.social({
+      provider,
+      callbackURL: "/onboarding/setup?page=1",
+    });
+  } catch (error) {
+    console.error(error);
+    setError("Social authentication failed")
+    setOngoingRequest(0)
+  } finally {
+    setIsGoogleAuthenticating(false);
+    setIsGithubAuthenticating(false)
+  }
+};
   return (
     <div className="flex justify-center items-center overflow-y-hidden min-h-screen">
       <div className="space-y-2">
@@ -101,6 +120,9 @@ const StartUpOnboarding = () => {
       >
         <ArrowLeft />
       </Link>
+      {error && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2">{error}</div>
+      )}
     </div>
   );
 };

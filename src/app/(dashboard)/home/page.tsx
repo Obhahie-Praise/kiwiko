@@ -16,10 +16,10 @@ import { redirect } from "next/navigation";
 const HomePage = async () => {
   const session = await getSession();
   const userId = session?.user.id;
-  const onboardingCheck = await prisma.onboardingSetup.count({
+  const onboardingCheck = await prisma.startupOnboarding.count({
     where: { userId },
   });
-  const startup = await prisma.onboardingSetup.findUnique({
+  const startup = await prisma.startupOnboarding.findUnique({
     where: { userId },
   });
   const truncateEmail =
@@ -27,6 +27,9 @@ const HomePage = async () => {
       ? String(session?.user.email).slice(0, 15).padEnd(22, " . . . ")
       : String(session?.user.email);
 
+if (!session?.user) {
+  redirect("/sign-in")
+}
   if (onboardingCheck === 0) {
     redirect("/onboarding/setup?page=1");
   }

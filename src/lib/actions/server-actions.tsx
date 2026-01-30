@@ -7,8 +7,8 @@ import { redirect } from "next/navigation";
 import React, { SetStateAction } from "react";
 
 export interface StartupOnboarding {
-  position?: string
-  userRole:  string;
+  position?: string;
+  userRole: string;
   projectName: string;
   projectDesc: string;
   catergory: string;
@@ -22,28 +22,15 @@ export interface StartupOnboarding {
   leaderStatus: string | null;
   fundsSeekingStatus: string;
   fundingStage: string;
-  consent: string
-  setConsent: React.Dispatch<SetStateAction<string>>
+  consent: boolean;
+  setConsent?: React.Dispatch<SetStateAction<string>>;
 }
 
 type SubmitSetupResult = { success: true } | { success: false; error: string };
 
-export const submitSetup = async ({
-  userRole,
-  projectName,
-  projectDesc,
-  catergory,
-  theProblem,
-  theSolution,
-  stage,
-  linkToProduct,
-  userCount,
-  revenue,
-  teamSize,
-  leaderStatus,
-  fundsSeekingStatus,
-  fundingStage,
-}: StartupOnboarding): Promise<SubmitSetupResult> => {
+export const submitStartupOnboarding = async (
+  data: StartupOnboarding
+): Promise<SubmitSetupResult> => {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -55,56 +42,24 @@ export const submitSetup = async ({
 
     const userId = session.user.id;
 
-    await prisma.onboardingSetup.upsert({
+    await prisma.startupOnboarding.upsert({
       where: { userId },
-      update: {
-        userRole,
-        projectName,
-        projectDesc,
-        catergory,
-        theProblem,
-        theSolution,
-        stage,
-        linkToProduct,
-        userCount,
-        revenue,
-        teamSize,
-        leaderStatus,
-        fundsSeekingStatus,
-        fundingStage,
-      },
-      create: {
-        userRole,
-        projectName,
-        projectDesc,
-        catergory,
-        theProblem,
-        theSolution,
-        stage,
-        linkToProduct,
-        userCount,
-        revenue,
-        teamSize,
-        leaderStatus,
-        fundsSeekingStatus,
-        fundingStage,
-      },
+      update: { ...data },
+      create: { ...data, userId },
     });
 
     return { success: true };
   } catch (error) {
-    console.error("submitSetup error:", error);
-    return {
-      success: false,
-      error: "Failed to save onboarding data",
-    };
+    console.error(error);
+    return { success: false, error: "Failed to save" };
   }
 };
+
 
 export const authCallBack = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
   const userId = session?.user.id as string;
-  const onboardingCount = await prisma.onboardingSetup.count({
+  const onboardingCount = await prisma.startupOnboarding.count({
     where: { userId },
   });
 

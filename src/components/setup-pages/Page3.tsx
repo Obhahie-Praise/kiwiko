@@ -1,4 +1,3 @@
-import { submitSetup } from "@/lib/actions/server-actions";
 import { ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -52,7 +51,7 @@ const Page3 = ({
               }}
               name="the-problem"
               id="the-problem"
-              className="p-2 text-zinc-600 border border-zinc-600 rounded-lg w-full h-60"
+              className="p-2 text-zinc-600 border border-zinc-600 rounded-lg w-full h-30"
               placeholder="The problem is ..."
             />
           </div>
@@ -66,7 +65,7 @@ const Page3 = ({
                 setTheSolution(e.target.value);
               }}
               name="the-solution"
-              className="p-2 text-zinc-600 border border-zinc-600 rounded-lg w-full h-60"
+              className="p-2 text-zinc-600 border border-zinc-600 rounded-lg w-full h-30"
               placeholder="The solution is ..."
               id="the-solution"
             ></textarea>

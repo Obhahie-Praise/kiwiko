@@ -519,3 +519,139 @@ export const executionEvents = [
     events: ["Major release shipped", "Multiple commits"],
   },
 ];
+
+import {
+  Clock,
+  Brain,
+  HeartPulse,
+  GraduationCap,
+  Leaf,
+  Layers,
+} from "lucide-react";
+
+/* =========================
+   DISCOVERY TABS
+========================= */
+
+export const discoveryTabs = [
+  { id: "trending", label: "Trending", icon: Flame },
+  { id: "latest", label: "Latest", icon: Clock },
+  { id: "funding", label: "Funding", icon: Banknote },
+  { id: "forYou", label: "For You", icon: Sparkles },
+] as const;
+
+export type StartupCategory =
+  (typeof discoveryTabs)[number]["id"];
+
+/* =========================
+   NICHES
+========================= */
+
+export const niches = [
+  "AI",
+  "Fintech",
+  "Health",
+  "SaaS",
+  "EdTech",
+  "Climate",
+] as const;
+
+export type StartupNiche =
+  (typeof niches)[number];
+
+export const nicheIcons = {
+  AI: Brain,
+  Fintech: Wallet,
+  Health: HeartPulse,
+  SaaS: Layers,
+  EdTech: GraduationCap,
+  Climate: Leaf,
+};
+
+/* =========================
+   STARTUP TYPE
+========================= */
+
+export interface Startup {
+  id: number;
+  name: string;
+  desc: string;
+  niche: StartupNiche;
+  category: StartupCategory;
+  stage: string;
+  funding: string;
+  traction: string;
+}
+
+/* =========================
+   MOCK STARTUPS (70)
+========================= */
+
+const names = [
+  "Nova",
+  "Flux",
+  "Orbit",
+  "Pulse",
+  "Vertex",
+  "Atlas",
+  "Echo",
+  "Nimbus",
+  "Forge",
+  "Spark",
+  "Horizon",
+  "Summit",
+  "Quantum",
+  "Elevate",
+];
+
+export const startups: Startup[] = Array.from(
+  { length: 70 },
+  (_, i) => {
+    const niche =
+      niches[i % niches.length];
+
+    const category =
+      discoveryTabs[
+        i % discoveryTabs.length
+      ].id;
+
+    return {
+      id: i + 1,
+
+      name: `${names[i % names.length]} ${i + 1}`,
+
+      desc:
+        "Building scalable tech solving real-world problems with strong execution focus.",
+
+      niche,
+
+      category,
+
+      stage: [
+        "Idea",
+        "MVP",
+        "Beta",
+        "Growth",
+        "Scaling",
+      ][i % 5],
+
+      funding: [
+        "$0",
+        "$10k",
+        "$50k",
+        "$100k",
+        "$500k",
+        "$1M+",
+      ][i % 6],
+
+      traction: [
+        "Pre-launch",
+        "100 users",
+        "500 users",
+        "2k users",
+        "10k users",
+        "50k users",
+      ][i % 6],
+    };
+  },
+);
