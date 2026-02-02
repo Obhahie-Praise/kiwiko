@@ -571,52 +571,108 @@ export const nicheIcons = {
 /* =========================
    STARTUP TYPE
 ========================= */
-
-export interface Startup {
-  id: number;
-  name: string;
-  desc: string;
-  niche: StartupNiche;
-  category: StartupCategory;
-  stage: string;
-  funding: string;
-  traction: string;
-}
-
 /* =========================
    MOCK STARTUPS (70)
 ========================= */
 
-const names = [
-  "Nova",
-  "Flux",
-  "Orbit",
-  "Pulse",
-  "Vertex",
-  "Atlas",
-  "Echo",
-  "Nimbus",
-  "Forge",
-  "Spark",
-  "Horizon",
-  "Summit",
-  "Quantum",
-  "Elevate",
+// data/startups/index.ts
+
+export type DiscoveryStartup = {
+  id: string;
+  name: string;
+  desc: string;
+  category: StartupCategory;
+  niche: StartupNiche;
+  stage: "Idea" | "MVP" | "Beta" | "Growth" | "Scaling";
+  funding: string;
+  traction: string;
+  image: string;
+};
+
+
+/* export const startup: Startup[] = [
+  {
+    id: "s1",
+    name: "Nova AI",
+    tagline: "AI-powered business automation",
+    category: "Technology",
+    subCategory: "Artificial Intelligence",
+    stage: "Seed",
+    image: "https://source.unsplash.com/600x400/?artificial-intelligence,technology",
+  },
+  {
+    id: "s2",
+    name: "PayNest",
+    tagline: "Smarter payments for Africa",
+    category: "Fintech",
+    subCategory: "Payments",
+    stage: "Growth",
+    image: "https://source.unsplash.com/600x400/?fintech,payments",
+  },
+  {
+    id: "s3",
+    name: "MediLoop",
+    tagline: "Connecting patients to doctors remotely",
+    category: "Health",
+    subCategory: "Telemedicine",
+    stage: "MVP",
+    image: "https://source.unsplash.com/600x400/?healthcare,medical",
+  },
+  {
+    id: "s4",
+    name: "EduSpark",
+    tagline: "Personalized learning for students",
+    category: "Edtech",
+    subCategory: "Online Learning",
+    stage: "Seed",
+    image: "https://source.unsplash.com/600x400/?education,learning",
+  },
+  {
+    id: "s5",
+    name: "GreenGrid",
+    tagline: "Renewable energy for urban homes",
+    category: "Climate",
+    subCategory: "Clean Energy",
+    stage: "Idea",
+    image: "https://source.unsplash.com/600x400/?renewable-energy,solar",
+  },
+  {
+    id: "s6",
+    name: "ShopZen",
+    tagline: "Tools for modern e-commerce brands",
+    category: "Commerce",
+    subCategory: "E-commerce",
+    stage: "Growth",
+    image: "https://source.unsplash.com/600x400/?ecommerce,shopping",
+  },
+];
+ */
+export const names = [
+  "Nova Labs",
+  "Atlas AI",
+  "PulsePay",
+  "Orbit Health",
+  "SparkEd",
+  "GreenGrid",
+  "FlowStack",
+  "Beacon Finance",
+  "Lumen Energy",
+  "Vertex Cloud",
+  "Nexus Dev",
+  "Stride Logistics",
+  "Echo Media",
+  "Forge Systems",
+  "Zenith Analytics",
 ];
 
-export const startups: Startup[] = Array.from(
+export const startups: DiscoveryStartup[] = Array.from(
   { length: 70 },
   (_, i) => {
-    const niche =
-      niches[i % niches.length];
-
-    const category =
-      discoveryTabs[
-        i % discoveryTabs.length
-      ].id;
+    const niche = niches[i % niches.length];
+    const category = discoveryTabs[i % discoveryTabs.length].id;
 
     return {
-      id: i + 1,
+      id: `s-${i + 1}`,
 
       name: `${names[i % names.length]} ${i + 1}`,
 
@@ -624,7 +680,6 @@ export const startups: Startup[] = Array.from(
         "Building scalable tech solving real-world problems with strong execution focus.",
 
       niche,
-
       category,
 
       stage: [
@@ -633,7 +688,7 @@ export const startups: Startup[] = Array.from(
         "Beta",
         "Growth",
         "Scaling",
-      ][i % 5],
+      ][i % 5] as DiscoveryStartup["stage"],
 
       funding: [
         "$0",
@@ -652,6 +707,115 @@ export const startups: Startup[] = Array.from(
         "10k users",
         "50k users",
       ][i % 6],
+
+      image: `https://i.pinimg.com/1200x/df/5b/05/df5b0517ad5ebf1d1790dc3f8bf2f9a7.jpg`,
     };
-  },
+  }
 );
+
+
+// data/emails.ts
+export const emails = [
+  {
+    id: "1",
+    sender: "Sarah Johnson",
+    email: "sarah@angelhub.com",
+    subject: "Interested in your FinTech startup",
+    preview: "I went through your pitch deck and I’m impressed...",
+    body: `
+Hi Praise,
+
+I went through your pitch deck and I’m genuinely impressed with what you’re building.
+The traction numbers stood out to me, especially your user growth over the last 3 months.
+
+I’d love to understand your long-term vision and how you plan to scale beyond Nigeria.
+Let’s schedule a quick call if you’re open to it.
+
+Best,
+Sarah
+    `,
+    date: "2h ago",
+    unread: true,
+  },
+  {
+    id: "2",
+    sender: "Michael Chen",
+    email: "michael@vcfirm.com",
+    subject: "Follow-up on funding round",
+    preview: "Thanks for sharing the documents earlier...",
+    body: `
+Hello Praise,
+
+Thanks for sharing the documents earlier.
+My partners and I reviewed them, and we have a few questions around revenue sustainability.
+
+Could you clarify your monetization strategy for enterprise clients?
+Looking forward to your response.
+
+Regards,
+Michael
+    `,
+    date: "Yesterday",
+    unread: false,
+  },
+  {
+    id: "3",
+    sender: "Public Investor",
+    email: "invest@community.com",
+    subject: "Public funding contribution",
+    preview: "I just invested through your public round...",
+    body: `
+Hi,
+
+I just invested through your public funding round.
+Really excited to support what you’re building and can’t wait to see how this grows.
+
+Keep pushing 🚀
+
+— A supporter
+    `,
+    date: "3 days ago",
+    unread: false,
+  },
+];
+
+
+// data/notifications.ts
+export const notificationsPage = [
+  {
+    id: "1",
+    type: "investment",
+    title: "New investment received",
+    message: "Sarah Johnson invested ₦2,500,000 in your public round.",
+    time: "5 minutes ago",
+    unread: true,
+    priority: "high",
+  },
+  {
+    id: "2",
+    type: "funding",
+    title: "Funding milestone reached",
+    message: "Your funding round has reached 75% of its goal.",
+    time: "1 hour ago",
+    unread: true,
+    priority: "medium",
+  },
+  {
+    id: "3",
+    type: "message",
+    title: "New message from VC",
+    message: "Michael Chen sent you a message regarding your pitch.",
+    time: "Yesterday",
+    unread: false,
+    priority: "high",
+  },
+  {
+    id: "4",
+    type: "system",
+    title: "Action required",
+    message: "Complete your KYC verification to continue fundraising.",
+    time: "2 days ago",
+    unread: false,
+    priority: "critical",
+  },
+];

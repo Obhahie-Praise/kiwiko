@@ -98,6 +98,18 @@ body {
   font-size: 10px;
 }
 
+.input {
+  @apply w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-black;
+}
+
+.btn-primary {
+  @apply bg-black text-white w-full py-2 rounded-lg text-sm;
+}
+
+.btn-danger {
+  @apply bg-red-500 text-white w-full py-2 rounded-lg text-sm;
+}
+
 
 @theme inline {
   --color-background: var(--background);
