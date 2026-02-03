@@ -819,3 +819,20 @@ export const notificationsPage = [
     priority: "critical",
   },
 ];
+
+export type TeamMember = {
+  id: string
+  name: string
+  role: "Founder" | "Engineer" | "Designer" | "Marketing"
+  avatar: string
+  joinedAt: string
+  contributions: number
+  online: boolean
+}
+
+export type Message = {
+  id: string
+  userId: string
+  content: string
+  createdAt: string
+}

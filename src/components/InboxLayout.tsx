@@ -10,8 +10,8 @@ const InboxLayout = () => {
     <div className="flex h-[calc(100vh-80px)] overflow-hidden  border-t-2 border-l-2 rounded-tl-2xl py-4 px-0 bg-zinc-50 min-h-screen">
 
       {/* LEFT — EMAIL LIST */}
-      <div className="w-[25%] border-r px-2">
-        <div className="p-3 border-b">
+      <div className="w-[25%] border-r border-zinc-400 px-2">
+        <div className="p-3">
           <input
             placeholder="Search mail..."
             className="w-full border-b border-zinc-400 rounded-lg px-3 py-2 text-sm"
@@ -46,7 +46,7 @@ const InboxLayout = () => {
       <div className="flex-1 flex flex-col">
 
         {/* Header */}
-        <div className="p-3 border-b">
+        <div className="p-3 border-b border-zinc-400">
           <h2 className="font-semibold text-xl">
             {activeEmail.subject}
           </h2>
@@ -61,10 +61,10 @@ const InboxLayout = () => {
         </div>
 
         {/* Reply */}
-        <div className="border-t p-4">
+        <div className="border-t border-zinc-400 p-4">
           <textarea
             placeholder="Write a reply..."
-            className="w-full border rounded-lg p-3 text-sm resize-none"
+            className="w-full border-2 border-zinc-300 rounded-lg p-3 text-sm resize-none"
             rows={3}
           />
           <div className="flex justify-end mt-3">
