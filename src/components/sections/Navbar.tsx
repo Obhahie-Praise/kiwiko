@@ -1,29 +1,57 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { ChevronRight } from "lucide-react";
 
 const Navbar = () => {
   return (
-    <div className="w-screen fixed top-0 left-0 backdrop-blur-xl border-b-2 border-zinc-300 z-50 flex items-center justify-between py-2 px-12 font-medium">
-      <h1 className="flex items-center gap-2 text-3xl text-zinc-950">
-        <Image src="/neutral-logo.svg" alt="Kiwiko Logo" width={40} height={40} className="" />
-        <p className="">kiwiko</p>
-      </h1>
-      <nav className="space-x-8">
-        <Link className="hover:text-zinc-500 transition-colors" href="/">Home</Link>
-        <Link className="hover:text-zinc-500 transition-colors" href="#activity">Activity</Link>
-        <Link className="hover:text-zinc-500 transition-colors" href="#features">Features</Link>
-        <Link className="hover:text-zinc-500 transition-colors" href="#testimonials">Testimonials</Link>
-        <Link className="hover:text-zinc-500 transition-colors" href="/resources">Resources</Link>
-      </nav>
-      <div className="space-x-6">
-        <Link href="/sign-in" className="py-2 px-4 border-2 border-zinc-200 hover:border-zinc-400 text-black hover:text-zinc-500 rounded-lg transition-colors">Login</Link>
-        <Link href="/onboarding" className="py-2 px-4 border-2 bg-black border-black hover:bg-zinc-800 hover:border-zinc-800 text-white hover:text-zinc-400 transition-colors rounded-lg">
-          Get Started
+    <div className="fixed top-4 left-0 w-full z-50">
+      <div className="max-w-6xl mx-auto backdrop-blur-2xl bg-white/60 border border-zinc-200/70 rounded-[2rem] h-16 flex items-center justify-between px-10 shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2 group">
+           <Image 
+              src="/neutral-logo.svg" 
+              alt="Kiwiko Logo" 
+              width={25} 
+              height={25} 
+              className="group-hover:rotate-12 transition-transform duration-500" 
+           />
+           <p className="text-lg font-black italic tracking-tighter uppercase">Kiwiko</p>
         </Link>
+
+        {/* Navigation */}
+        <nav className="hidden md:flex items-center gap-8">
+          {["Activity", "Features", "Testimonials", "Resources"].map((item) => (
+            <Link 
+              key={item}
+              className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-900 transition-colors" 
+              href={item === "Resources" ? "/resources" : `#${item.toLowerCase()}`}
+            >
+              {item}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Actions */}
+        <div className="flex items-center gap-4">
+          <Link 
+            href="/sign-in" 
+            className="text-[10px] font-black uppercase tracking-widest text-zinc-900 px-4 py-2 hover:bg-zinc-100 rounded-xl transition-colors"
+          >
+            Login
+          </Link>
+          <Link 
+            href="/onboarding" 
+            className="bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-black transition-all flex items-center gap-2 shadow-lg shadow-zinc-200"
+          >
+            Get Started
+            <ChevronRight size={14} />
+          </Link>
+        </div>
       </div>
     </div>
   );
 };
 
 export default Navbar;
+

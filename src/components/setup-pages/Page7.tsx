@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Landmark, PieChart, Banknote } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -19,118 +19,119 @@ const Page7 = ({
   fundingStage: string;
   setFundingStage: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  const isComplete = fundsSeekingStatus && fundingStage ? true : false;
-  const completed = isComplete;
   useEffect(() => {
     if (userRole === "") {
       redirect("/onboarding/setup?page=1");
     }
   }, []);
+
+  const isComplete = fundsSeekingStatus && fundingStage;
+  const seekingOptions = ["Yes", "Soon", "Not currently"];
+  const stageOptions = ["Pre-seed", "Seed", "Not decided"];
+
   return (
-    <div className="min-h-screen flex items-center">
-      <div className="flex items-center justify-center flex-1">
-        <Image src="/page-7.svg" width={766} height={750} alt="page-1-main" />
-      </div>
-      <div className="bg-white w-120 min-h-screen relative">
-        <div className="mb-10 mt-20 px-6 space-y-20">
-          <div className="">
-            <label htmlFor="revenue" className="text-2xl font-medium">
-              Are you seeking funding for this project?
-            </label>
-            <div className="space-y-3 mt-3">
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => {
-                  setFundsSeekingStatus("Yes");
-                }}
-              >
-                <div
-                  className={`${fundsSeekingStatus === "Yes" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
-                />
-                <p className="text-2xl font-medium">Yes</p>
-              </div>
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => {
-                  setFundsSeekingStatus("Soon");
-                }}
-              >
-                <div
-                  className={`${fundsSeekingStatus === "Soon" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
-                />
-                <p className="text-2xl font-medium">Soon</p>
-              </div>
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => {
-                  setFundsSeekingStatus("Not currently");
-                }}
-              >
-                <div
-                  className={`${fundsSeekingStatus === "Not currently" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
-                />
-                <p className="text-2xl font-medium">Not currently</p>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col space-y-2">
-            <label htmlFor="the-solution" className="text-2xl font-medium">
-              Funding stage{" "}
-            </label>
-            <div className="space-y-3 mt-3">
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => {
-                  setFundingStage("Pre-seed");
-                }}
-              >
-                <div
-                  className={`${fundingStage === "Pre-seed" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
-                />
-                <p className="text-2xl font-medium">Pre-seed</p>
-              </div>
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => {
-                  setFundingStage("Seed");
-                }}
-              >
-                <div
-                  className={`${fundingStage === "Seed" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
-                />
-                <p className="text-2xl font-medium">Seed</p>
-              </div>
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => {
-                  setFundingStage("Not decided");
-                }}
-              >
-                <div
-                  className={`${fundingStage === "Not decided" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
-                />
-                <p className="text-2xl font-medium">Not decided</p>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen flex flex-col md:flex-row bg-white">
+      {/* Visual Sidebar */}
+      <div className="hidden lg:flex lg:w-1/3 bg-zinc-900 p-16 flex-col justify-between relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-zinc-800 rounded-full blur-[100px] -z-10 opacity-50" />
+        
+        <div className="space-y-4 relative z-10">
+          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black">P7</div>
+          <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
+            Capital <br /> <span className="text-zinc-500">Inbound.</span>
+          </h2>
+          <p className="text-zinc-400 font-bold text-lg leading-relaxed">
+            Verify your capitalization strategy. Fueling the engine requires precise coordination of venture resources.
+          </p>
         </div>
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-4">
-          <Link
-            href={`/onboarding/setup?page=${Number(position) - 1}`}
-            className="flex items-center gap-1 text-sm cursor-pointer hover:text-zinc-700 transition font-medium"
-          >
-            <ChevronLeft width={17} height={17} />
-            <p className="">Previous</p>
-          </Link>
-          <div className="h-5 w-px bg-black" />
-          <Link
-            aria-disabled={isComplete}
-            href={`${isComplete && `/onboarding/setup?page=${Number(position) + 1}`}`}
-            className={`flex items-center gap-1 text-sm ${isComplete ? "cursor-pointer text-black hover:text-zinc-700" : "text-zinc-400 cursor-not-allowed"} transition font-medium`}
-          >
-            <p className="">Next</p>
-            <ChevronRight width={17} height={17} />
-          </Link>
+
+        <div className="space-y-6 relative z-10">
+           <div className="flex items-center gap-3 text-zinc-500 uppercase text-[10px] font-black tracking-widest">
+              <Landmark size={16} className="text-emerald-500" />
+              Resource Allocation Protocol
+           </div>
+        </div>
+      </div>
+
+      {/* Main Form Area */}
+      <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-16 lg:p-24 relative">
+        <div className="w-full max-w-xl space-y-12">
+          {/* Header */}
+          <div className="space-y-2">
+            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">Step 07 / 08</span>
+            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Venture Capital.</h1>
+          </div>
+
+          <div className="space-y-10">
+            {/* Seeking Status */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                <Banknote size={12} /> Resource Acquisition
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {seekingOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setFundsSeekingStatus(opt)}
+                    className={`px-4 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border text-center ${
+                      fundsSeekingStatus === opt 
+                        ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200" 
+                        : "bg-white text-zinc-500 border-zinc-100 hover:border-zinc-300"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Funding Stage */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                <PieChart size={12} /> Capital Series
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {stageOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setFundingStage(opt)}
+                    className={`px-4 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border text-center ${
+                      fundingStage === opt 
+                        ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200" 
+                        : "bg-white text-zinc-500 border-zinc-100 hover:border-zinc-300"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="pt-10 flex items-center justify-between border-t border-zinc-100">
+            <Link
+              href={`/onboarding/setup?page=${Number(position) - 1}`}
+              className="group flex items-center gap-3 text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:text-zinc-900 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center group-hover:bg-zinc-100 transition-colors">
+                <ChevronLeft size={16} />
+              </div>
+              Back
+            </Link>
+
+            <Link
+              href={isComplete ? `/onboarding/setup?page=${Number(position) + 1}` : "#"}
+              className={`group flex items-center gap-3 px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                isComplete 
+                  ? "bg-zinc-900 text-white shadow-xl shadow-zinc-200 hover:bg-black" 
+                  : "bg-zinc-100 text-zinc-300 cursor-not-allowed"
+              }`}
+            >
+              Next Step
+              <ChevronRight size={16} />
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -138,3 +139,4 @@ const Page7 = ({
 };
 
 export default Page7;
+

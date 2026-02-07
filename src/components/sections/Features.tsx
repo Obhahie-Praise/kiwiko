@@ -1,174 +1,179 @@
-"use client";
-import { Ban, ThumbsUp, User2Icon } from "lucide-react";
+"use client"
+import { 
+  Zap, 
+  Target, 
+  ShieldCheck, 
+  Activity as ActivityIcon, 
+  BarChart3, 
+  Code2, 
+  Layers,
+  Fingerprint
+} from "lucide-react";
 import Image from "next/image";
 import { ScrollParallax } from "react-just-parallax";
 import MagneticCursor from "../Magnetic";
 
 const Features = () => {
   return (
-    <section id="features" className="mt-40 mx-20 relative">
-      <div className="flex items-center justify-center mb-4">
-        <div className="px-1.5 py-0.5 text-sm border-2 border-zinc-300 bg-zinc-300 text-black rounded-lg ">
+    <section id="features" className="py-32 relative overflow-hidden">
+      {/* Background Glows */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-zinc-100 rounded-full blur-[120px] -z-10 opacity-50" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-50/50 rounded-full blur-[120px] -z-10 opacity-30" />
+
+      {/* Header */}
+      <div className="flex flex-col items-center text-center mb-24 px-6">
+        <div className="px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] bg-zinc-900 text-white rounded-full border border-zinc-800 mb-4 italic">
           Features
         </div>
-      </div>
-
-      <div className="text-center">
-        <h2 className="text-4xl font-medium">Whats in it for you?</h2>
-        <p className="text-zinc-500">
-          Get access to 'state of the art' insight tools
+        <h2 className="text-5xl md:text-5xl font-black tracking-tighter text-zinc-900 mb-4 uppercase italic leading-[0.85]">
+          What's in it <br /> <span className="text-zinc-400">for you?</span>
+        </h2>
+        <p className="text-zinc-500 font-bold max-w-2xl text-lg leading-relaxed">
+          The noise-free operating system for high-momentum founders and high-conviction investors.
         </p>
       </div>
-      <div className="grid grid-cols-12 gap-4 mt-12">
-        <div className="col-span-7 h-40 border-2 border-zinc-300 rounded-2xl relative p-4">
-          <div className="h-12 w-12 rounded-full border-2 border-zinc-300 absolute top-3 left-3 bg-black flex items-center justify-center text-3xl font-semibold text-white">
-            1
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="">
-              <div className="ml-16 text-2xl font-medium">
-                Track Execution in Real-Time
-              </div>
-              <div className="ml-16 text-zinc-500">
-                See which startups are shipping and updating.
-              </div>
-            </div>
+
+      <div className="px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          
+          {/* 1. Real-time Execution (8 cols) */}
+          <div className="md:col-span-8 group bg-white border border-zinc-200 rounded-[3rem] p-10 hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] transition-all duration-700 relative overflow-hidden flex flex-col justify-between h-[450px]">
+             <div className="relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-zinc-900 flex items-center justify-center text-white mb-8 shadow-xl shadow-zinc-200">
+                   <Code2 size={24} />
+                </div>
+                <h3 className="text-3xl font-black text-zinc-900 mb-4 tracking-tighter uppercase italic">
+                  Real-Time <br /> Execution Logs
+                </h3>
+                <p className="text-zinc-500 font-bold max-w-sm mb-8">
+                  Verifiable proof of progress. Track git momentum, feature shipping, and technical milestones as they happen.
+                </p>
+             </div>
+
+             <div className="relative h-32 flex items-center gap-4 overflow-hidden mask-fade-right">
+                <ScrollParallax strength={0.5}>
+                   <div className="flex gap-4 mt-4">
+                      {["git commits", "deployment", "v2.1 live", "core architecture", "database migration", "auth logic"].map((tag, i) => (
+                        <div key={i} className="whitespace-nowrap px-6 py-3 bg-zinc-50 border border-zinc-200 rounded-2xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-900 hover:border-zinc-900 transition-all cursor-default">
+                          {tag}
+                        </div>
+                      ))}
+                   </div>
+                </ScrollParallax>
+             </div>
+
+             {/* UI Element Mockup */}
+             <div className="absolute top-10 -right-20 w-80 h-80 bg-linear-to-bl from-zinc-50 to-white border border-zinc-100 rounded-3xl p-6 shadow-2xl transition-transform group-hover:-translate-x-10 duration-700 rotate-12 group-hover:rotate-6">
+                <div className="flex items-center gap-3 mb-6">
+                   <div className="w-3 h-3 rounded-full bg-red-400" />
+                   <div className="w-3 h-3 rounded-full bg-amber-400" />
+                   <div className="w-3 h-3 rounded-full bg-emerald-400" />
+                </div>
+                <div className="space-y-4">
+                   <div className="h-2 w-3/4 bg-zinc-100 rounded-full" />
+                   <div className="h-2 w-1/2 bg-zinc-100 rounded-full" />
+                   <div className="h-2 w-full bg-zinc-900 rounded-full opacity-10" />
+                   <div className="h-2 w-2/3 bg-zinc-100 rounded-full" />
+                   <div className="h-2 w-5/6 bg-emerald-100 rounded-full" />
+                </div>
+             </div>
           </div>
 
-          <div className="flex items-center justify-between mx-5 mt-10">
-            <MagneticCursor className="border border-zinc-300 text-sm font-medium px-2 py-0.5 rounded-full text-zinc-500">
-              git commits
-            </MagneticCursor>
-            <MagneticCursor className="border border-zinc-300 text-sm font-medium px-2 py-0.5 rounded-full text-zinc-500">
-              progress updates
-            </MagneticCursor>
-            <MagneticCursor className="border border-zinc-300 text-sm font-medium px-2 py-0.5 rounded-full text-zinc-500">
-              features shipping
-            </MagneticCursor>
-            <MagneticCursor className="border border-zinc-300 text-sm font-medium px-2 py-0.5 rounded-full text-zinc-500">
-              outreach
-            </MagneticCursor>
-            <MagneticCursor className="border border-zinc-300 text-sm font-medium px-2 py-0.5 rounded-full text-zinc-500">
-              milestone
-            </MagneticCursor>
+          {/* 2. Growth Metrics (4 cols) */}
+          <div className="md:col-span-4 group bg-zinc-900 border border-zinc-800 rounded-[3rem] p-10 hover:shadow-[0_40px_80px_rgba(0,0,0,0.2)] transition-all duration-700 relative overflow-hidden flex flex-col justify-between h-[450px]">
+             <div className="relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-zinc-900 mb-8">
+                   <BarChart3 size={24} />
+                </div>
+                <h3 className="text-3xl font-black text-white mb-4 tracking-tighter uppercase italic">
+                   Hard <br /> Numbers.
+                </h3>
+                <p className="text-zinc-500 font-bold">
+                   User growth, churn rates, and MRR signals verified by agentic analysis.
+                </p>
+             </div>
+
+             <div className="mt-12">
+                <div className="flex items-end gap-2 h-32">
+                   {[40, 70, 45, 90, 65, 80, 50, 95].map((h, i) => (
+                     <div 
+                        key={i} 
+                        style={{ height: `${h}%` }} 
+                        className="flex-1 bg-white/10 rounded-t-lg group-hover:bg-emerald-500/50 transition-all duration-700" 
+                     />
+                   ))}
+                </div>
+                <div className="mt-4 flex justify-between text-[10px] font-black text-zinc-600 uppercase tracking-widest">
+                   <span>JAN</span>
+                   <span>JUN</span>
+                   <span>DEC</span>
+                </div>
+             </div>
           </div>
+
+          {/* 3. Founder Integrity (5 cols) */}
+          <div className="md:col-span-5 group bg-white border border-zinc-200 rounded-[3rem] p-10 transition-all duration-700 relative overflow-hidden flex flex-col h-[400px]">
+             <div className="relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-900 mb-8 border border-zinc-200">
+                   <Target size={24} />
+                </div>
+                <h3 className="text-3xl font-black text-zinc-900 mb-4 tracking-tighter uppercase italic">
+                  No Noise. <br /> Just Signal.
+                </h3>
+                <p className="text-zinc-500 font-bold">
+                  No engagement farming. No followers. No algorithmic manipulation. Just progress updates from the people building the future.
+                </p>
+             </div>
+             
+             <div className="absolute -bottom-10 -right-10 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
+                <Layers size={300} strokeWidth={1} />
+             </div>
+          </div>
+
+          {/* 4. Institutional Reality (7 cols) */}
+          <div className="md:col-span-7 group bg-zinc-50 border border-zinc-200 rounded-[3rem] p-10 transition-all duration-700 relative overflow-hidden flex flex-col md:flex-row gap-10 items-center h-[400px]">
+             <div className="flex-1 relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500 flex items-center justify-center text-white mb-8 shadow-xl shadow-emerald-100">
+                   <ShieldCheck size={24} />
+                </div>
+                <h3 className="text-3xl font-black text-zinc-900 mb-4 tracking-tighter uppercase italic">
+                  Cryptographic <br /> Integrity
+                </h3>
+                <p className="text-zinc-500 font-bold">
+                  Every update is timestamped and verified. We create a shared reality of execution that investors can trust without the friction of reporting.
+                </p>
+             </div>
+
+             <div className="w-full md:w-1/2 relative h-full flex items-center justify-center">
+                <div className="relative">
+                   <div className="w-40 h-40 rounded-full border border-zinc-200 flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
+                      <Fingerprint size={80} className="text-zinc-300 group-hover:text-emerald-500 transition-colors" />
+                   </div>
+                   <div className="absolute -top-4 -right-4 bg-white border border-zinc-200 p-3 rounded-2xl shadow-xl animate-bounce">
+                      <ShieldCheck size={20} className="text-emerald-500" />
+                   </div>
+                </div>
+             </div>
+          </div>
+
         </div>
-        <div className="col-span-5 h-fit border-2 border-zinc-300 relative p-4 rounded-2xl">
-          <div className="h-12 w-12 rounded-full border-2 border-zinc-300 absolute top-8 left-3 bg-black flex items-center justify-center text-3xl font-semibold text-white">
-            2
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="">
-              <div className="ml-16 mt-2 text-2xl font-medium">
-                Metrics That Matter
-              </div>
-              <div className="ml-16 text-zinc-500">
-                Track user growth, engagement, and milestones.
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-center relative">
-            <Image
-              src="/areachart.png"
-              alt="areachart"
-              width={500}
-              height={500}
-              className="grayscale"
-            />
-            <MagneticCursor className="absolute top-33 left-3 border border-zinc-300 text-xs font-medium px-2 py-0.5 rounded-full text-zinc-500 bg-zinc-300/20">
-              +12% new users
-            </MagneticCursor>
-            <MagneticCursor className="border absolute top-55 right-5 border-zinc-300 text-sm font-medium px-2 py-0.5 rounded-full text-zinc-500 bg-zinc-300/20">
-              +$500 MRR
-            </MagneticCursor>
-            <MagneticCursor className="border absolute top-30 border-zinc-300 text-[10px] font-medium px-2 py-0.5 rounded-full text-zinc-500 bg-zinc-300/20">
-              -2% churn rate
-            </MagneticCursor>
-          </div>
-          <div className=" flex items-center justify-between space-x-2 mx-3 mt-3">
-            <div className=" flex items-center space-x-2 mx-3 mt-3">
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/1572/1572748.png"
-                alt="novapay"
-                className="h-10 w-10 border border-blue-500 p-1 rounded-full"
-              />
-              <p className="">Nova Pay</p>
-            </div>
-            <div className="h-2 w-2 bg-green-600 rounded-full animate-pulse" />
-          </div>
-        </div>
-        <div className="col-span-7 h-71.5 border-2 border-zinc-300 relative p-4 rounded-2xl -mt-75">
-          <div className="h-12 w-12 rounded-full border-2 border-zinc-300 absolute top-5 right-5 bg-black flex items-center justify-center text-3xl font-semibold text-white">
-            3
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="">
-              <div className="ml-6 mt-2 text-2xl font-medium">
-                Visibility without the noise
-              </div>
-              <div className="ml-6 pr-20 text-zinc-500">
-                No engagement farming, no algorithms rewarding hype, just real
-                updates from founders.
-              </div>
-            </div>
-          </div>
-          <MagneticCursor className="absolute left-30 top-30">
-            <div className="relative flex items-center justify-center mt-10 w-24 h-24 border-2 border-zinc-300 rounded-full p-4">
-              <ThumbsUp width={80} height={80} className="text-zinc-500" />
-              <Ban
-                className="absolute top-0 right-0 text-red-500/50"
-                width={15}
-                height={15}
-              />
-            </div>
+
+        {/* Floating Accents */}
+        <ScrollParallax isAbsolutelyPositioned strength={0.1}>
+          <MagneticCursor className="absolute top-1/4 -left-20 bg-white/70 backdrop-blur-xl border border-zinc-200 text-zinc-900 rounded-full font-black uppercase text-[10px] tracking-widest px-6 py-3 shadow-2xl rotate-12">
+            Verified Reality
           </MagneticCursor>
-          <MagneticCursor className="absolute right-30">
-            <div className="relative flex items-center justify-center mt-10 w-30 h-30 border-2 border-zinc-300 rounded-full p-4">
-              <User2Icon width={100} height={100} className="text-zinc-600" />
-              <Ban
-                className="absolute top-0 right-0 text-red-500/80"
-                width={15}
-                height={15}
-              />
-            </div>
+        </ScrollParallax>
+
+        <ScrollParallax isAbsolutelyPositioned strength={0.15}>
+          <MagneticCursor className="absolute bottom-1/4 -right-20 bg-zinc-900 text-white rounded-full font-black uppercase text-[10px] tracking-widest px-6 py-3 shadow-2xl -rotate-12">
+            Proof of Work
           </MagneticCursor>
-        </div>
-        <div className="col-span-12 h-40 border-2 border-zinc-300 relative p-4 -mt-4 rounded-2xl">
-          <div className="h-12 w-12 rounded-full border-2 border-zinc-300 absolute top-4 left-4 bg-black flex items-center justify-center text-3xl font-semibold text-white">
-            4
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="">
-              <div className="ml-16 text-2xl font-medium">
-                Shared Reality, Not Curated Stories
-              </div>
-              <div className="ml-16 pr-20 text-zinc-500">
-                Updates aren’t polished narratives. They’re factual snapshots of
-                progress — visible to everyone, unchanged.
-              </div>
-            </div>
-          </div>
-        </div>
+        </ScrollParallax>
       </div>
-
-      <ScrollParallax isAbsolutelyPositioned strength={0.099}>
-        <MagneticCursor className="absolute top-20 left-5 bg-zinc-300/30 backdrop-blur-xl border border-zinc-400 text-black rounded-lg text-sm px-3 py-1.5 font-medium">
-          No Likes / No Followers
-        </MagneticCursor>
-      </ScrollParallax>
-
-      <ScrollParallax isAbsolutelyPositioned strength={0.099}>
-        <MagneticCursor className="absolute top-62 -right-15 bg-zinc-300/30 backdrop-blur-xl border border-zinc-400 text-black rounded-lg text-sm px-3 py-1.5 font-medium">
-          Progress Is Public
-        </MagneticCursor>
-      </ScrollParallax>
-      <ScrollParallax isAbsolutelyPositioned strength={0.099}>
-        <MagneticCursor className="absolute top-120 -left-30 bg-zinc-300/30 backdrop-blur-xl border border-zinc-400 text-black rounded-lg text-sm px-3 py-1.5 font-medium">
-          Founder-First Environment
-        </MagneticCursor>
-      </ScrollParallax>
     </section>
   );
 };
 
 export default Features;
+

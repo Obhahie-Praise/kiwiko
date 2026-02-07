@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useClickOutside } from "@/hooks/useClickOutside";
 import {
   LogOut,
   Settings,
@@ -20,68 +21,81 @@ const HomeNavProfileBtn = ({
   startup: any;
 }) => {
   const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(menuRef, () => {
+    setOpen(false);
+  });
 
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       {/* Trigger */}
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-zinc-100 transition"
+        className={`flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all active:scale-95 ${open ? 'bg-zinc-100' : 'hover:bg-zinc-100'}`}
       >
-        <img
-          src={session?.user.image as string}
-          width={35}
-          height={35}
-          alt="profile-image"
-          className="rounded-full border-2 border-zinc-200"
-        />
-        <div className="text-left">
-          <p className="text-sm text-zinc-900 font-medium leading-none">
-            {startup?.projectName}
+        <div className="relative">
+          <img
+            src={session?.user.image as string}
+            width={32}
+            height={32}
+            alt="profile-image"
+            className="rounded-full border border-zinc-200 shadow-sm"
+          />
+          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
+        </div>
+        <div className="text-left hidden sm:block">
+          <p className="text-sm text-zinc-900 font-bold tracking-tight leading-none">
+            {startup?.projectName || "My Project"}
           </p>
-          <span className="text-xs text-zinc-500 font-medium capitalize">
-            {startup.userRole}
+          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-1 block">
+            {startup?.userRole || "Founder"}
           </span>
         </div>
         <ChevronDown
-          width={15}
-          height={15}
-          className={`transition ${open ? "rotate-180" : ""}`}
+          width={14}
+          height={14}
+          className={`text-zinc-400 transition-transform duration-200 ${open ? "rotate-180 text-zinc-900" : ""}`}
         />
       </button>
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 mt-2 w-72 rounded-xl border border-zinc-200 bg-white shadow-lg p-2 z-50">
+        <div className="absolute right-0 mt-3 w-72 rounded-2xl border border-zinc-200 bg-white shadow-2xl p-2 z-[100] animate-in fade-in zoom-in-95 duration-150 origin-top-right">
           {/* Identity */}
-          <div className="px-3 py-2">
-            <p className="text-sm font-medium text-zinc-900">
-              {startup?.projectName}
+          <div className="px-4 py-3 bg-zinc-50 rounded-xl mb-2">
+            <p className="text-sm font-bold text-zinc-900 leading-none">
+              {startup?.projectName || "My Project"}
             </p>
-            <p className="text-xs text-zinc-500">Founder • Pre-seed</p>
-          </div>
-
-          <div className="my-2 h-px bg-zinc-200" />
-
-          {/* Actions */}
-          <DropdownItem icon={User} label="View profile" />
-          <DropdownItem icon={Settings} label="Account settings" />
-          <DropdownItem icon={Building2} label="Startup settings" />
-          <DropdownItem icon={ArrowRightLeft} label="Switch startup" />
-
-          <div className="my-2 h-px bg-zinc-200" />
-
-          {/* Context */}
-          <div className="px-3 py-2 text-xs text-zinc-500 space-y-1">
-            <p>
-              Role: <span className="text-zinc-700">Founder</span>
-            </p>
-            <p>
-              Visibility: <span className="text-zinc-700">Public</span>
+            <p className="text-xs font-medium text-zinc-500 mt-1.5 flex items-center gap-2">
+              <span className="w-1 h-1 bg-zinc-300 rounded-full" />
+              Founder • Pre-seed
             </p>
           </div>
 
-          <div className="my-2 h-px bg-zinc-200" />
+          <div className="space-y-0.5">
+            <DropdownItem icon={User} label="View profile" />
+            <DropdownItem icon={Settings} label="Account settings" />
+            <DropdownItem icon={Building2} label="Startup settings" />
+            <DropdownItem icon={ArrowRightLeft} label="Switch startup" />
+          </div>
+
+          <div className="my-2 px-2">
+            <div className="h-px bg-zinc-100" />
+          </div>
+
+          <div className="px-4 py-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest space-y-2">
+            <p className="flex justify-between">
+              Current Role: <span className="text-zinc-600">Founder</span>
+            </p>
+            <p className="flex justify-between">
+              Visibility: <span className="text-emerald-600">Public</span>
+            </p>
+          </div>
+
+          <div className="my-2 px-2">
+            <div className="h-px bg-zinc-100" />
+          </div>
 
           {/* Sign out */}
           <DropdownItem icon={LogOut} label="Sign out" destructive />
@@ -106,14 +120,14 @@ function DropdownItem({
 }) {
   return (
     <button
-      className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group
         ${
           destructive
-            ? "text-red-600 hover:bg-red-50"
-            : "text-zinc-700 hover:bg-zinc-100"
+            ? "text-red-500 hover:bg-red-50"
+            : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
         }`}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className={`h-4 w-4 transition-colors ${destructive ? 'text-red-400 group-hover:text-red-600' : 'text-zinc-400 group-hover:text-zinc-900'}`} />
       {label}
     </button>
   );

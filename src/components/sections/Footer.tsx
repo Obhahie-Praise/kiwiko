@@ -1,114 +1,68 @@
-// components/Footer.tsx
-"use client";
-
 import Link from "next/link";
+import Image from "next/image";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-neutral-200 bg-white">
-      <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-12 sm:grid-cols-2 md:grid-cols-4">
+    <footer className="bg-white border-t border-zinc-100">
+      <div className="mx-auto max-w-7xl px-6 py-15">
+        <div className="grid gap-16 md:grid-cols-12">
           {/* Brand */}
-          <div>
-            <h3 className="text-lg font-semibold text-neutral-900">Kiwiko</h3>
-            <p className="mt-4 text-sm text-neutral-600 max-w-xs">
-              Discover real data from real startups.
+          <div className="md:col-span-4 space-y-8">
+            <div className="flex items-center gap-2">
+               <Image src="/neutral-logo.svg" alt="logo" width={24} height={24} />
+               <h3 className="text-xl font-black italic uppercase tracking-tighter">Kiwiko</h3>
+            </div>
+            <p className="text-zinc-500 font-bold text-lg leading-relaxed max-w-sm">
+              The high-conviction infrastructure for verifiable venture execution.
             </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 text-[10px] font-black uppercase tracking-widest italic">
+               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+               Audited Data Only
+            </div>
           </div>
 
-          {/* Product */}
-          <div>
-            <h4 className="text-sm font-semibold text-neutral-900">
-              Product
-            </h4>
-            <ul className="mt-4 space-y-3 text-sm text-neutral-600">
-              <li>
-                <Link href="/how-it-works" className="hover:text-neutral-900">
-                  How it works
-                </Link>
-              </li>
-              <li>
-                <Link href="/activity" className="hover:text-neutral-900">
-                  Recent activity
-                </Link>
-              </li>
-              <li>
-                <Link href="/features" className="hover:text-neutral-900">
-                  Features
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Links Grid */}
+          <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-12">
+             <div className="space-y-4">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Protocol</h4>
+                <ul className="space-y-2">
+                  <li><Link href="#activity" className="text-xs font-black uppercase tracking-widest text-zinc-900 hover:text-emerald-500 transition-colors">Activity</Link></li>
+                  <li><Link href="#features" className="text-xs font-black uppercase tracking-widest text-zinc-900 hover:text-emerald-500 transition-colors">Features</Link></li>
+                  <li><Link href="#testimonials" className="text-xs font-black uppercase tracking-widest text-zinc-900 hover:text-emerald-500 transition-colors">Testimonials</Link></li>
+                </ul>
+             </div>
 
-          {/* Resources */}
-          <div>
-            <h4 className="text-sm font-semibold text-neutral-900">
-              Resources
-            </h4>
-            <ul className="mt-4 space-y-3 text-sm text-neutral-600">
-              <li>
-                <Link href="/resources/guides" className="hover:text-neutral-900">
-                  Guides
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/resources/templates"
-                  className="hover:text-neutral-900"
-                >
-                  Templates
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/resources/metrics"
-                  className="hover:text-neutral-900"
-                >
-                  Metrics explained
-                </Link>
-              </li>
-            </ul>
-          </div>
+             <div className="space-y-4">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Ecosystem</h4>
+                <ul className="space-y-2">
+                  <li><Link href="/resources" className="text-xs font-black uppercase tracking-widest text-zinc-900 hover:text-emerald-500 transition-colors">Resources</Link></li>
+                  <li><Link href="/discover" className="text-xs font-black uppercase tracking-widest text-zinc-900 hover:text-emerald-500 transition-colors">Ventures</Link></li>
+                  <li><Link href="/principles" className="text-xs font-black uppercase tracking-widest text-zinc-900 hover:text-emerald-500 transition-colors">Principles</Link></li>
+                </ul>
+             </div>
 
-          {/* Company */}
-          <div>
-            <h4 className="text-sm font-semibold text-neutral-900">
-              Company
-            </h4>
-            <ul className="mt-4 space-y-3 text-sm text-neutral-600">
-              <li>
-                <Link href="/about" className="hover:text-neutral-900">
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link href="/principles" className="hover:text-neutral-900">
-                  Principles
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-neutral-900">
-                  Contact
-                </Link>
-              </li>
-            </ul>
+             <div className="space-y-4">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Legal</h4>
+                <ul className="space-y-2">
+                  <li><Link href="/privacy" className="text-xs font-black uppercase tracking-widest text-zinc-900 hover:text-emerald-500 transition-colors">Privacy</Link></li>
+                  <li><Link href="/terms" className="text-xs font-black uppercase tracking-widest text-zinc-900 hover:text-emerald-500 transition-colors">Terms</Link></li>
+                  <li><Link href="/contact" className="text-xs font-black uppercase tracking-widest text-zinc-900 hover:text-emerald-500 transition-colors">Contact</Link></li>
+                </ul>
+             </div>
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-neutral-200 pt-8 sm:flex-row sm:items-center">
-          <p className="text-sm text-neutral-500">
-            © {new Date().getFullYear()} Kiwiko. All rights reserved.
-          </p>
-
-          <div className="flex gap-6 text-sm text-neutral-500">
-            <Link href="/privacy" className="hover:text-neutral-900">
-              Privacy
-            </Link>
-            <Link href="/terms" className="hover:text-neutral-900">
-              Terms
-            </Link>
-          </div>
+        {/* Bottom Section */}
+        <div className="mt-24 pt-12 border-t border-zinc-100 flex flex-col md:flex-row items-center justify-between gap-8">
+           <div className="flex items-center gap-6 text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">
+              <span>© {new Date().getFullYear()} KIWIKO CORP</span>
+              <span className="text-zinc-200">/</span>
+              <span>EST. 2024</span>
+           </div>
+           
+           <div className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.3em] flex items-center gap-3 italic">
+              Built for the <span className="bg-zinc-900 text-white px-2 py-0.5 rounded">Venture industry</span>
+           </div>
         </div>
       </div>
     </footer>
@@ -116,3 +70,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

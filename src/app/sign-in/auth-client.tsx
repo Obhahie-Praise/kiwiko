@@ -1,8 +1,10 @@
 "use client";
-import { authCallBack } from "@/lib/actions/server-actions";
+
 import { signIn } from "@/lib/auth-client";
 import { EyeClosedIcon, EyeIcon, LoaderCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { organizations } from "@/constants";
 
 const AuthClient = () => {
   const [password, setPassword] = useState("");
@@ -10,8 +12,9 @@ const AuthClient = () => {
   const [seePassword, setSeePassword] = useState(false);
   const [error, setError] = useState<null | string>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsAuthenticating(true);
     setError(null);
@@ -21,9 +24,14 @@ const AuthClient = () => {
     if (res.error) {
       setError(res.error.message || "Something went wrong.");
       setIsAuthenticating(false);
-    } else {
       return;
     }
+
+    // Successful sign-in – redirect to first organization's projects page
+    // Get the first non-personal organization
+    const firstOrg = organizations.find(org => org.type !== "Personal") || organizations[0];
+    router.push(`/${firstOrg.slug}/projects`);
+    setIsAuthenticating(false);
   };
   return (
     <form className="space-y-2" onSubmit={handleSubmit}>
@@ -66,8 +74,9 @@ const AuthClient = () => {
       </div>
 
       <button
+        type="submit"
         className="text-center w-full py-3 font-medium mt-4 bg-black text-white rounded-lg flex items-center justify-center"
-        onClick={authCallBack}
+        disabled={isAuthenticating}
       >
         {isAuthenticating ? (
           <LoaderCircle className="animate-spin" width={30} height={30} />
@@ -77,7 +86,7 @@ const AuthClient = () => {
       </button>
       <div className="w-full relative text-center">
         {error && (
-          <p className="absolute w-full top-3 text-red-500 bg-red-500/20 py-1.5 border border-red-500 rounded-lg">
+          <p className="absolute w-full top-10 text-red-500 bg-red-500/20 py-1.5 border border-red-500 rounded-lg">
             {error}
           </p>
         )}

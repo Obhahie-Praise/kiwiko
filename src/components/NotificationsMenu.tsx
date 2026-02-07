@@ -1,7 +1,8 @@
 "use client";
 import { notifications } from "@/constants";
 import { Bell } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useClickOutside } from "@/hooks/useClickOutside";
 import {
   Eye,
   Rocket,
@@ -20,79 +21,96 @@ const NotificationsMenu = () => {
     alert: AlertTriangle,
     banknote: Banknote,
   };
+  
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(menuRef, () => {
+    setIsOpen(false);
+  });
+
   return (
-      <div className="relative p-1.5 bg-zinc-200 text-zinc-700 rounded-full cursor-pointer scroll-mod" onClick={() => {
-        setIsOpen(!isOpen)
-      }}>
-        <Bell width={15} height={15} className="" />
-        <div className="absolute h-2 w-2 bg-red-500 -top-0.5 -right-0.5 rounded-full" />
+      <div className="relative" ref={menuRef}>
+        <div 
+          className={`p-1.5 rounded-full cursor-pointer transition-colors relative ${isOpen ? 'bg-zinc-300 text-zinc-900' : 'bg-zinc-200 text-zinc-700 hover:bg-zinc-300 hover:text-zinc-900'}`}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <Bell width={15} height={15} />
+          <div className="absolute h-1.5 w-1.5 bg-red-500 -top-0.5 -right-0.5 rounded-full border border-white" />
+        </div>
       
-      <div className={`z-1 w-90 bg-white border border-zinc-200 rounded-xl shadow-lg overflow-hidden absolute -left-91 ${isOpen ? "block" : "hidden"}`}>
-        {/* Header */}
-        <div className="px-4 py-3 border-b border-zinc-200">
-          <h3 className="text-sm font-semibold text-zinc-900">Notifications</h3>
-        </div>
+        {isOpen && (
+          <div className="z-[100] w-90 bg-white border border-zinc-200 rounded-2xl shadow-2xl overflow-hidden absolute right-0 top-10 animate-in fade-in zoom-in-95 duration-150 origin-top-right">
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
+              <h3 className="text-sm font-bold text-zinc-900">Notifications</h3>
+              <span className="text-[10px] font-bold bg-zinc-900 text-white px-2 py-0.5 rounded-full">
+                {notifications.filter(n => !n.seen).length} NEW
+              </span>
+            </div>
 
-        {/* List */}
-        <ul className="max-h-90 overflow-y-auto p-1 space-y-0.5">
-          {notifications.map((notification) => {
-            const Icon = iconMap[notification.icon];
+            {/* List */}
+            <ul className="max-h-96 overflow-y-auto p-1.5 space-y-1 bg-white">
+              {notifications.map((notification) => {
+                const Icon = iconMap[notification.icon] || Eye;
 
-            return (
-              <li
-                key={notification.id}
-                className={`flex gap-3 px-4 py-3 cursor-pointer transition-colors border-b border-zinc-200 rounded-xl
-                ${
-                  notification.seen
-                    ? "bg-zinc-200 hover:bg-zinc-100"
-                    : "bg-white hover:bg-zinc-50"
-                }
-              `}
-              >
-                {/* Icon */}
-                <div className="mt-1">
-                  <Icon className="w-4 h-4 text-zinc-800" />
-                </div>
+                return (
+                  <li
+                    key={notification.id}
+                    className={`flex gap-4 px-4 py-3 cursor-pointer transition-all rounded-xl border border-transparent
+                    ${
+                      notification.seen
+                        ? "bg-white hover:bg-zinc-50"
+                        : "bg-zinc-50 hover:bg-zinc-100 border-zinc-100"
+                    }
+                  `}
+                  >
+                    {/* Icon */}
+                    <div className={`mt-0.5 p-2 rounded-lg h-fit ${notification.seen ? 'bg-zinc-100 text-zinc-500' : 'bg-zinc-900 text-white'}`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
 
-                {/* Content */}
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <p
-                      className={`text-sm ${
-                        notification.seen
-                          ? "font-semibold text-zinc-900"
-                          : "font-medium text-zinc-900"
-                      }`}
-                    >
-                      {notification.title}
-                    </p>
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p
+                          className={`text-sm tracking-tight truncate ${
+                            notification.seen
+                              ? "font-medium text-zinc-600"
+                              : "font-bold text-zinc-900"
+                          }`}
+                        >
+                          {notification.title}
+                        </p>
 
-                    {notification.seen && (
-                      <span className="w-2 h-2 rounded-full bg-black" />
-                    )}
-                  </div>
+                        {!notification.seen && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                        )}
+                      </div>
 
-                  <p className="text-xs text-zinc-600 mt-0.5 line-clamp-2">
-                    {notification.message}
-                  </p>
+                      <p className={`text-xs mt-0.5 line-clamp-2 leading-relaxed ${notification.seen ? 'text-zinc-500' : 'text-zinc-600'}`}>
+                        {notification.message}
+                      </p>
 
-                  <span className="text-[11px] text-zinc-500 mt-1 block">
-                    {notification.createdAt}
-                  </span>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-[10px] font-medium text-zinc-400">
+                          {notification.createdAt}
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
 
-        {/* Footer */}
-        <div className="px-4 py-2 border-t border-zinc-200 text-center">
-          <button className="text-xs font-medium text-zinc-800 hover:underline">
-            View all notifications
-          </button>
-        </div>
-        </div>
+            {/* Footer */}
+            <div className="px-5 py-3 border-t border-zinc-100 text-center bg-zinc-50/50">
+              <button className="text-xs font-bold text-zinc-900 hover:text-black transition-colors">
+                Mark all as read
+              </button>
+            </div>
+          </div>
+        )}
       </div>
   );
 };

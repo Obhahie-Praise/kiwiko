@@ -1,138 +1,116 @@
+export const organizations = [
+  { id: "org1", name: "Open AI", slug: "open-ai", type: "Enterprise" },
+  { id: "org2", name: "Kiwiko Corp", slug: "kiwiko-corp", type: "Startup" },
+  { id: "org3", name: "Personal", slug: "personal", type: "Personal" },
+  { id: "org4", name: "Nebula Labs", slug: "nebula-labs", type: "Startup" },
+  { id: "org5", name: "Atlas Systems", slug: "atlas-systems", type: "Enterprise" },
+  { id: "org6", name: "Zenith Hub", slug: "zenith-hub", type: "Startup" },
+];
+
 export const recentActivity = [
   {
+    name: "Codex",
+    logo: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2832&auto=format&fit=crop",
+    tagline: "The neural engine for distributed systems.",
+    lastUpdate: "Shipped v2.1 of core engine – 2 days ago",
+    miniMetric: "12k active nodes",
+    tags: ["Infrastructure", "AI", "Distributed"],
+    profileLink: "/codex",
+    niche: "AI",
+    funding: "₦150M",
+    traction: "12k users",
+    stage: "Seed",
+  },
+  {
     name: "NovaPay",
-    logo: "https://cdn-icons-png.flaticon.com/512/1572/1572748.png",
-    tagline: "Simplifying payments for small businesses",
-    lastUpdate: "Shipped v0.3 of dashboard – 3 days ago",
-    miniMetric: "+120 users this week",
+    logo: "https://images.unsplash.com/photo-1621416848440-236914c7447d?q=80&w=2832&auto=format&fit=crop",
+    tagline: "Frictionless cross-border settlements.",
+    lastUpdate: "Integrated SWIFT gpi – today",
+    miniMetric: "+₦50M processed",
     tags: ["Fintech", "Payments", "SaaS"],
     profileLink: "/novapay",
+    niche: "Fintech",
+    funding: "₦30M",
+    traction: "2.4k users",
+    stage: "MVP",
   },
   {
-    name: "GreenLeaf AI",
-    logo: "https://cdn-icons-png.flaticon.com/512/8744/8744839.png",
-    tagline: "AI-powered sustainability insights",
-    lastUpdate: "Deployed v1.1 bug fixes – today",
-    miniMetric: "+8% engagement growth",
-    tags: ["AI", "Sustainability", "Analytics"],
-    profileLink: "/greenleaf-ai",
+    name: "GPT-5",
+    logo: "https://images.unsplash.com/photo-1675271591211-126ad94e495d?q=80&w=2832&auto=format&fit=crop",
+    tagline: "The pinnacle of language understanding.",
+    lastUpdate: "Alpha testing started – 1 hour ago",
+    miniMetric: "99.9% accuracy",
+    tags: ["AI", "LLM", "Compute"],
+    profileLink: "/gpt-5",
+    niche: "AI",
+    funding: "₦500M",
+    traction: "100k users",
+    stage: "Growth",
   },
   {
-    name: "Evently",
-    logo: "https://cdn-icons-png.flaticon.com/512/1572/1572748.png",
-    tagline: "Smart event management made easy",
-    lastUpdate: "Launched new RSVP flow – 1 day ago",
-    miniMetric: "+45 signups",
-    tags: ["Events", "SaaS", "Productivity"],
-    profileLink: "/evently",
+    name: "Nebula OS",
+    logo: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2832&auto=format&fit=crop",
+    tagline: "Cloud computing without the overhead.",
+    lastUpdate: "Launched v3 public beta – 4 hours ago",
+    miniMetric: "8k active shards",
+    tags: ["Cloud", "OS", "SaaS"],
+    profileLink: "/nebula-os",
+    niche: "SaaS",
+    funding: "₦120M",
+    traction: "8k users",
+    stage: "Growth",
   },
   {
-    name: "TrackMate",
-    logo: "https://cdn-icons-png.flaticon.com/512/5241/5241750.png",
-    tagline: "Real-time delivery tracking platform",
-    lastUpdate: "Released driver tracking map – 2 days ago",
-    miniMetric: "+15% delivery speed",
-    tags: ["Logistics", "Tracking", "SaaS"],
-    profileLink: "/trackmate",
+    name: "Atlas Grid",
+    logo: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2832&auto=format&fit=crop",
+    tagline: "Industrial IoT at the edge.",
+    lastUpdate: "Deployed to 12 new sites – 6 hours ago",
+    miniMetric: "50 enterprise nodes",
+    tags: ["IoT", "Edge", "Energy"],
+    profileLink: "/atlas-grid",
+    niche: "Climate",
+    funding: "₦300M",
+    traction: "50 clients",
+    stage: "Growth",
   },
   {
-    name: "Codo",
-    logo: "https://cdn-icons-png.flaticon.com/512/5241/5241750.png",
-    tagline: "Collaborative coding for teams",
-    lastUpdate: "Added dark mode feature – today",
-    miniMetric: "+200 active users",
-    tags: ["Productivity", "Coding", "Collaboration"],
-    profileLink: "/codo",
+    name: "DALL-E 4",
+    logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2832&auto=format&fit=crop",
+    tagline: "Dreaming in high definition.",
+    lastUpdate: "Improved shading model – 3 days ago",
+    miniMetric: "1M images gen'd",
+    tags: ["Design", "AI", "Generative"],
+    profileLink: "/dall-e-4",
+    niche: "AI",
+    funding: "₦100M",
+    traction: "25k users",
+    stage: "MVP",
   },
   {
-    name: "FitLoop",
-    logo: "https://cdn-icons-png.flaticon.com/512/1572/1572748.png",
-    tagline: "Personalized fitness journeys",
-    lastUpdate: "Updated workout analytics – 4 days ago",
-    miniMetric: "+35 new subscribers",
-    tags: ["Health", "Fitness", "SaaS"],
-    profileLink: "/fitloop",
-  },
-  {
-    name: "ShopSwift",
-    logo: "https://cdn-icons-png.flaticon.com/512/8744/8744839.png",
-    tagline: "Fast checkout solutions for e-commerce",
-    lastUpdate: "Integrated Stripe payments – today",
-    miniMetric: "+75 transactions processed",
-    tags: ["E-commerce", "Fintech", "SaaS"],
-    profileLink: "/shopswift",
-  },
-  {
-    name: "MindScope",
-    logo: "https://cdn-icons-png.flaticon.com/512/1572/1572748.png",
-    tagline: "AI-driven mental wellness insights",
-    lastUpdate: "Launched mood tracker v2 – 2 days ago",
-    miniMetric: "+150 daily active users",
-    tags: ["AI", "Health", "Analytics"],
-    profileLink: "/mindscope",
-  },
-  {
-    name: "Planrly",
-    logo: "https://cdn-icons-png.flaticon.com/512/5241/5241750.png",
-    tagline: "Smart project planning for teams",
-    lastUpdate: "Released timeline view – yesterday",
-    miniMetric: "+30 projects created",
-    tags: ["Productivity", "Project Management", "SaaS"],
-    profileLink: "/planrly",
-  },
-  {
-    name: "ByteBloom",
-    logo: "https://cdn-icons-png.flaticon.com/512/1572/1572748.png",
-    tagline: "AI content generation platform",
-    lastUpdate: "Shipped blog generator v1.2 – 3 days ago",
-    miniMetric: "+60 blogs generated",
-    tags: ["AI", "Content", "SaaS"],
-    profileLink: "/bytebloom",
+    name: "Stellar Auth",
+    logo: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2832&auto=format&fit=crop",
+    tagline: "Identity management for galactic scale.",
+    lastUpdate: "Biometric login live – 2 days ago",
+    miniMetric: "3k verified IDs",
+    tags: ["Auth", "Security", "SaaS"],
+    profileLink: "/stellar-auth",
+    niche: "SaaS",
+    funding: "₦40M",
+    traction: "3k users",
+    stage: "Beta",
   },
   {
     name: "EcoRoute",
-    logo: "https://cdn-icons-png.flaticon.com/512/8744/8744839.png",
-    tagline: "Optimized delivery routes for sustainability",
-    lastUpdate: "Updated routing algorithm – today",
-    miniMetric: "-12% CO₂ emissions",
-    tags: ["Logistics", "Sustainability", "AI"],
+    logo: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=2832&auto=format&fit=crop",
+    tagline: "Sustainable logistics through optimized routing.",
+    lastUpdate: "Optimization v4 live – today",
+    miniMetric: "15k routes optimized",
+    tags: ["Logistics", "Green", "AI"],
     profileLink: "/ecoroute",
-  },
-  {
-    name: "LearnLoop",
-    logo: "https://cdn-icons-png.flaticon.com/512/5241/5241750.png",
-    tagline: "Adaptive learning for online courses",
-    lastUpdate: "Added gamification badges – yesterday",
-    miniMetric: "+80 learners this week",
-    tags: ["Education", "SaaS", "Gamification"],
-    profileLink: "/learnloop",
-  },
-  {
-    name: "TaskHive",
-    logo: "https://cdn-icons-png.flaticon.com/512/1572/1572748.png",
-    tagline: "Team task management made simple",
-    lastUpdate: "Released recurring tasks feature – 2 days ago",
-    miniMetric: "+40 active teams",
-    tags: ["Productivity", "Task Management", "Collaboration"],
-    profileLink: "/taskhive",
-  },
-  {
-    name: "SnapCart",
-    logo: "https://cdn-icons-png.flaticon.com/512/8744/8744839.png",
-    tagline: "Scan-to-buy shopping app",
-    lastUpdate: "Added QR checkout – today",
-    miniMetric: "+300 checkouts processed",
-    tags: ["E-commerce", "Retail", "Fintech"],
-    profileLink: "/snapcart",
-  },
-  {
-    name: "VoltEdge",
-    logo: "https://cdn-icons-png.flaticon.com/512/5241/5241750.png",
-    tagline: "Energy analytics for smart grids",
-    lastUpdate: "Released dashboard v1.5 – 1 day ago",
-    miniMetric: "+10% energy savings",
-    tags: ["Energy", "Analytics", "SaaS"],
-    profileLink: "/voltedge",
+    niche: "Climate",
+    funding: "₦200M",
+    traction: "15k users",
+    stage: "Growth",
   },
 ];
 
@@ -309,13 +287,7 @@ export const completeOnboarding = [
   },
 ];
 
-import {
-  Code2,
-  Megaphone,
-  Users,
-  Eye,
-  Sparkles,
-} from "lucide-react";
+import { Code2, Megaphone, Users, Eye, Sparkles } from "lucide-react";
 
 export const recentActivities = [
   {
@@ -486,7 +458,6 @@ export const activityMetrics = [
   },
 ];
 
-
 export const executionEvents = [
   {
     date: "2025-01-03",
@@ -540,8 +511,7 @@ export const discoveryTabs = [
   { id: "forYou", label: "For You", icon: Sparkles },
 ] as const;
 
-export type StartupCategory =
-  (typeof discoveryTabs)[number]["id"];
+export type StartupCategory = (typeof discoveryTabs)[number]["id"];
 
 /* =========================
    NICHES
@@ -556,8 +526,7 @@ export const niches = [
   "Climate",
 ] as const;
 
-export type StartupNiche =
-  (typeof niches)[number];
+export type StartupNiche = (typeof niches)[number];
 
 export const nicheIcons = {
   AI: Brain,
@@ -588,7 +557,6 @@ export type DiscoveryStartup = {
   traction: string;
   image: string;
 };
-
 
 /* export const startup: Startup[] = [
   {
@@ -665,55 +633,6 @@ export const names = [
   "Zenith Analytics",
 ];
 
-export const startups: DiscoveryStartup[] = Array.from(
-  { length: 70 },
-  (_, i) => {
-    const niche = niches[i % niches.length];
-    const category = discoveryTabs[i % discoveryTabs.length].id;
-
-    return {
-      id: `s-${i + 1}`,
-
-      name: `${names[i % names.length]} ${i + 1}`,
-
-      desc:
-        "Building scalable tech solving real-world problems with strong execution focus.",
-
-      niche,
-      category,
-
-      stage: [
-        "Idea",
-        "MVP",
-        "Beta",
-        "Growth",
-        "Scaling",
-      ][i % 5] as DiscoveryStartup["stage"],
-
-      funding: [
-        "$0",
-        "$10k",
-        "$50k",
-        "$100k",
-        "$500k",
-        "$1M+",
-      ][i % 6],
-
-      traction: [
-        "Pre-launch",
-        "100 users",
-        "500 users",
-        "2k users",
-        "10k users",
-        "50k users",
-      ][i % 6],
-
-      image: `https://i.pinimg.com/1200x/df/5b/05/df5b0517ad5ebf1d1790dc3f8bf2f9a7.jpg`,
-    };
-  }
-);
-
-
 // data/emails.ts
 export const emails = [
   {
@@ -779,7 +698,6 @@ Keep pushing 🚀
   },
 ];
 
-
 // data/notifications.ts
 export const notificationsPage = [
   {
@@ -820,19 +738,266 @@ export const notificationsPage = [
   },
 ];
 
-export type TeamMember = {
-  id: string
-  name: string
-  role: "Founder" | "Engineer" | "Designer" | "Marketing"
-  avatar: string
-  joinedAt: string
-  contributions: number
-  online: boolean
-}
-
 export type Message = {
-  id: string
-  userId: string
-  content: string
-  createdAt: string
-}
+  id: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+};
+
+export type TeamMember = {
+  id: string;
+  name: string;
+  role:
+    | "Founder"
+    | "Engineer"
+    | "Designer"
+    | "Product Manager"
+    | "Marketing"
+    | "Data Analyst"
+    | "Community Manager";
+  email: string;
+  avatar: string;
+  joinedAt: string;
+  status: "active" | "busy" | "offline";
+};
+
+export const teamMembers: TeamMember[] = [
+  {
+    id: "t1",
+    name: "Praise Obhahie",
+    role: "Founder",
+    email: "praise@nova.ai",
+    avatar: "https://images.unsplash.com/photo-1607746882042-944635dfe10e",
+    joinedAt: "Jan 2024",
+    status: "active",
+  },
+  {
+    id: "t2",
+    name: "Daniel Mensah",
+    role: "Engineer",
+    email: "daniel@nova.ai",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+    joinedAt: "Feb 2024",
+    status: "active",
+  },
+  {
+    id: "t3",
+    name: "Amara Okafor",
+    role: "Designer",
+    email: "amara@nova.ai",
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+    joinedAt: "Mar 2024",
+    status: "busy",
+  },
+  {
+    id: "t4",
+    name: "Joshua Ade",
+    role: "Product Manager",
+    email: "joshua@nova.ai",
+    avatar: "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126",
+    joinedAt: "Apr 2024",
+    status: "active",
+  },
+  {
+    id: "t5",
+    name: "Fatima Bello",
+    role: "Marketing",
+    email: "fatima@nova.ai",
+    avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1",
+    joinedAt: "May 2024",
+    status: "offline",
+  },
+  {
+    id: "t6",
+    name: "Michael Chen",
+    role: "Data Analyst",
+    email: "michael@nova.ai",
+    avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5",
+    joinedAt: "Jun 2024",
+    status: "active",
+  },
+  {
+    id: "t7",
+    name: "Zainab Lawal",
+    role: "Community Manager",
+    email: "zainab@nova.ai",
+    avatar: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df",
+    joinedAt: "Jul 2024",
+    status: "busy",
+  },
+  {
+    id: "t8",
+    name: "Samuel Wright",
+    role: "Engineer",
+    email: "samuel@nova.ai",
+    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d",
+    joinedAt: "Aug 2024",
+    status: "active",
+  },
+];
+
+export const mockRooms = [
+  { id: "r1", name: "general" },
+  { id: "r2", name: "engineering" },
+  { id: "r3", name: "design" },
+];
+
+export const mockMessages = [
+  {
+    id: "m1",
+    user: "Daniel",
+    text: "Just pushed the onboarding flow 🚀",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+    mine: false,
+  },
+  {
+    id: "m2",
+    user: "Amara",
+    text: "UI looks clean!",
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+    mine: false,
+  },
+];
+
+export const mockTasks = [
+  {
+    id: "t1",
+    title: "Finish onboarding UI",
+    desc: "Complete final onboarding step",
+    status: "In Progress",
+    assignee: "Daniel",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+    priority: "High",
+    due: "Tomorrow",
+  },
+  {
+    id: "t2",
+    title: "Setup funding dashboard",
+    desc: "Create analytics charts",
+    status: "Backlog",
+    assignee: "Amara",
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+    priority: "Medium",
+    due: "Fri",
+  },
+];
+
+export const mockActivity = [
+  {
+    id: "a1",
+    text: "Daniel completed API integration",
+    time: "2h ago",
+  },
+  {
+    id: "a2",
+    text: "Praise created 3 new tasks",
+    time: "4h ago",
+  },
+];
+
+export const members = [
+  {
+    id: "m1",
+    name: "Praise",
+    role: "Founder",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+  },
+  {
+    id: "m2",
+    name: "Amara",
+    role: "Designer",
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+  },
+];
+
+export const contributions = [
+  {
+    memberId: "m1",
+    tasks: 18,
+    messages: 64,
+    score: 92,
+  },
+  {
+    memberId: "m2",
+    tasks: 12,
+    messages: 48,
+    score: 75,
+  },
+];
+
+export const activityFeed = [
+  {
+    id: "a1",
+    text: "Praise shipped funding dashboard",
+    time: "2h ago",
+  },
+  {
+    id: "a2",
+    text: "Amara completed UI redesign",
+    time: "5h ago",
+  },
+];
+
+const projectNames = [
+  "Codex", "Gemini 3", "Opus", "NovaPay", "EcoRoute", "GPT-5", "DALL-E 4", "Whisper Pro", "Sora",
+  "Nebula OS", "Stellar Auth", "Void Storage", "Atlas Grid", "Titan Logistics", "Omni Health",
+  "Zenith", "Lumen", "Quartz", "Aether", "Ion", "Synapse", "Flux", "Core", "Drift", "Pulse",
+  "Velocity", "Gravity", "Shift", "Flow", "Link", "Edge", "Node", "Grid", "Cloud", "Forge"
+];
+
+const mockTags = ["AI", "Fintech", "SaaS", "Climate", "Health", "EdTech"];
+
+export const projects = Array.from({ length: 50 }, (_, i) => {
+  const name = projectNames[i % projectNames.length] + (i >= projectNames.length ? ` ${Math.floor(i / projectNames.length)}` : "");
+  
+  // Distribute projects: 4 to open-ai, 5 to kiwiko-corp, rest to other orgs (not personal)
+  let orgSlug: string;
+  if (i < 4) {
+    // First 4 projects go to Open AI
+    orgSlug = "open-ai";
+  } else if (i < 9) {
+    // Next 5 projects go to Kiwiko Corp
+    orgSlug = "kiwiko-corp";
+  } else {
+    // Remaining projects go to other organizations (not personal, not open-ai, not kiwiko-corp)
+    const otherOrgs = ["nebula-labs", "atlas-systems", "zenith-hub"];
+    orgSlug = otherOrgs[(i - 9) % otherOrgs.length];
+  }
+  
+  const stage = ["Idea", "MVP", "Beta", "Growth", "Scaling"][i % 5];
+  const niche = mockTags[i % mockTags.length];
+
+  return {
+    id: `p${i + 1}`,
+    name,
+    tagline: `${name}: The future of ${niche.toLowerCase()} infrastructure.`,
+    image: `https://images.unsplash.com/photo-${1600000000000 + i}?auto=format&fit=crop&q=80&w=800`,
+    niche,
+    branch: "main",
+    stage,
+    status: i % 3 === 0 ? "Live" : "Active",
+    progress: Math.floor(Math.random() * 100),
+    invested: `₦${Math.floor(Math.random() * 500)}M`,
+    valuation: `₦${Math.floor(Math.random() * 10)}B`,
+    funding: `₦${Math.floor(Math.random() * 500)}M`,
+    traction: `${Math.floor(Math.random() * 50)}k users`,
+    roi: `${(Math.random() * 15).toFixed(1)}x`,
+    lastUpdate: `${Math.floor(Math.random() * 24)}h ago`,
+    orgSlug,
+  };
+});
+
+// Sync startups with projects for discovery
+export const startups: DiscoveryStartup[] = projects.map(p => ({
+  id: p.id,
+  name: p.name,
+  desc: p.tagline,
+  category: discoveryTabs[Math.floor(Math.random() * discoveryTabs.length)].id,
+  niche: p.niche as StartupNiche,
+  stage: p.stage as DiscoveryStartup["stage"],
+  funding: p.funding,
+  traction: p.traction,
+  image: p.image,
+}));
+

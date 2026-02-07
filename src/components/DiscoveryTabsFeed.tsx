@@ -114,7 +114,7 @@ export default function DiscoveryTabsFeed() {
 
       return (
         <Link
-        href={s.name}
+          href={`/${s.name.toLowerCase().replace(/\s+/g, "-")}`}
           key={s.id}
           className="group border rounded-2xl overflow-hidden bg-white hover:shadow-lg hover:-translate-y-1 transition"
         >

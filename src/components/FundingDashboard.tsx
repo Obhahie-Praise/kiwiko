@@ -42,7 +42,7 @@ export default function FundingDashboard() {
     },
   ];
 
-  <div className="grid grid-cols-4 gap-4">
+  <div className="grid grid-cols-4 gap-4  bg-zinc-50">
     {metrics.map((m) => (
       <div key={m.label} className="border rounded-2xl p-4 space-y-2 bg-white">
         <p className="text-xs text-zinc-500">{m.label}</p>

@@ -6,3 +6,4 @@ import { cache } from "react";
 export const getSession = cache(async () => {
   return auth.api.getSession({ headers: await headers() });
 });
+

@@ -91,7 +91,7 @@ e.preventDefault()
       </button>
       <div className="w-full relative text-center">
               {error && (
-                <p className="absolute w-full top-3 text-red-500 bg-red-500/20 py-1.5 border border-red-500 rounded-lg">
+                <p className="absolute w-full top-7 text-red-500 bg-red-500/20 py-1.5 border border-red-500 rounded-lg">
                   {error}
                 </p>
               )}
