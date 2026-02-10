@@ -36,10 +36,10 @@ const Page3 = ({
         <div className="space-y-4 relative z-10">
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black">P3</div>
           <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
-            Venture <br /> <span className="text-zinc-500">Thesis.</span>
+            Startup <br /> <span className="text-zinc-500">Thesis.</span>
           </h2>
           <p className="text-zinc-400 font-bold text-lg leading-relaxed">
-            Distill your operational mission. Every great venture begins with a clear gap in reality.
+            Distill your operational mission. Every great startup begins with a clear gap in reality.
           </p>
         </div>
 
@@ -57,19 +57,19 @@ const Page3 = ({
           {/* Header */}
           <div className="space-y-2">
             <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">Step 03 / 08</span>
-            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Thesis Definition.</h1>
+            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Product  Definition.</h1>
           </div>
 
           <div className="space-y-10">
             {/* Problem Area */}
             <div className="space-y-2.5">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <AlertCircle size={12} /> Real-world friction
+                <AlertCircle size={12} /> Real-world Problem
               </label>
               <textarea
                 value={theProblem}
                 onChange={(e) => setTheProblem(e.target.value)}
-                placeholder="What specific gap in current infrastructure are you filling?"
+                placeholder="What specific problem in the market are you solving?"
                 className="w-full px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-bold text-zinc-900 min-h-[140px] resize-none"
               />
             </div>
@@ -77,12 +77,12 @@ const Page3 = ({
             {/* Solution Area */}
             <div className="space-y-2.5">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <Lightbulb size={12} /> Execution Strategy
+                <Lightbulb size={12} /> Proferred Solution
               </label>
               <textarea
                 value={theSolution}
                 onChange={(e) => setTheSolution(e.target.value)}
-                placeholder="How does your protocol uniquely bridge this gap?"
+                placeholder="How does your product uniquely solve this problem?"
                 className="w-full px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-bold text-zinc-900 min-h-[140px] resize-none"
               />
             </div>

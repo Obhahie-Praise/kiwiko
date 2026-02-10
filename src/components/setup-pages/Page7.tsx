@@ -66,7 +66,7 @@ const Page7 = ({
             {/* Seeking Status */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <Banknote size={12} /> Resource Acquisition
+                <Banknote size={12} /> are you seeking funding?
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {seekingOptions.map((opt) => (
@@ -88,7 +88,7 @@ const Page7 = ({
             {/* Funding Stage */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <PieChart size={12} /> Capital Series
+                <PieChart size={12} /> what is your capital series?
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {stageOptions.map((opt) => (

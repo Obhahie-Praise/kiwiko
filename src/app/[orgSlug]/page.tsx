@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import PitchDeck from "@/components/projects/PitchDeck";
 import Link from "next/link";
+import OrgControlCenter from "@/components/organization/OrgControlCenter";
+import Navbar from "@/components/common/Navbar";
 
 const PublicProjectProfile = () => {
   const params = useParams();
@@ -27,16 +29,37 @@ const PublicProjectProfile = () => {
 
   // Find the project - mapping name to slug
   const project = projects.find(p => p.name.toLowerCase().replace(/\s+/g, "-") === orgSlug);
-  const organization = organizations.find(o => o.slug === project?.orgSlug);
+  const organization = organizations.find(o => o.slug === (project?.orgSlug || orgSlug));
+
+  // If it's an organization (and not a project being viewed), show the Control Center
+  const isOrg = organizations.some(o => o.slug === orgSlug);
+  
+  if (isOrg && !project) {
+    // Mock data for the organization control center
+    const mockOrgData = {
+      name: organization?.name || "Kiwiko Corp",
+      slug: orgSlug,
+      niche: "AI/ML",
+      description: "Building the next generation of verifiable venture infrastructure. Ground-truth metrics for the next decade of innovation.",
+      logoUrl: "",
+      members: [
+        { id: "1", email: "praise@kiwiko.io", role: "OWNER", status: "active" as const },
+        { id: "2", email: "engineering@kiwiko.io", role: "ADMIN", status: "active" as const },
+        { id: "3", email: "growth@kiwiko.io", role: "MEMBER", status: "invited" as const },
+      ]
+    };
+
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <main className="pt-12 px-6">
+          <OrgControlCenter initialData={mockOrgData} />
+        </main>
+      </div>
+    );
+  }
 
   if (!project) {
-    // If it's an org slug at root, we might want to redirect. 
-    // For this demonstration, we'll just show a clean 404 or redirect to projects if it matches an org.
-    const isOrg = organizations.some(o => o.slug === orgSlug);
-    if (isOrg) {
-        router.replace(`/${orgSlug}/projects`);
-        return null;
-    }
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-50">
         <div className="text-center">
@@ -78,60 +101,76 @@ const PublicProjectProfile = () => {
         </Link>
       </header>
 
-      {/* Hero Section */}
-      <main className="pt-24 pb-20">
-        <section className="px-6 max-w-7xl mx-auto mb-20">
-          <div className="pt-20 md:pt-32 mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 mb-8">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-[10px] font-extrabold uppercase tracking-widest">{project.stage} / Active Execution</span>
-            </div>
-            
-            <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-zinc-900 leading-[0.9] mb-12 italic uppercase">
-              {project.tagline ? (
-                <>
-                  {project.tagline.split(" ").slice(0, 3).join(" ")} <br />
-                  <span className="bg-clip-text text-transparent bg-linear-to-r from-zinc-900 to-zinc-500">
-                    {project.tagline.split(" ").slice(3).join(" ")}
-                  </span>
-                </>
-              ) : (
-                <>
-                  The future of <span className="bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500">Infrastructure</span> <br /> is built here.
-                </>
-              )}
-            </h1>
+      {/* Hero Section with Full-width Banner Background */}
+      <main className="pt-24 pb-20 overflow-x-hidden">
+        {/* Banner Container */}
+        <section className="relative w-full h-[500px] flex items-center mb-20 overflow-hidden">
+          {/* Background Image/Banner */}
+          <div className="absolute inset-0 z-0">
+            <div 
+              className="w-full h-full bg-cover bg-center bg-no-repeat transition-transform duration-700 hover:scale-105"
+              style={{ 
+                backgroundImage: `url(${project.bannerUrl || 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2000&auto=format&fit=crop'})`,
+              }}
+            />
+            {/* Glossy Overlay for Readability */}
+            <div className="absolute inset-0 bg-linear-to-b from-white/80 via-white/40 to-white/95 backdrop-blur-[2px]" />
+          </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 border-t pt-12 border-zinc-100">
-              <div className="lg:col-span-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                  <div>
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-4">The Problem</h3>
-                    <p className="text-xl font-bold text-zinc-900 leading-relaxed italic">
-                      Venture data is siloed, fragmented, and lacks real-time verification. Investors fly blind while founders drown in reporting.
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-4">The Solution</h3>
-                    <p className="text-xl font-bold text-zinc-900 leading-relaxed">
-                      A verifiable, agent-driven infrastructure that provides ground-truth metrics of execution at every stage of the lifecycle.
-                    </p>
-                  </div>
-                </div>
+          {/* Centered Content */}
+          <div className="relative z-10 w-full px-6 max-w-7xl mx-auto">
+            <div className="pt-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/50 backdrop-blur-md text-emerald-700 rounded-full border border-emerald-100/50 mb-8 shadow-sm">
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                <span className="text-[10px] font-extrabold uppercase tracking-widest">{project.stage}</span>
               </div>
+              
+              <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-zinc-900 leading-[0.85] mb-12 italic uppercase drop-shadow-sm">
+                {project.tagline ? (
+                  <>
+                    {project.tagline.split(" ").slice(0, 3).join(" ")} <br />
+                    <span className="bg-clip-text text-transparent bg-linear-to-r from-zinc-900 via-zinc-800 to-zinc-500">
+                      {project.tagline.split(" ").slice(3).join(" ")}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    The future of <span className="bg-clip-text text-transparent bg-linear-to-r from-zinc-900 to-zinc-500">Infrastructure</span> <br /> is built here.
+                  </>
+                )}
+              </h1>
 
-              <div className="lg:col-span-4 flex flex-col justify-between p-8 bg-zinc-50 rounded-[2.5rem] border border-zinc-100">
-                <div>
-                  <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-6 flex items-center gap-2">
-                    Current Valuation <ShieldCheck size={12} className="text-emerald-500" />
-                  </h3>
-                  <p className="text-5xl font-black text-zinc-900 tracking-tighter mb-2">{project.valuation}</p>
-                  <p className="text-sm font-bold text-zinc-500 uppercase tracking-tight">Estimated Post-Money Market Signal</p>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 border-t pt-12 border-zinc-200/50">
+                <div className="lg:col-span-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-zinc-900">
+                    <div>
+                      <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4">The Problem</h3>
+                      <p className="text-lg font-bold leading-relaxed italic">
+                        Venture data is siloed, fragmented, and lacks real-time verification. Investors fly blind while founders drown in reporting.
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4">The Solution</h3>
+                      <p className="text-lg  font-bold leading-relaxed">
+                        A verifiable, agent-driven infrastructure that provides ground-truth metrics of execution at every stage of the lifecycle.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-8 flex gap-2 overflow-x-auto no-scrollbar">
-                    <span className="px-3 py-1 bg-white border rounded-lg text-[10px] font-bold text-zinc-600 whitespace-nowrap">BOOTSTRAPPED</span>
-                    <span className="px-3 py-1 bg-white border rounded-lg text-[10px] font-bold text-zinc-600 whitespace-nowrap">SERIES {project.id === 'p1' ? 'A' : 'SEED'}</span>
-                    <span className="px-3 py-1 bg-white border rounded-lg text-[10px] font-bold text-zinc-500 whitespace-nowrap">+20% MOM</span>
+
+                <div className="lg:col-span-4 flex flex-col justify-between p-8 bg-white/40 backdrop-blur-xl rounded-[2.5rem] border border-white/60 shadow-xl shadow-zinc-200/20">
+                  <div>
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 flex items-center gap-2">
+                      Current Valuation <ShieldCheck size={12} className="text-emerald-500" />
+                    </h3>
+                    <p className="text-5xl font-black text-zinc-900 tracking-tighter mb-2">{project.valuation}</p>
+                    <p className="text-sm font-bold text-zinc-500 uppercase tracking-tight">Estimated Post-Money Market Signal</p>
+                  </div>
+                  <div className="mt-8 flex gap-2 overflow-x-auto no-scrollbar">
+                      <span className="px-3 py-1 bg-white/60 border border-white/80 rounded-lg text-[10px] font-bold text-zinc-600 whitespace-nowrap backdrop-blur-sm">BOOTSTRAPPED</span>
+                      <span className="px-3 py-1 bg-white/60 border border-white/80 rounded-lg text-[10px] font-bold text-zinc-600 whitespace-nowrap backdrop-blur-sm">SERIES {project.id === 'p1' ? 'A' : 'SEED'}</span>
+                      <span className="px-3 py-1 bg-white/60 border border-white/80 rounded-lg text-[10px] font-bold text-zinc-500 whitespace-nowrap backdrop-blur-sm">+20% MOM</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -177,7 +216,7 @@ const PublicProjectProfile = () => {
                         </div>
 
                         {/* Background Decoration */}
-                        <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-zinc-50/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute right-0 top-0 h-full w-32 bg-linear-to-l from-zinc-50/50 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   ))}
                 </div>

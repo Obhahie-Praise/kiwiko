@@ -46,14 +46,14 @@ export default function DiscoveryTabsFeed() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs transition uppercase font-semibold
               ${
                 activeTab === tab.id
-                  ? "bg-black text-white"
-                  : "bg-zinc-100 hover:bg-zinc-200"
+                  ? "bg-black text-zinc-200"
+                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
               }`}
             >
-              <Icon size={16} />
+              <Icon size={17} />
               {tab.label}
             </button>
           );

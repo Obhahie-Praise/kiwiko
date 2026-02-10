@@ -77,33 +77,121 @@ model Verification {
 }
 
 model StartupOnboarding {
-  id                 String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId             String   @unique
-  userRole           String
+  userId   String @unique
+  userRole String
 
-  projectName        String
-  projectDesc        String
-  catergory          String
+  projectName String
+  projectDesc String
+  catergory   String
 
-  theProblem         String
-  theSolution        String
+  theProblem  String
+  theSolution String
 
-  stage              String
+  stage String
 
-  linkToProduct      String   @unique
-  userCount          String
-  revenue            String
-  teamSize           String
+  linkToProduct String @unique
+  userCount     String
+  revenue       String
+  teamSize      String
 
   leaderStatus       String?
   fundsSeekingStatus String
   fundingStage       String
 
-  consent            Boolean
+  consent Boolean
 
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("startup_onboarding")
+}
+
+model Membership {
+  id String @id @default(cuid())
+
+  userId String
+  orgId  String
+
+  role        OrgRole
+  permissions Json? // fine-grain control (funding edit, team edit etc)
+
+  joinedAt DateTime @default(now())
+
+  user         String
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  @@unique([userId, orgId])
+  @@index([orgId])
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+model Organization {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+
+  logoUrl   String?
+  bannerUrl String?
+  niche     String?
+
+  ownerId String
+
+  memberships Membership[]
+  projects    Project[]
+  invites     OrganizationInvite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([ownerId])
+}
+
+model OrganizationInvite {
+  id String @id @default(cuid())
+
+  email String
+  role  OrgRole
+
+  orgId       String
+  invitedById String
+
+  token     String   @unique
+  expiresAt DateTime
+  accepted  Boolean  @default(false)
+
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([orgId])
+  @@index([email])
+}
+
+model Project {
+  id   String @id @default(cuid())
+  name String
+  slug String
+
+  orgId        String
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  description String?
+  logoUrl     String?
+  bannerUrl   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([orgId, slug])
+  @@index([orgId])
 }

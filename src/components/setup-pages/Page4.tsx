@@ -37,10 +37,10 @@ const Page4 = ({
         <div className="space-y-4 relative z-10">
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black">P4</div>
           <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
-            Terminal <br /> <span className="text-zinc-500">Velocity.</span>
+            Current <br /> <span className="text-zinc-500">Progress.</span>
           </h2>
           <p className="text-zinc-400 font-bold text-lg leading-relaxed">
-            Quantify your current execution state. Proof of progress is the only currency that matters.
+            Tell us what you've built and how far you've come.
           </p>
         </div>
 
@@ -58,14 +58,14 @@ const Page4 = ({
           {/* Header */}
           <div className="space-y-2">
             <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">Step 04 / 08</span>
-            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Execution State.</h1>
+            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Current stage.</h1>
           </div>
 
           <div className="space-y-10">
             {/* Stage Selection */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <Activity size={12} /> Operational Stage
+                <Activity size={12} />Stage
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {stages.map((s) => (
@@ -88,7 +88,7 @@ const Page4 = ({
             {/* Product Link */}
             <div className="space-y-2.5">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <LinkIcon size={12} /> Target URL / Protocol Access
+                <LinkIcon size={12} /> Project link
               </label>
               <div className="relative group">
                 <Globe className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-zinc-900 transition-colors" size={18} />

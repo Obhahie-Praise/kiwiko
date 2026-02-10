@@ -8,10 +8,7 @@ const DiscoveryPage = () => {
     <div className="w-full">
       <nav className=" px-3 py-2 flex items-center justify-between w-full">
         <div className="">
-          <h1 className="text-lg font-semibold text-zinc-900">Discover</h1>
-          <p className="text-sm text-zinc-500">
-            Explore startups by real execution signals
-          </p>
+          <h1 className="text-xl font-bold italic text-zinc-900 uppercase">Discover</h1>
         </div>
         <div className="">
           <form

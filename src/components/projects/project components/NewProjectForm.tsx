@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { ArrowLeft, Upload, Globe, Wallet, ChevronDown, Check, UserPlus, FileText, Target, Tag, Users } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import UploadDropzone from "../../ui/upload/UploadDropZone";
 
 const NewProjectForm = () => {
     const params = useParams();
@@ -14,12 +15,12 @@ const NewProjectForm = () => {
     const [domain, setDomain] = useState("");
     const [stage, setStage] = useState("Discovery");
     const [niche, setNiche] = useState("");
+    const [logoUrl, setLogoUrl] = useState("");
+    const [bannerUrl, setBannerUrl] = useState("");
     
     // Auto-generate domain preview
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
-        setName(val);
-        setDomain(val.toLowerCase().replace(/[^a-z0-9]/g, "") + ".kiwiko.io");
+        setName(e.target.value);
     };
 
     return (
@@ -37,6 +38,25 @@ const NewProjectForm = () => {
             </div>
 
             <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+                {/* Project Banner Upload */}
+                <div className="relative h-48 bg-zinc-50 border-b border-zinc-100">
+                    <UploadDropzone
+                        endpoint="brandBannerUploader"
+                        label="Upload Project Banner"
+                        onUploadSuccess={(url) => {
+                            console.log("Banner Uploaded:", url);
+                            setBannerUrl(url);
+                        }}
+                        className="h-full border-none rounded-none"
+                        showPreview={true}
+                    />
+                    <div className="absolute top-4 right-4 z-20">
+                        <span className="px-2 py-1 bg-black/50 backdrop-blur-md text-[10px] text-white rounded-md font-bold uppercase tracking-widest">
+                            Project Banner
+                        </span>
+                    </div>
+                </div>
+
                 {/* Section: Basic Info */}
                 <div className="p-6 border-b border-zinc-100">
                     <h2 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-6 flex items-center gap-2">
@@ -46,18 +66,19 @@ const NewProjectForm = () => {
                     
                     <div className="space-y-6">
                         <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-full bg-zinc-50 border border-dashed border-zinc-300 flex items-center justify-center text-zinc-400">
-                                {name ? (
-                                    <span className="text-2xl font-bold text-zinc-300">{name.charAt(0).toUpperCase()}</span>
-                                ) : (
-                                    <Upload size={20} />
-                                )}
-                            </div>
                             <div>
-                                <button className="text-xs font-medium text-zinc-600 hover:text-zinc-900 border border-zinc-200 bg-white px-3 py-1.5 rounded-md hover:bg-zinc-50 transition-colors mb-1 shadow-sm">
-                                    Upload Logo
-                                </button>
-                                <p className="text-[10px] text-zinc-400">PNG, JPG or SVG. Max 2MB.</p>
+                                <UploadDropzone
+                                    endpoint="orgLogoUploader"
+                                    label="Project Logo"
+                                    onUploadSuccess={(url) => {
+                                        console.log("Logo Uploaded:", url);
+                                        setLogoUrl(url);
+                                    }}
+                                    className="max-w-[280px]"
+                                />
+                                <p className="text-[10px] text-zinc-400 mt-2">
+                                    SQUARE, PNG or SVG. Max 2MB.
+                                </p>
                             </div>
                         </div>
 
@@ -164,22 +185,19 @@ const NewProjectForm = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                             <div className="col-span-2">
+                            <div className="col-span-2">
                                 <label htmlFor="domain" className="block text-sm font-medium text-zinc-700 mb-1.5">
                                     Project Internal URL
                                 </label>
                                 <div className="relative flex items-center">
                                     <Globe size={16} className="absolute left-3 text-zinc-400" />
-                                    <input
-                                        type="text"
-                                        id="domain"
-                                        value={domain}
-                                        readOnly
-                                        className="w-full pl-9 pr-3 py-2 bg-zinc-100 border border-zinc-300 rounded-lg text-sm text-zinc-500 outline-none cursor-not-allowed"
-                                    />
+                                    <div className="w-full pl-9 pr-3 py-2 bg-zinc-100 border border-zinc-300 rounded-lg text-sm text-zinc-500 outline-none cursor-not-allowed flex items-center gap-1">
+                                        <span>kiwiko.io/{orgSlug}/</span>
+                                        <span className="font-bold text-zinc-900">{name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}</span>
+                                    </div>
                                     {name && (
                                         <div className="absolute right-2 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] rounded-full font-medium flex items-center gap-1 uppercase tracking-tight">
-                                            <Check size={10} /> Available
+                                            <Check size={10} /> Validated
                                         </div>
                                     )}
                                 </div>

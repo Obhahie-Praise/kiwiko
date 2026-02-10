@@ -37,7 +37,7 @@ const Page6 = ({
         <div className="space-y-4 relative z-10">
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black">P6</div>
           <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
-            Human <br /> <span className="text-zinc-500">Capital.</span>
+            Team  <br /> <span className="text-zinc-500">Structure.</span>
           </h2>
           <p className="text-zinc-400 font-bold text-lg leading-relaxed">
             Define your operational unit. The strength of the architecture is limited by the talent of its builders.
@@ -58,14 +58,14 @@ const Page6 = ({
           {/* Header */}
           <div className="space-y-2">
             <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">Step 06 / 08</span>
-            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Team Structure.</h1>
+            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Team Status.</h1>
           </div>
 
           <div className="space-y-10">
             {/* Team Size */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <Users size={12} /> Unit Count
+                <Users size={12} /> Team Size
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {teamSizes.map((size) => (
@@ -87,7 +87,7 @@ const Page6 = ({
             {/* Leader Status */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <ShieldCheck size={12} /> Development Protocol Lead
+                <ShieldCheck size={12} /> Development Lead
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <button

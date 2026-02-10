@@ -25,7 +25,7 @@ const StartUpOnboarding = () => {
         callbackURL: "/onboarding/setup?page=1",
       });
     } catch (error) {
-      console.error(error);
+      console.error("Social authentication failed",error);
       setError("Social authentication failed");
       setOngoingRequest(0);
     } finally {

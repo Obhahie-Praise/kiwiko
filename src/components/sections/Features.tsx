@@ -51,7 +51,7 @@ const Features = () => {
              </div>
 
              <div className="relative h-32 flex items-center gap-4 overflow-hidden mask-fade-right">
-                <ScrollParallax strength={0.5}>
+                <ScrollParallax strength={0.09}>
                    <div className="flex gap-4 mt-4">
                       {["git commits", "deployment", "v2.1 live", "core architecture", "database migration", "auth logic"].map((tag, i) => (
                         <div key={i} className="whitespace-nowrap px-6 py-3 bg-zinc-50 border border-zinc-200 rounded-2xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-900 hover:border-zinc-900 transition-all cursor-default">

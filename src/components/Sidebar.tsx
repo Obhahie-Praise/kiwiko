@@ -83,15 +83,15 @@ const Sidebar = () => {
           {!isCollasped ? (
             <PanelLeftClose
               onClick={() => setIsCollasped((prev) => !prev)}
-              width={25}
-              height={25}
+              width={27}
+              height={27}
               className="cursor-pointer text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 p-1 transition rounded-md"
             />
           ) : (
             <PanelLeftOpen
               onClick={() => setIsCollasped((prev) => !prev)}
-              width={25}
-              height={25}
+              width={27}
+              height={27}
               className="cursor-pointer text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 p-1 transition rounded-md group-hover:flex hidden absolute top-4 left-5 bg-white border shadow-sm"
             />
           )}

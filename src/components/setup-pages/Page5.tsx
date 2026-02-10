@@ -1,4 +1,10 @@
-import { ChevronLeft, ChevronRight, BarChart3, Users as UsersIcon, DollarSign } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  BarChart3,
+  Users as UsersIcon,
+  DollarSign,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -34,22 +40,25 @@ const Page5 = ({
       {/* Visual Sidebar */}
       <div className="hidden lg:flex lg:w-1/3 bg-zinc-900 p-16 flex-col justify-between relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-zinc-800 rounded-full blur-[100px] -z-10 opacity-50" />
-        
+
         <div className="space-y-4 relative z-10">
-          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black">P5</div>
+          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black">
+            P5
+          </div>
           <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
-            Hard <br /> <span className="text-zinc-500">Numbers.</span>
+            COncept <br /> <span className="text-zinc-500">proof.</span>
           </h2>
           <p className="text-zinc-400 font-bold text-lg leading-relaxed">
-            Initialize your traction baseline. High-conviction investors look for the delta between yesterday and today.
+            Show that your product isn't just another service, its some thing
+            people would actually use.{" "}
           </p>
         </div>
 
         <div className="space-y-6 relative z-10">
-           <div className="flex items-center gap-3 text-zinc-500 uppercase text-[10px] font-black tracking-widest">
-              <BarChart3 size={16} className="text-emerald-500" />
-              Traction Signal Matrix
-           </div>
+          <div className="flex items-center gap-3 text-zinc-500 uppercase text-[10px] font-black tracking-widest">
+            <BarChart3 size={16} className="text-emerald-500" />
+            Traction Signal Matrix
+          </div>
         </div>
       </div>
 
@@ -58,15 +67,19 @@ const Page5 = ({
         <div className="w-full max-w-xl space-y-12">
           {/* Header */}
           <div className="space-y-2">
-            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">Step 05 / 08</span>
-            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Market Proof.</h1>
+            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">
+              Step 05 / 08
+            </span>
+            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">
+              Proof of concept.
+            </h1>
           </div>
 
           <div className="space-y-10">
             {/* User Count */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <UsersIcon size={12} /> User Momentum
+                <UsersIcon size={12} /> User Count
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {userRanges.map((range) => (
@@ -74,13 +87,15 @@ const Page5 = ({
                     key={range}
                     onClick={() => setUserCount(range)}
                     className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border text-left flex items-center justify-between ${
-                      userCount === range 
-                        ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200" 
+                      userCount === range
+                        ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200"
                         : "bg-white text-zinc-500 border-zinc-100 hover:border-zinc-300"
                     }`}
                   >
                     {range}
-                    {userCount === range && <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />}
+                    {userCount === range && (
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -89,7 +104,7 @@ const Page5 = ({
             {/* Revenue */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <DollarSign size={12} /> Revenue Protocol
+                <DollarSign size={12} /> Revenue
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {revenueRanges.map((range) => (
@@ -97,13 +112,15 @@ const Page5 = ({
                     key={range}
                     onClick={() => setRevenue(range)}
                     className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border text-left flex items-center justify-between ${
-                      revenue === range 
-                        ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200" 
+                      revenue === range
+                        ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200"
                         : "bg-white text-zinc-500 border-zinc-100 hover:border-zinc-300"
                     }`}
                   >
                     {range}
-                    {revenue === range && <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />}
+                    {revenue === range && (
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -123,10 +140,14 @@ const Page5 = ({
             </Link>
 
             <Link
-              href={isComplete ? `/onboarding/setup?page=${Number(position) + 1}` : "#"}
+              href={
+                isComplete
+                  ? `/onboarding/setup?page=${Number(position) + 1}`
+                  : "#"
+              }
               className={`group flex items-center gap-3 px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                isComplete 
-                  ? "bg-zinc-900 text-white shadow-xl shadow-zinc-200 hover:bg-black" 
+                isComplete
+                  ? "bg-zinc-900 text-white shadow-xl shadow-zinc-200 hover:bg-black"
                   : "bg-zinc-100 text-zinc-300 cursor-not-allowed"
               }`}
             >
@@ -141,4 +162,3 @@ const Page5 = ({
 };
 
 export default Page5;
-

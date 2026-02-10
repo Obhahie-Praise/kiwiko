@@ -105,17 +105,11 @@ const ResourcesPage = () => {
   return (
     <div className="min-h-screen bg-zinc-50/30">
       {/* Header Section */}
-      <nav className="px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b bg-white/50 backdrop-blur-md sticky top-0 z-20">
+      <nav className="px-3 py-2 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b bg-white/50 backdrop-blur-md sticky top-0 z-20">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <div className="p-2 bg-zinc-900 text-white rounded-xl">
-              <BookOpen size={20} />
-            </div>
-            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Venture Resources</h1>
+            <h1 className="text-xl uppercase font-bold italic text-zinc-900 tracking-tight">Venture Resources</h1>
           </div>
-          <p className="text-sm text-zinc-500 font-medium ml-12">
-            The mission-critical infrastructure and tools powering this venture.
-          </p>
         </div>
 
         <div className="relative group max-w-md w-full">

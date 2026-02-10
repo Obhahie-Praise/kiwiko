@@ -41,10 +41,10 @@ const Page2 = ({
         <div className="space-y-4 relative z-10">
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black">P2</div>
           <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
-            Venture <br /> <span className="text-zinc-500">Definitions.</span>
+            Startup <br /> <span className="text-zinc-500">Definitions.</span>
           </h2>
           <p className="text-zinc-400 font-bold text-lg leading-relaxed">
-            Initialize your venture metadata. Clarity is the first signal of execution.
+            Setup your startup metadata. Clarity is the first signal of execution.
           </p>
         </div>
 
@@ -62,14 +62,14 @@ const Page2 = ({
           {/* Header */}
           <div className="space-y-2">
             <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">Step 02 / 08</span>
-            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Core Signals.</h1>
+            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Core setup.</h1>
           </div>
 
           <div className="space-y-10">
             {/* Project Name */}
             <div className="space-y-2.5">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <Info size={12} /> Venture Name
+                <Info size={12} /> Project Name
               </label>
               <input
                 type="text"
@@ -83,7 +83,7 @@ const Page2 = ({
             {/* Category */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <LayoutGrid size={12} /> Industry Sector
+                <LayoutGrid size={12} /> Industry Niche
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {categories.map((cat) => (

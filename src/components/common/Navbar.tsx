@@ -1,7 +1,7 @@
 "use client";
 
 import { getSession } from "@/constants/getSession";
-import { ChevronsUpDown, Check, Building2, Plus } from "lucide-react";
+import { ChevronsUpDown, Check, Building2, Plus, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
@@ -10,9 +10,9 @@ import { useParams, useRouter, usePathname } from "next/navigation";
 
 // Mock organizations data
 export const organizations = [
-  { id: "org1", name: "Open AI", slug: "open-ai", type: "Enterprise" },
-  { id: "org2", name: "Kiwiko Corp", slug: "kiwiko-corp", type: "Startup" },
-  { id: "org3", name: "Personal", slug: "personal", type: "Personal" },
+  { id: "org1", name: "Open AI", slug: "open-ai", niche: "AI" },
+  { id: "org2", name: "Kiwiko Corp", slug: "kiwiko-corp", niche: "Startup" },
+  { id: "org3", name: "Personal", slug: "personal", niche: "Personal" },
 ];
 
 interface NavbarProps {
@@ -123,6 +123,14 @@ const Navbar = ({ showNewOrgButton = true }: NavbarProps) => {
       </div>
 
       <div className="flex items-center gap-4">
+        {orgSlug && (
+          <Link href={`/${orgSlug}`}>
+            <button className="bg-zinc-50 hover:bg-zinc-100 text-zinc-600 font-medium text-sm py-1.5 px-3 rounded-md transition-colors flex items-center gap-2 group border border-zinc-100">
+              <Settings size={14} className="group-hover:rotate-45 transition-transform" />
+              <p className="text-xs">Org Settings</p>
+            </button>
+          </Link>
+        )}
         {showNewOrgButton && (
           <div className="">
             <Link href="/new-organisation">

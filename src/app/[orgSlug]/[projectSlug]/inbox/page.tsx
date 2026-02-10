@@ -5,7 +5,7 @@ const InboxPage = () => {
   return (
     <div className=''>
       <nav className="px-3 py-2 flex items-center justify-between w-full">
-        <h1 className="text-lg font-semibold text-zinc-900">Inbox</h1>
+        <h1 className="text-xl uppercase font-bold italic text-zinc-900">Inbox</h1>
       </nav>
       <InboxLayout />
     </div>

@@ -32,7 +32,7 @@ const Page8 = ({
         <div className="space-y-4 relative z-10">
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black">P8</div>
           <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
-            Terminal <br /> <span className="text-zinc-500">Vision.</span>
+            Product <br /> <span className="text-zinc-500">Fit.</span>
           </h2>
           <p className="text-zinc-400 font-bold text-lg leading-relaxed">
             Finalize your venture protocol. Every high-conviction deployment is driven by an unavoidable "Why Now".
@@ -53,19 +53,19 @@ const Page8 = ({
           {/* Header */}
           <div className="space-y-2">
             <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">Step 08 / 08</span>
-            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Strategic Gap.</h1>
+            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Product fit.</h1>
           </div>
 
           <div className="space-y-10">
             {/* Vision Area */}
             <div className="space-y-2.5">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                <Target size={12} /> Strategic Momentum
+                <Target size={12} /> Why does this product matter?
               </label>
               <textarea
                 value={benefits}
                 onChange={(e) => setBenefits(e.target.value)}
-                placeholder="Why does this project matter at this specific point in the ecosystem's evolution?"
+                placeholder="Why does this product matter?"
                 className="w-full px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-bold text-zinc-900 min-h-[200px] resize-none"
               />
             </div>
@@ -91,7 +91,7 @@ const Page8 = ({
                   : "bg-zinc-100 text-zinc-300 cursor-not-allowed"
               }`}
             >
-              Finalize Protocol
+              Finish
               <ChevronRight size={16} />
             </Link>
           </div>
