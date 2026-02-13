@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import UploadDropzone from "../ui/upload/UploadDropZone";
+import { createOrganizationAction } from "@/actions/email.actions";
+import { useRouter } from "next/navigation";
 
 const NewOrgForm = () => {
   const [name, setName] = useState("");
@@ -23,6 +25,9 @@ const NewOrgForm = () => {
   const [logoUrl, setLogoUrl] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
   const [members, setMembers] = useState([{ email: "", role: "Admin" }]);
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -49,6 +54,60 @@ const NewOrgForm = () => {
     }
 
     setMembers(newMembers);
+  };
+
+  const handleSubmit = async () => {
+    setIsPending(true);
+    setError("");
+
+    if (!name || !slug || !description || !niche) {
+      setError("Name, slug, description, and niche are required");
+      setIsPending(false);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("slug", slug);
+    formData.append("description", description);
+    formData.append("niche", niche);
+    formData.append("logoUrl", logoUrl);
+    formData.append("bannerUrl", bannerUrl);
+    formData.append("invites", JSON.stringify(members.filter(m => m.email.trim() !== "")));
+
+    try {
+      const result = await createOrganizationAction(formData);
+      if (result.success) {
+         if (result.data.invites && result.data.invites.length > 0) {
+            await Promise.all(result.data.invites.map(async (invite: any) => {
+                 try {
+                    await fetch("/api/send", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            email: invite.email,
+                            orgName: name, 
+                            inviterName: "Founder", // TODO: active user name
+                            inviteLink: `${window.location.origin}/invite/${invite.token}`,
+                            logoUrl: logoUrl,
+                            bannerUrl: bannerUrl
+                        })
+                    });
+                 } catch (e) {
+                     console.error("Failed to send invite email", e);
+                 }
+            }));
+         }
+         router.push(`/${slug}`);
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError("An unexpected error occurred");
+      console.error(err);
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -300,10 +359,19 @@ const NewOrgForm = () => {
           >
             Cancel
           </Link>
-          <button className="px-6 py-2 text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-colors shadow-sm flex items-center gap-2">
-            Create Organization
+          <button 
+            onClick={handleSubmit}
+            disabled={isPending}
+            className="px-6 py-2 text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? "Creating..." : "Create Organization"}
           </button>
         </div>
+        {error && (
+          <div className="px-6 py-3 bg-red-50 border-t border-red-100">
+            <p className="text-xs text-red-600 font-medium">{error}</p>
+          </div>
+        )}
       </div>
     </div>
   );

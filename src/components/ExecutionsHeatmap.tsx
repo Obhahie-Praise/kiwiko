@@ -52,12 +52,12 @@ const ExecutionsHeatmap = () => {
           }}
           tooltipDataAttrs={(value) => {
             if (!value || !Array.isArray(value.events)) {
-              return { "data-tooltip": "" };
+              return { "data-tip": "" } as any;
             }
 
             return {
-              "data-tooltip": `${value.count} executions:\n${value.events.join(", ")}`,
-            };
+              "data-tip": `${value.count} executions:\n${value.events.join(", ")}`,
+            } as any;
           }}
           showWeekdayLabels
         />

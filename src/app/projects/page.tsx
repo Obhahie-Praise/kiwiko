@@ -1,20 +1,33 @@
-"use client";
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { organizations } from "@/components/common/Navbar";
+export default async function ProjectsRedirect() {
+  const session = await auth.api.getSession({
+      headers: await headers()
+  });
 
-export default function ProjectsRedirect() {
-  const router = useRouter();
+  if (!session?.user?.id) {
+      redirect("/sign-in");
+  }
 
-  useEffect(() => {
-    // Redirect to the first organization's projects page
-    router.replace(`/${organizations[0].slug}/projects`);
-  }, [router]);
+  const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: {
+          memberships: {
+              include: {
+                  organization: true 
+              } 
+          } 
+      }
+  });
 
-  return (
-    <div className="min-h-screen bg-zinc-50 flex items-center justify-center font-medium text-zinc-500">
-      Redirecting to dashboard...
-    </div>
-  );
+  if (!user || user.memberships.length === 0) {
+      redirect("/new-organisation");
+  }
+
+  // Redirect to the first organization's projects page
+  const firstOrg = user.memberships[0].organization;
+  redirect(`/${firstOrg.slug}/projects`);
 }

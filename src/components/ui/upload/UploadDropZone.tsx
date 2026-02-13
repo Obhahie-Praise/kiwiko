@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState, useCallback, useMemo } from "react";
-import { Upload, X, FileText, ImageIcon, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useRef, useState, useCallback, useMemo, useEffect } from "react";
+import { Upload, X, FileText, ImageIcon, Loader2, AlertCircle, CheckCircle2, Pencil } from "lucide-react";
 import { useUploadThing } from "@/utils/uploadthing";
 import { type OurFileRouter } from "@/app/api/uploadthing/core";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 type Endpoint = keyof OurFileRouter;
 
@@ -13,9 +14,14 @@ interface Props {
   label?: string;
   onUploadSuccess?: (res: any) => void;
   onUploadError?: (error: Error) => void;
-  className?: string;
+  className?: string; // Applied to the drop area
+  containerClassName?: string; // Applied to the outer wrapper
   /** Whether to show small preview (useful for icons/logos) */
   showPreview?: boolean;
+  /** Initial image to display (e.g. from DB) */
+  initialImage?: string;
+  /** Custom icon */
+  icon?: React.ElementType;
 }
 
 export default function UniversalUploadDropzone({
@@ -24,17 +30,33 @@ export default function UniversalUploadDropzone({
   onUploadSuccess,
   onUploadError,
   className = "",
+  containerClassName = "",
   showPreview = true,
+  initialImage,
+  icon: Icon = Upload,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [filePreview, setFilePreview] = useState<{ url: string; type: string } | null>(null);
+  const [filePreview, setFilePreview] = useState<{ url: string; type: string; name?: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Initialize with initialImage if provided
+  useEffect(() => {
+    if (initialImage) {
+      setFilePreview({ url: initialImage, type: "image/png" }); // Type is dummy here
+    }
+  }, [initialImage]);
 
   // 1. Initialize UploadThing hook
   const { startUpload, isUploading, routeConfig } = useUploadThing(endpoint, {
     onClientUploadComplete: (res) => {
       if (res && res[0]) {
         onUploadSuccess?.(res[0].url);
+        // Update local preview
+        setFilePreview((prev) => ({ 
+            url: res[0].url, 
+            type: prev?.type || "image/png",
+            name: res[0].name 
+        }));
       }
     },
     onUploadError: (error: Error) => {
@@ -65,11 +87,9 @@ const handleFileAction = useCallback(
     const file = files[0];
 
     // preview
-    if (showPreview && file.type.startsWith("image/")) {
+    if (showPreview) {
       const url = URL.createObjectURL(file);
-      setFilePreview({ url, type: file.type });
-    } else {
-      setFilePreview(null);
+      setFilePreview({ url, type: file.type, name: file.name });
     }
 
     // 🚨 THIS IS THE IMPORTANT PART
@@ -77,10 +97,9 @@ const handleFileAction = useCallback(
   },
   [showPreview, startUpload]
 );
-;
 
   return (
-    <div className={`w-full group ${className}`}>
+    <div className={cn("w-full group", containerClassName)}>
       <div
         onClick={() => !isUploading && inputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -90,41 +109,59 @@ const handleFileAction = useCallback(
           setIsDragging(false);
           handleFileAction(e.dataTransfer.files);
         }}
-        className={`
-          relative overflow-hidden cursor-pointer
-          border-2 border-dashed rounded-2xl
-          min-h-[140px] flex flex-col items-center justify-center p-6
-          transition-all duration-300
-          ${isDragging ? "border-zinc-900 bg-zinc-50 scale-[1.01]" : "border-zinc-200 hover:border-zinc-400 bg-white"}
-          ${isUploading ? "opacity-70 cursor-wait" : "active:scale-[0.98]"}
-        `}
+        className={cn(
+          "relative overflow-hidden cursor-pointer border-2 border-dashed rounded-2xl min-h-[140px] flex flex-col items-center justify-center p-6 transition-all duration-300",
+          isDragging ? "border-zinc-900 bg-zinc-50 scale-[1.01]" : "border-zinc-200 hover:border-zinc-400 bg-white",
+          isUploading ? "opacity-70 cursor-wait" : "active:scale-[0.98]",
+          className
+        )}
       >
-        {/* Background Visual (Image Preview) */}
+        {/* Background Visual (Image Preview or File Info) */}
         {filePreview ? (
           <div className="absolute inset-0 z-0">
-            <Image 
-              src={filePreview.url} 
-              alt="Preview" 
-              fill 
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+             {filePreview.type.startsWith("image/") ? (
+                <img 
+                  src={filePreview.url} 
+                  alt="Preview" 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+             ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-50 p-4">
+                    <div className="w-16 h-16 bg-zinc-200 rounded-xl flex items-center justify-center mb-3">
+                        <FileText size={32} className="text-zinc-500" />
+                    </div>
+                    <p className="text-xs font-medium text-zinc-700 max-w-[90%] truncate">
+                        {filePreview.name}
+                    </p>
+                    <p className="text-[10px] text-zinc-400 mt-1 uppercase tracking-wider">
+                        {filePreview.type.split("/")[1] || "FILE"}
+                    </p>
+                </div>
+             )}
+            
             {/* Hover Overlay */}
-            <div className={`
-              absolute inset-0 flex flex-col items-center justify-center gap-2
-              bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100
-              transition-opacity duration-300
-            `}>
-              <div className="p-2 bg-white/20 rounded-full border border-white/40">
-                <Upload size={20} className="text-white" />
-              </div>
-              <p className="text-xs font-semibold text-white tracking-wide">
-                Upload different image
-              </p>
+            <div className={cn(
+              "absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+              isUploading && "opacity-100 bg-black/60" // Always show if uploading
+            )}>
+              {!isUploading && (
+                <>
+                  <div className="p-2 bg-white/20 rounded-full border border-white/40">
+                    <Pencil size={20} className="text-white" />
+                  </div>
+                  <p className="text-xs font-semibold text-white tracking-wide">
+                    Change Image
+                  </p>
+                </>
+              )}
             </div>
           </div>
         ) : null}
 
-        <div className={`relative z-10 flex flex-col items-center gap-3 ${filePreview ? "opacity-0 invisible" : "opacity-100 visible"}`}>
+        <div className={cn(
+          "relative z-10 flex flex-col items-center gap-3",
+           filePreview ? "opacity-0 invisible" : "opacity-100 visible"
+        )}>
           {isUploading ? (
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="w-8 h-8 text-zinc-900 animate-spin" strokeWidth={1.5} />
@@ -132,11 +169,11 @@ const handleFileAction = useCallback(
             </div>
           ) : (
             <>
-              <div className={`
-                p-3 rounded-xl transition-all duration-300
-                ${isDragging ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-500 group-hover:bg-zinc-200 group-hover:text-zinc-600"}
-              `}>
-                <Upload size={24} />
+              <div className={cn(
+                "p-3 rounded-xl transition-all duration-300",
+                isDragging ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-500 group-hover:bg-zinc-200 group-hover:text-zinc-600"
+              )}>
+                <Icon size={24} />
               </div>
 
               <div className="text-center">

@@ -14,15 +14,16 @@ datasource db {
 }
 
 model User {
-  id            String    @id
+  id            String       @id
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean      @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   sessions      Session[]
   accounts      Account[]
+  memberships   Membership[]
 
   @@unique([email])
   @@map("user")
@@ -112,6 +113,7 @@ model Membership {
   id String @id @default(cuid())
 
   userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   orgId  String
 
   role        OrgRole
@@ -119,7 +121,6 @@ model Membership {
 
   joinedAt DateTime @default(now())
 
-  user         String
   organization Organization @relation(fields: [orgId], references: [id])
 
   @@unique([userId, orgId])
@@ -185,13 +186,51 @@ model Project {
   orgId        String
   organization Organization @relation(fields: [orgId], references: [id])
 
-  description String?
-  logoUrl     String?
-  bannerUrl   String?
+  description        String?
+  tagline            String?
+  stage              String?
+  niche              String?
+  problem            String?
+  solution           String?
+  logoUrl            String?
+  bannerUrl          String?
+  pitchDeckUrl       String?
+  currentRevenue     String?
+  postMoneyValuation String?
+
+  invites ProjectInvite[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([orgId, slug])
   @@index([orgId])
+}
+
+model ProjectInvite {
+  id String @id @default(cuid())
+
+  email String
+  role  ProjectRole
+
+  projectId   String
+  invitedById String
+
+  token     String   @unique
+  expiresAt DateTime
+  accepted  Boolean  @default(false)
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+  @@index([email])
+}
+
+enum ProjectRole {
+  OWNER
+  MAINTAINER
+  CONTRIBUTOR
+  VIEWER
 }

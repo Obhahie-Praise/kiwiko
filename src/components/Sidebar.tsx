@@ -1,6 +1,5 @@
 "use client";
 import { sidebarNav, projects } from "@/constants";
-import { organizations } from "@/components/common/Navbar";
 import { useSession } from "@/lib/auth-client";
 import {
   ChevronsUpDown,
@@ -40,15 +39,13 @@ const Sidebar = () => {
     localStorage.setItem("sidebar-collapsed", String(isCollasped));
   }, [isCollasped]);
 
-  // Derive organization and project names from the URL slugs
-  const currentOrg = organizations.find((o) => o.slug === orgSlug);
   // Find project by slug (assuming project name sluggified matches)
   const currentProject = projects.find(
     (p) => p.name.toLowerCase().replace(/\s+/g, "-") === projectSlug,
   );
 
   const organizationName =
-    currentOrg?.name ||
+    // currentOrg?.name ||
     (orgSlug
       ? orgSlug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
       : "Organization");

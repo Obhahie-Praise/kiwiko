@@ -8,28 +8,39 @@ import React, { useState, useEffect, useRef } from "react";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useParams, useRouter, usePathname } from "next/navigation";
 
-// Mock organizations data
-export const organizations = [
-  { id: "org1", name: "Open AI", slug: "open-ai", niche: "AI" },
-  { id: "org2", name: "Kiwiko Corp", slug: "kiwiko-corp", niche: "Startup" },
-  { id: "org3", name: "Personal", slug: "personal", niche: "Personal" },
-];
+// Mock organizations data REMOVED
+
+interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl?: string | null;
+}
 
 interface NavbarProps {
   showNewOrgButton?: boolean;
+  organizations?: Organization[];
+  currentOrg?: Organization;
+  user?: {
+      name?: string | null;
+      image?: string | null;
+      email?: string | null;
+  };
 }
 
-const Navbar = ({ showNewOrgButton = true }: NavbarProps) => {
-  const [userName, setUserName] = useState<any>(null);
+const Navbar = ({ 
+    showNewOrgButton = true, 
+    organizations = [], 
+    currentOrg, 
+    user 
+}: NavbarProps) => {
   const [isOrgMenuOpen, setIsOrgMenuOpen] = useState(false);
+  const [internalUser, setInternalUser] = useState<any>(null); // Fallback for client-side only usage
   
-  const params = useParams();
   const router = useRouter();
-  const pathname = usePathname();
   
-  // Find current org based on URL slug or default to first one if not in org context
-  const orgSlug = params?.orgSlug as string;
-  const currentOrg = organizations.find(o => o.slug === orgSlug) || organizations[0];
+  // Use passed currentOrg or default to first in list or a placeholder
+  const activeOrg = currentOrg || organizations[0] || { id: "0", name: "Select Org", slug: "" };
   
   const orgMenuRef = useRef<HTMLDivElement>(null);
   
@@ -38,16 +49,21 @@ const Navbar = ({ showNewOrgButton = true }: NavbarProps) => {
   });
 
   useEffect(() => {
-    const fetchSession = async () => {
-      const session = await getSession();
-      setUserName(session);
-    };
-    fetchSession();
-  }, []);
+    // Only fetch session if user prop is not provided
+    if (!user) {
+        const fetchSession = async () => {
+        const session = await getSession();
+        setInternalUser(session?.user);
+        };
+        fetchSession();
+    }
+  }, [user]);
+
+  const displayUser = user || internalUser;
 
   const toggleOrgMenu = () => setIsOrgMenuOpen(!isOrgMenuOpen);
   
-  const switchOrg = (org: typeof organizations[0]) => {
+  const switchOrg = (org: Organization) => {
     setIsOrgMenuOpen(false);
     // Dynamically change URL to /[orgSlug]/projects
     router.push(`/${org.slug}/projects`);
@@ -56,7 +72,7 @@ const Navbar = ({ showNewOrgButton = true }: NavbarProps) => {
   return (
     <nav className="bg-white py-2 px-6 flex items-center justify-between border-b relative z-50">
       <div className="flex items-center gap-2">
-        <Link href={`/${currentOrg.slug}/projects`} className="flex items-center gap-2">
+        <Link href={activeOrg.slug ? `/${activeOrg.slug}/projects` : '/'} className="flex items-center gap-2">
           <Image
             src="/neutral-logo.svg"
             height={30}
@@ -73,7 +89,7 @@ const Navbar = ({ showNewOrgButton = true }: NavbarProps) => {
             onClick={toggleOrgMenu}
           >
             <p className="text-sm font-medium group-hover:text-zinc-800 transition-colors">
-              {currentOrg.name}
+              {activeOrg.name}
             </p>
             <div className={`bg-zinc-100 rounded-sm text-zinc-500 p-0.5 group-hover:bg-zinc-200 transition-colors ${isOrgMenuOpen ? 'bg-zinc-200 text-zinc-800' : ''}`}>
               <ChevronsUpDown size={14} />
@@ -87,25 +103,33 @@ const Navbar = ({ showNewOrgButton = true }: NavbarProps) => {
                 Switch Organization
               </div>
               
-              {organizations.map((org) => (
-                <button
-                  key={org.id}
-                  onClick={() => switchOrg(org)}
-                  className="flex items-center justify-between px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 rounded-md transition-colors text-left w-full group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded bg-zinc-100 flex items-center justify-center text-zinc-500 group-hover:bg-white group-hover:shadow-sm">
-                      <Building2 size={12} />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="font-medium text-sm">{org.name}</span>
-                    </div>
-                  </div>
-                  {currentOrg.slug === org.slug && (
-                    <Check size={14} className="text-emerald-600" />
-                  )}
-                </button>
-              ))}
+              {organizations.length > 0 ? (
+                  organizations.map((org) => (
+                    <button
+                      key={org.id}
+                      onClick={() => switchOrg(org)}
+                      className="flex items-center justify-between px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 rounded-md transition-colors text-left w-full group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded bg-zinc-100 flex items-center justify-center text-zinc-500 group-hover:bg-white group-hover:shadow-sm">
+                           {org.logoUrl ? (
+                               <img src={org.logoUrl} alt={org.name} className="w-full h-full object-cover rounded" />
+                           ) : (
+                               <Building2 size={12} />
+                           )}
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="font-medium text-sm">{org.name}</span>
+                        </div>
+                      </div>
+                      {activeOrg.slug === org.slug && (
+                        <Check size={14} className="text-emerald-600" />
+                      )}
+                    </button>
+                  ))
+              ) : (
+                  <div className="px-3 py-2 text-sm text-zinc-400">No organizations found</div>
+              )}
               
               <div className="h-px bg-zinc-100 my-1" />
               
@@ -123,8 +147,8 @@ const Navbar = ({ showNewOrgButton = true }: NavbarProps) => {
       </div>
 
       <div className="flex items-center gap-4">
-        {orgSlug && (
-          <Link href={`/${orgSlug}`}>
+        {activeOrg.slug && (
+          <Link href={`/${activeOrg.slug}`}>
             <button className="bg-zinc-50 hover:bg-zinc-100 text-zinc-600 font-medium text-sm py-1.5 px-3 rounded-md transition-colors flex items-center gap-2 group border border-zinc-100">
               <Settings size={14} className="group-hover:rotate-45 transition-transform" />
               <p className="text-xs">Org Settings</p>
@@ -143,14 +167,14 @@ const Navbar = ({ showNewOrgButton = true }: NavbarProps) => {
         )}
         <div className="flex items-center gap-2 pl-4 border-l">
           <img
-            src={userName?.user.image as string || "https://ui-avatars.com/api/?name=User"}
+            src={displayUser?.image as string || "https://ui-avatars.com/api/?name=User"}
             alt="user-pfp"
             width={30}
             height={30}
             className="rounded-full border shadow-sm"
           />
           <p className="text-sm font-medium text-zinc-600">
-            {userName?.user.name}
+            {displayUser?.name || "Loading..."}
           </p>
         </div>
       </div>

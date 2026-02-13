@@ -1,38 +1,100 @@
-"use client";
-
-import { Search, Plus, FolderPlus } from "lucide-react";
-import React from "react";
-import { projects } from "@/constants";
-import { organizations } from "@/components/common/Navbar";
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import { headers } from "next/headers";
+import { redirect, notFound } from "next/navigation";
 import ProjectsTable from "@/components/projects/project components/ProjectsTable";
 import Navbar from "@/components/common/Navbar";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { Plus, FolderPlus, Search, Building2 } from "lucide-react";
+import React from "react";
 
-const OrgProjectsPage = () => {
-  const params = useParams();
-  const orgSlug = params?.orgSlug as string;
+interface PageProps {
+  params: Promise<{
+    orgSlug: string;
+  }>;
+}
 
-  // Find the current organization
-  const currentOrg = organizations.find((o) => o.slug === orgSlug) || organizations[0];
+export default async function OrgProjectsPage({ params }: PageProps) {
+  const { orgSlug } = await params;
+  
+  const session = await auth.api.getSession({
+     headers: await headers()
+  });
 
-  // Filter projects by the current organization's slug
-  const filteredProjects = projects.filter((p: any) => p.orgSlug === orgSlug);
+  if (!session?.user?.id) {
+     redirect("/sign-in");
+  }
+
+  // Fetch user with organizations
+  const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: {
+          memberships: {
+              include: {
+                  organization: true
+              }
+          }
+      }
+  });
+
+  if (!user) redirect("/sign-in");
+
+  const organizations = user.memberships.map(m => m.organization);
+  const currentOrg = organizations.find(o => o.slug === orgSlug);
+
+  if (!currentOrg) {
+      return notFound();
+  }
+
+  // Fetch projects
+  const projects = await prisma.project.findMany({
+      where: { orgId: currentOrg.id },
+      orderBy: { updatedAt: 'desc' }
+  });
+
+  // Map to Table format (preserving mock fields for UI compatibility for now)
+  const mappedProjects = projects.map(p => ({
+      id: p.id,
+      name: p.name,
+      branch: "main", 
+      stage: "Idea", 
+      status: "Active", 
+      progress: 0, 
+      invested: "$0", 
+      valuation: "$0", 
+      roi: "0%", 
+      lastUpdate: new Date(p.updatedAt).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })
+  }));
 
   return (
     <div className="min-h-screen bg-zinc-50/50">
-      <Navbar />
+      <Navbar 
+        organizations={organizations} 
+        currentOrg={currentOrg} 
+        user={session.user} 
+      />
 
       <main className="flex mt-10 items-center justify-center pb-20">
         <div className="min-w-4xl w-full max-w-5xl px-6">
           <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-               <div>
-                  <h1 className="text-2xl font-semibold text-zinc-900">{currentOrg.name} Projects</h1>
-                  <p className="text-zinc-500 text-sm mt-0.5">Manage and monitor all startup ventures within this organization.</p>
+            <div className="flex items-center gap-4">
+               {/* Logo + Text Header */}
+               <div className="w-12 h-12 bg-white rounded-xl border border-zinc-200 shadow-sm flex items-center justify-center p-2">
+                   {currentOrg.logoUrl ? (
+                       <img src={currentOrg.logoUrl} alt={currentOrg.name} className="w-full h-full object-contain" />
+                   ) : (
+                       <Building2 className="text-zinc-400" size={20} />
+                   )}
                </div>
-               <span className="text-zinc-500 text-xs bg-white border border-zinc-200 px-2.5 py-1 rounded-full shadow-sm font-medium">
-                {filteredProjects.length} {filteredProjects.length === 1 ? 'project' : 'projects'}
+               <div>
+                  <h1 className="text-2xl font-black text-zinc-900 tracking-tight flex items-center gap-2 capitalize">
+                      {currentOrg.name + "'s"}  
+                      <span className="text-zinc-500 font-medium">projects</span>
+                  </h1>
+               </div>
+               
+               <span className="ml-2 text-zinc-500 text-xs bg-white border border-zinc-200 px-2.5 py-1 rounded-full shadow-sm font-medium">
+                {mappedProjects.length} {mappedProjects.length === 1 ? 'project' : 'projects'}
                </span>
             </div>
             
@@ -44,19 +106,19 @@ const OrgProjectsPage = () => {
             </Link>
           </div>
           
-          {filteredProjects.length > 0 ? (
+          {mappedProjects.length > 0 ? (
             <div className="w-full p-0 border border-zinc-200 rounded-2xl bg-white shadow-xl overflow-hidden">
                 <div className="p-4 border-b bg-zinc-50/30 flex items-center justify-between gap-4">
                   <div className="relative flex-1 w-full">
                       <Search size={16} className="text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
                       <input 
                         type="text" 
-                        placeholder="Search projects by name, stage, or domain..." 
+                        placeholder="Search projects..." 
                         className="w-full pl-9 pr-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 transition-all placeholder:text-zinc-400" 
                       />
                   </div>
               </div>
-              <ProjectsTable projects={filteredProjects} />
+              <ProjectsTable projects={mappedProjects} />
             </div>
           ) : (
             <div className="w-full py-20 border-2 border-dashed border-zinc-200 rounded-3xl bg-white/50 flex flex-col items-center justify-center text-center px-10">
@@ -80,5 +142,3 @@ const OrgProjectsPage = () => {
     </div>
   );
 };
-
-export default OrgProjectsPage;
