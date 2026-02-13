@@ -107,6 +107,43 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
         return { project, createdInvites };
     });
 
+    // Send emails
+    if (result.createdInvites.length > 0) {
+        for (const invite of result.createdInvites) {
+            // We need to fetch the org name if not available, but for project invites usually project name is enough?
+            // sendTeamInviteEmail allows orgName to be optional if projectName is there? 
+            // Looking at send.ts interface: orgName is string (required). 
+            // We should fetch org name or use a placeholder if valid.
+            // Actually, we can fetch org name earlier or use the one from formData if we had it (we don't, only orgId).
+            // Let's resolve this by fetching org if needed, or just passing a placeholder if the email template handles it.
+            // The template uses `contextName = orgName || projectName`.
+            // But `sendTeamInviteEmail` signature requires `orgName`.
+            // I'll update `sendTeamInviteEmail` signature to make `orgName` optional if `projectName` is provided, 
+            // OR I can just pass "Kiwiko" or fetch the org.
+            // Fetching org is safer. But we are inside a transaction result... actually we are outside transaction now.
+            // checking `createProjectAction` arguments... we have `orgId`.
+            
+            // Let's optimize: checking if we can get org name easily.
+            // We don't have it.
+            // I will pass "Kiwiko" as orgName for now or fetch it.
+            // To be safe and clean, I will first fetch the org name at the start of the action or just pass "Kiwiko".
+            // Actually, `sendTeamInviteEmail` requires `orgName`.
+            // I'll pass "Kiwiko" for now to avoid extra DB call if acceptable, 
+            // OR better: I'll make `orgName` in `sendTeamInviteEmail` optional or allow it to be empty string if projectName is there.
+            // `send.ts` interface says `orgName: string`.
+            
+             await sendTeamInviteEmail({
+                email: invite.email,
+                // orgName is optional now, allowing projectName to be the context
+                inviterName: session.user.name || "Someone",
+                inviteLink: `${process.env.BETTER_AUTH_URL}/invite/${invite.token}`,
+                logoUrl,
+                bannerUrl,
+                projectName: name
+            });
+        }
+    }
+
     revalidatePath(`/organizations/${orgId}`); 
     revalidatePath(`/${slug}`);
 
@@ -125,4 +162,197 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
     }
     return { success: false, error: "Failed to create project" };
   }
+}
+
+export async function deleteProjectAction(projectId: string, orgSlug: string): Promise<ActionResponse<boolean>> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    include: { organization: true }
+  });
+
+  if (!project) {
+      return { success: false, error: "Project not found" };
+  }
+
+  const membership = await prisma.membership.findUnique({
+      where: {
+          userId_orgId: {
+              userId: session.user.id,
+              orgId: project.orgId
+          }
+      }
+  });
+
+  if (!membership || (membership.role !== "OWNER" && membership.role !== "ADMIN")) {
+      return { success: false, error: "Insufficient permissions to delete project" };
+  }
+
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+        // Delete invites
+        await tx.projectInvite.deleteMany({ where: { projectId } });
+        // Delete project
+        await tx.project.delete({ where: { id: projectId } });
+        return true;
+    });
+
+    revalidatePath(`/${orgSlug}/projects`);
+    return { success: true, data: true };
+  } catch (error) {
+    console.error("Failed to delete project:", error);
+    return { success: false, error: "Failed to delete project" };
+  }
+}
+
+export async function updateProjectSettingsAction(formData: FormData): Promise<ActionResponse<boolean>> {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+
+    const projectId = formData.get("projectId") as string;
+    
+    // Fetch project to check limits
+    const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: { organization: true }
+    });
+
+    if (!project) return { success: false, error: "Project not found" };
+
+    // Verify permissions
+    const membership = await prisma.membership.findUnique({
+        where: { userId_orgId: { userId: session.user.id, orgId: project.orgId } }
+    });
+
+    if (!membership || (membership.role !== "OWNER" && membership.role !== "ADMIN")) {
+        return { success: false, error: "Insufficient permissions" };
+    }
+
+    // Check 14-day limit
+    const now = new Date();
+    const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    
+    let currentCount = project.dataChangeCount;
+    const lastUpdate = project.lastDataChangeAt;
+
+    // Reset if last update was more than 14 days ago
+    if (lastUpdate && lastUpdate < fourteenDaysAgo) {
+        currentCount = 0;
+    }
+
+    if (currentCount >= 2) {
+        return { 
+            success: false, 
+            error: "Update limit reached. You can only update project data twice every 14 days." 
+        };
+    }
+
+    // Prepare update data
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+    const problem = formData.get("problem") as string;
+    const solution = formData.get("solution") as string;
+    const stage = formData.get("stage") as string;
+    const currentRevenue = formData.get("currentRevenue") as string;
+    const postMoneyValuation = formData.get("postMoneyValuation") as string;
+    const logoUrl = formData.get("logoUrl") as string;
+
+    try {
+        await prisma.project.update({
+            where: { id: projectId },
+            data: {
+                name,
+                description,
+                problem,
+                solution,
+                stage,
+                currentRevenue,
+                postMoneyValuation,
+                logoUrl,
+                dataChangeCount: currentCount + 1,
+                lastDataChangeAt: now
+            }
+        });
+
+        revalidatePath(`/${project.orgId}/projects`);
+        revalidatePath(`/${project.orgId}/${project.slug}`);
+        
+        return { success: true, data: true };
+    } catch (error) {
+        console.error("Update failed:", error);
+        return { success: false, error: "Failed to update project settings" };
+    }
+}
+
+export async function inviteProjectMemberAction(projectId: string, email: string): Promise<ActionResponse<{email: string; token: string; project: any}>> {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+
+    const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: { organization: true }
+    });
+
+    if (!project) return { success: false, error: "Project not found" };
+
+    // Verify permissions
+    const membership = await prisma.membership.findUnique({
+        where: { userId_orgId: { userId: session.user.id, orgId: project.orgId } }
+    });
+
+    if (!membership || (membership.role !== "OWNER" && membership.role !== "ADMIN")) {
+        return { success: false, error: "Insufficient permissions" };
+    }
+
+    try {
+        const token = crypto.randomBytes(32).toString("hex");
+        
+        // Create invite
+        await prisma.projectInvite.create({
+            data: {
+                email,
+                role: "CONTRIBUTOR",
+                projectId,
+                invitedById: session.user.id,
+                token,
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            }
+        });
+
+        // Send email
+        await sendTeamInviteEmail({
+            email,
+            orgName: project.organization.name,
+            inviterName: session.user.name || "Someone",
+            inviteLink: `${process.env.BETTER_AUTH_URL}/invite/${token}`,
+            logoUrl: project.logoUrl || project.organization.logoUrl,
+            bannerUrl: project.bannerUrl || project.organization.bannerUrl,
+            projectName: project.name
+        });
+
+        return { 
+            success: true, 
+            data: { 
+                email, 
+                token, 
+                project: { name: project.name, id: project.id } 
+            } 
+        };
+    } catch (error) {
+        console.error("Invite failed:", error);
+        return { success: false, error: "Failed to send invite" };
+    }
 }

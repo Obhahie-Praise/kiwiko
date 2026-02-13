@@ -53,15 +53,18 @@ export default async function OrgProjectsPage({ params }: PageProps) {
   });
 
   // Map to Table format (preserving mock fields for UI compatibility for now)
+  // Map to Table format
   const mappedProjects = projects.map(p => ({
       id: p.id,
       name: p.name,
+      slug: p.slug,
+      logoUrl: p.logoUrl,
       branch: "main", 
-      stage: "Idea", 
+      stage: p.stage || "Idea", 
       status: "Active", 
       progress: 0, 
       invested: "$0", 
-      valuation: "$0", 
+      valuation: p.postMoneyValuation ? `$${p.postMoneyValuation}` : "$0", 
       roi: "0%", 
       lastUpdate: new Date(p.updatedAt).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })
   }));
@@ -79,9 +82,9 @@ export default async function OrgProjectsPage({ params }: PageProps) {
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
                {/* Logo + Text Header */}
-               <div className="w-12 h-12 bg-white rounded-xl border border-zinc-200 shadow-sm flex items-center justify-center p-2">
+               <div className="w-12 h-12 bg-white rounded-xl border border-zinc-200 shadow-sm flex items-center justify-center overflow-hidden shrink-0">
                    {currentOrg.logoUrl ? (
-                       <img src={currentOrg.logoUrl} alt={currentOrg.name} className="w-full h-full object-contain" />
+                       <img src={currentOrg.logoUrl} alt={currentOrg.name} className="w-full h-full object-cover" />
                    ) : (
                        <Building2 className="text-zinc-400" size={20} />
                    )}
@@ -107,17 +110,7 @@ export default async function OrgProjectsPage({ params }: PageProps) {
           </div>
           
           {mappedProjects.length > 0 ? (
-            <div className="w-full p-0 border border-zinc-200 rounded-2xl bg-white shadow-xl overflow-hidden">
-                <div className="p-4 border-b bg-zinc-50/30 flex items-center justify-between gap-4">
-                  <div className="relative flex-1 w-full">
-                      <Search size={16} className="text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                      <input 
-                        type="text" 
-                        placeholder="Search projects..." 
-                        className="w-full pl-9 pr-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 transition-all placeholder:text-zinc-400" 
-                      />
-                  </div>
-              </div>
+            <div className="w-full p-0 border border-zinc-200 rounded-2xl bg-white shadow-xl overflow-visible">
               <ProjectsTable projects={mappedProjects} />
             </div>
           ) : (

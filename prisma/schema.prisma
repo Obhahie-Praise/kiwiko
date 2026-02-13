@@ -197,6 +197,9 @@ model Project {
   pitchDeckUrl       String?
   currentRevenue     String?
   postMoneyValuation String?
+  dataChangeCount    Int       @default(0)
+  lastDataChangeAt   DateTime?
+  links              Json?
 
   invites ProjectInvite[]
 
