@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 const HomePage = () => {
   return (
-    <div className=''>
+    <div className='scroll-smooth'>
       <Navbar />
       <main className="">
         <Hero />

@@ -1,7 +1,6 @@
-import { resend } from "@/lib/resend";
+import { sendEmail } from "@/lib/resend";
 import { TeamInviteEmail } from "@/components/emails/TeamInviteEmail";
 import * as React from "react";
-
 
 export interface SendTeamInviteParams {
   email: string;
@@ -16,26 +15,19 @@ export interface SendTeamInviteParams {
 export async function sendTeamInviteEmail(params: SendTeamInviteParams) {
   const { email, orgName, inviterName, inviteLink, logoUrl, bannerUrl, projectName } = params;
 
-  try {
-    const data = await resend.emails.send({
-      from: "Kiwiko <notifications@kiwiko.xyz>",
-      to: email,
-      subject: projectName 
-        ? `You've been invited to work on ${projectName} on Kiwiko`
-        : `You've been invited to join ${orgName} on Kiwiko`,
-      react: React.createElement(TeamInviteEmail, {
-        orgName,
-        inviterName,
-        role: "MEMBER",
-        inviteLink,
-        logoUrl,
-        bannerUrl,
-        projectName
-      }),
-    });
-    return { success: true, data };
-  } catch (error) {
-    console.error("Error sending email:", error);
-    return { success: false, error };
-  }
+  return sendEmail({
+    to: email,
+    subject: projectName 
+      ? `You've been invited to work on ${projectName} on Kiwiko`
+      : `You've been invited to join ${orgName} on Kiwiko`,
+    react: React.createElement(TeamInviteEmail, {
+      orgName,
+      inviterName,
+      role: "MEMBER",
+      inviteLink,
+      logoUrl,
+      bannerUrl,
+      projectName
+    }),
+  });
 }

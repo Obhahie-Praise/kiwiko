@@ -150,7 +150,7 @@ const handleFileAction = useCallback(
                     <Pencil size={20} className="text-white" />
                   </div>
                   <p className="text-xs font-semibold text-white tracking-wide">
-                    Change Image
+                    {label ? `Change ${label}` : "Change Image"}
                   </p>
                 </>
               )}

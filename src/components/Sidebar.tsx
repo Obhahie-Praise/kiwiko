@@ -6,15 +6,20 @@ import {
   LoaderCircle,
   PanelLeftClose,
   PanelLeftOpen,
+  Building2,
+  Plus
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { usePathname, useParams, useRouter } from "next/navigation";
+import { Suspense, useEffect, useState, useRef } from "react";
+import { getUserContextAction } from "@/actions/project.actions";
+import { useClickOutside } from "@/hooks/useClickOutside";
 
 const Sidebar = () => {
   const currentPath = usePathname();
   const params = useParams();
+  const router = useRouter();
 
   const orgSlug = params?.orgSlug as string;
   const projectSlug = params?.projectSlug as string;
@@ -39,7 +44,23 @@ const Sidebar = () => {
     localStorage.setItem("sidebar-collapsed", String(isCollasped));
   }, [isCollasped]);
 
-  // Find project by slug (assuming project name sluggified matches)
+  const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
+  const [userOrgs, setUserOrgs] = useState<any[]>([]);
+  const switcherRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(switcherRef, () => setIsSwitcherOpen(false));
+
+  useEffect(() => {
+    const fetchContext = async () => {
+      const res = await getUserContextAction();
+      if (res.success) {
+        setUserOrgs(res.data.organizations);
+      }
+    };
+    fetchContext();
+  }, []);
+
+  // Find project by slug
   const currentProject = projects.find(
     (p) => p.name.toLowerCase().replace(/\s+/g, "-") === projectSlug,
   );
@@ -54,6 +75,11 @@ const Sidebar = () => {
     (projectSlug
       ? projectSlug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
       : "Project");
+
+  const handleSwitch = (targetOrgSlug: string, targetProjectSlug: string) => {
+    setIsSwitcherOpen(false);
+    router.push(`/${targetOrgSlug}/${targetProjectSlug}/home`);
+  };
 
   if (isCollasped === null) return null;
 
@@ -95,14 +121,90 @@ const Sidebar = () => {
         </div>
 
         {!isCollasped && (
-          <div className="text-[10px] font-semibold py-1.5 px-2 text-zinc-500 bg-zinc-50 border border-zinc-200 rounded-lg mt-6 flex items-center justify-between shadow-sm cursor-default hover:border-zinc-300 transition-colors">
-            <p className="truncate uppercase tracking-tight">
-              {organizationName} <span className="text-zinc-300 mx-1">/</span>{" "}
-              {projectName}
-            </p>
-            <div className="text-zinc-400">
-              <ChevronsUpDown size={10} />
+          <div className="relative" ref={switcherRef}>
+            <div 
+              onClick={() => setIsSwitcherOpen(!isSwitcherOpen)}
+              className="text-[10px] font-semibold py-1.5 px-2 text-zinc-500 bg-white border border-zinc-200 rounded-lg mt-6 flex items-center justify-between shadow-sm cursor-pointer hover:border-zinc-300 hover:bg-zinc-50 transition-all active:scale-[0.98] relative z-50"
+            >
+              <p className="truncate uppercase tracking-tight pr-2">
+                {organizationName} <span className="text-zinc-300 mx-1">/</span>{" "}
+                {projectName}
+              </p>
+              <div className="text-zinc-400 shrink-0">
+                <ChevronsUpDown size={10} />
+              </div>
             </div>
+
+            {/* Switcher Dropdown */}
+            {isSwitcherOpen && (
+              <div className="absolute top-10 left-0 w-64 bg-white border border-zinc-200 rounded-xl shadow-2xl z-[100] p-1.5 flex flex-col animate-in fade-in zoom-in-95 duration-100">
+                <div className="px-2 py-1.5 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-50 mb-1">
+                  Switch Infrastructure
+                </div>
+                
+                <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                  {userOrgs.map((org) => (
+                    <div key={org.id} className="mb-2 last:mb-0">
+                      <div className="px-2 py-1 text-[9px] font-bold text-zinc-400 uppercase tracking-tight flex items-center gap-1.5">
+                        <Building2 size={10} />
+                        {org.name}
+                      </div>
+                      <div className="space-y-0.5 mt-1">
+                        {org.projects.length > 0 ? (
+                          org.projects.map((proj: any) => (
+                            <button
+                              key={proj.id}
+                              onClick={() => handleSwitch(org.slug, proj.slug)}
+                              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                org.slug === orgSlug && proj.slug === projectSlug
+                                  ? "bg-zinc-900 text-white shadow-lg shadow-zinc-200"
+                                  : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
+                              }`}
+                            >
+                              <div className={`w-4 h-4 rounded-md flex items-center justify-center shrink-0 border ${
+                                org.slug === orgSlug && proj.slug === projectSlug ? "border-zinc-700 bg-zinc-800" : "bg-white border-zinc-200"
+                              }`}>
+                                {proj.logoUrl ? (
+                                  <img src={proj.logoUrl} className="w-full h-full object-cover rounded-[3px]" alt="" />
+                                ) : (
+                                  <span className="text-[8px] font-black">{proj.name.charAt(0)}</span>
+                                )}
+                              </div>
+                              <span className="truncate">{proj.name}</span>
+                              {org.slug === orgSlug && proj.slug === projectSlug && (
+                                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                              )}
+                            </button>
+                          ))
+                        ) : (
+                           <div className="px-2 py-1 text-[10px] italic text-zinc-400">No projects found</div>
+                        )}
+                        
+                        {/* Option to create new project in this org */}
+                        <Link 
+                          href={`/${org.slug}/new-project`}
+                          onClick={() => setIsSwitcherOpen(false)}
+                          className="flex items-center gap-2 px-2.5 py-1 text-[10px] font-bold text-zinc-400 hover:text-zinc-900 transition-colors"
+                        >
+                          <Plus size={10} />
+                          <span>New Venture</span>
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="h-px bg-zinc-100 my-1" />
+                <Link 
+                  href="/new-organisation"
+                  onClick={() => setIsSwitcherOpen(false)}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
+                >
+                  <Plus size={12} />
+                  <span>Create Organization</span>
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
@@ -124,6 +226,10 @@ const Sidebar = () => {
               linkHref = `/${projectSlug}`;
               isActive =
                 currentPath === linkHref || currentPath === `${linkHref}/mail`;
+            } else if (item.label === "Settings") {
+              const baseRoute = `/${orgSlug}/${projectSlug}`;
+              isActive = currentPath === baseRoute;
+              linkHref = baseRoute;
             } else {
               const baseRoute = `/${orgSlug}/${projectSlug}${item.href}`;
               isActive =

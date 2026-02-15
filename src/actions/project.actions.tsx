@@ -35,6 +35,13 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
   const pitchDeckUrl = formData.get("pitchDeckUrl") as string || null;
   const currentRevenue = formData.get("currentRevenue") as string || null;
   const postMoneyValuation = formData.get("postMoneyValuation") as string || null;
+  const linksJson = formData.get("links") as string;
+  let links = null;
+  try {
+      if (linksJson) links = JSON.parse(linksJson);
+  } catch (e) {
+      console.error("Failed to parse links:", e);
+  }
 
   if (!name || !slug || !orgId) {
     return { success: false, error: "Name, slug, and organization ID are required" };
@@ -84,6 +91,7 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
             pitchDeckUrl,
             currentRevenue,
             postMoneyValuation,
+            links
         },
         });
 
@@ -259,6 +267,7 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
 
     // Prepare update data
     const name = formData.get("name") as string;
+    const slug = formData.get("slug") as string;
     const description = formData.get("description") as string;
     const problem = formData.get("problem") as string;
     const solution = formData.get("solution") as string;
@@ -266,12 +275,33 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
     const currentRevenue = formData.get("currentRevenue") as string;
     const postMoneyValuation = formData.get("postMoneyValuation") as string;
     const logoUrl = formData.get("logoUrl") as string;
+    const bannerUrl = formData.get("bannerUrl") as string;
+    const linksJson = formData.get("links") as string;
+    let links = undefined;
+    try {
+        if (linksJson) links = JSON.parse(linksJson);
+    } catch (e) {
+        console.error("Failed to parse links:", e);
+    }
 
     try {
+        // Check if slug is taken by another project in the same organization
+        if (slug && slug !== project.slug) {
+            const existingSlug = await prisma.project.findFirst({
+                where: {
+                    slug,
+                    orgId: project.orgId,
+                    id: { not: projectId }
+                }
+            });
+            if (existingSlug) return { success: false, error: "Project URL is already taken in this organization." };
+        }
+
         await prisma.project.update({
             where: { id: projectId },
             data: {
                 name,
+                slug: slug || project.slug,
                 description,
                 problem,
                 solution,
@@ -279,13 +309,16 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
                 currentRevenue,
                 postMoneyValuation,
                 logoUrl,
+                bannerUrl,
+                links,
                 dataChangeCount: currentCount + 1,
                 lastDataChangeAt: now
             }
         });
 
-        revalidatePath(`/${project.orgId}/projects`);
-        revalidatePath(`/${project.orgId}/${project.slug}`);
+        revalidatePath(`/${project.organization.slug}/projects`);
+        revalidatePath(`/${project.organization.slug}/${project.slug}`);
+        if (slug) revalidatePath(`/${project.organization.slug}/${slug}`);
         
         return { success: true, data: true };
     } catch (error) {
@@ -356,3 +389,45 @@ export async function inviteProjectMemberAction(projectId: string, email: string
         return { success: false, error: "Failed to send invite" };
     }
 }
+
+export async function getUserContextAction(): Promise<ActionResponse<{ organizations: any[] }>> {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+
+    try {
+        const organizations = await prisma.organization.findMany({
+            where: {
+                memberships: {
+                    some: {
+                        userId: session.user.id
+                    }
+                }
+            },
+            include: {
+                projects: {
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true,
+                        logoUrl: true
+                    },
+                    orderBy: {
+                        updatedAt: 'desc'
+                    }
+                }
+            },
+            orderBy: {
+                name: 'asc'
+            }
+        });
+
+        return { success: true, data: { organizations } };
+    } catch (error) {
+        console.error("Failed to fetch user context:", error);
+        return { success: false, error: "Failed to fetch organizations and projects" };
+    }
+}
+

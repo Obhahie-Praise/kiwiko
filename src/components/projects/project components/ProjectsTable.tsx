@@ -38,7 +38,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
   // Filter projects based on search query
   const filteredProjects = projects.filter((project) => {
     const query = searchQuery.toLowerCase();
-    const domain = `kiwiko.io/${orgSlug}/${project.slug}`;
+    const domain = `kiwiko.io/${project.slug}`; // Changed: Public profile is /slug
     
     return (
       project.name.toLowerCase().includes(query) ||
@@ -115,13 +115,13 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
                 {/* Domain */}
                 <div className="col-span-2">
                   <a
-                    href={`https://${domain}`}
+                    href={`/${project.slug}`} // Changed: Public profile is /slug
                     target="_blank"
                     rel="noreferrer"
                     onClick={(e) => e.stopPropagation()}
                     className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium bg-zinc-50 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 border border-transparent hover:border-zinc-200 transition-all truncate max-w-full"
                   >
-                    <span className="truncate">{domain}</span>
+                    <span className="truncate">kiwiko.io/{project.slug}</span>
                     <ExternalLink size={10} className="shrink-0 opacity-50" />
                   </a>
                 </div>

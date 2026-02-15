@@ -9,7 +9,7 @@
   } */
 
 body {
-  @apply bg-zinc-100 text-foreground font-sans;
+  @apply bg-zinc-100 text-foreground font-sans scroll-smooth;
 }
 
 .scroll-mod::-webkit-scrollbar {

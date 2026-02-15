@@ -64,12 +64,15 @@ export async function createOrganizationAction(formData: FormData): Promise<Acti
           logoUrl,
           bannerUrl,
           ownerId: userId,
-          memberships: {
-            create: {
-              userId: userId,
-              role: "OWNER",
-            }
-          }
+        },
+      });
+
+      // Create owner membership
+      await tx.membership.create({
+        data: {
+          userId: userId,
+          orgId: org.id,
+          role: "OWNER",
         },
       });
 

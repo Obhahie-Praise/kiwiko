@@ -17,7 +17,7 @@ export default function TeamHeader({ team }: any) {
       </div>
 
       {/* Client-controlled action */}
-      <InviteMember />
+      <InviteMember orgId={team.id} />
     </header>
   );
 }

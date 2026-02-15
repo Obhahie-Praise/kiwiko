@@ -1,7 +1,7 @@
 import Sidebar from "@/components/Sidebar";
 import React from "react";
 
-export default function ProjectLayout({ children }: { children: React.ReactNode }) {
+export default function ProjectGroupLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[auto_1fr]">
       <aside className="sticky top-0 h-screen">

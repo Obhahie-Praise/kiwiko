@@ -237,6 +237,12 @@ export const sidebarNav = [
     icon: User2,
     description: "Account and startup preferences",
   },
+  {
+    label: "Settings",
+    href: "",
+    icon: UserRoundPen,
+    description: "Project configuration and identity",
+  },
 ];
 
 export const completeOnboarding = [

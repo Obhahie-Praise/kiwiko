@@ -78,26 +78,6 @@ const NewOrgForm = () => {
     try {
       const result = await createOrganizationAction(formData);
       if (result.success) {
-         if (result.data.invites && result.data.invites.length > 0) {
-            await Promise.all(result.data.invites.map(async (invite: any) => {
-                 try {
-                    await fetch("/api/send", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            email: invite.email,
-                            orgName: name, 
-                            inviterName: "Founder", // TODO: active user name
-                            inviteLink: `${window.location.origin}/invite/${invite.token}`,
-                            logoUrl: logoUrl,
-                            bannerUrl: bannerUrl
-                        })
-                    });
-                 } catch (e) {
-                     console.error("Failed to send invite email", e);
-                 }
-            }));
-         }
          router.push(`/${slug}`);
       } else {
         setError(result.error);

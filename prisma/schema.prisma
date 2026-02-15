@@ -201,6 +201,18 @@ model Project {
   lastDataChangeAt   DateTime?
   links              Json?
 
+ githubStars          Int?
+  githubForks          Int?
+  githubOpenIssues     Int?
+  githubClosedIssues   Int?
+  githubCommitCount30d Int?
+  githubLastCommitAt   DateTime?
+
+  githubRepoFullName String? // "owner/repo"
+  githubRepoId       String?
+  githubConnectedBy  String? // userId who linked
+  githubLastSyncedAt DateTime?
+
   invites ProjectInvite[]
 
   createdAt DateTime @default(now())

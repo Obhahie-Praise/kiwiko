@@ -17,6 +17,7 @@ import {
 import PitchDeck from "@/components/projects/PitchDeck";
 import Link from "next/link";
 import Navbar from "@/components/common/Navbar";
+import { getLinkIcon, getLinkLabel } from "@/lib/url-utils";
 
 interface ProjectPublicViewProps {
     project: any; // TODO: Type this properly based on DB or Constant
@@ -64,77 +65,84 @@ const ProjectPublicView = ({ project, organization, orgSlug }: ProjectPublicView
         </Link>
       </header>
 
-      {/* Hero Section with Full-width Banner Background */}
-      <main className="pt-24 pb-20 overflow-x-hidden">
-        {/* Banner Container */}
-        <section className="relative w-full h-[500px] flex items-center mb-20 overflow-hidden">
-          {/* Background Image/Banner */}
-          <div className="absolute inset-0 z-0">
+      {/* Hero Section with Prominent Banner */}
+      <main className="pt-20 pb-20 overflow-x-hidden">
+        {/* Banner Section */}
+        <section className="relative w-full h-[600px] mb-16 overflow-hidden bg-zinc-50">
+          {/* Background Image/Banner - Clean and Clear */}
+          <div className="absolute inset-0">
             <div 
-              className="w-full h-full bg-cover bg-center bg-no-repeat transition-transform duration-700 hover:scale-105"
+              className="w-full h-full bg-cover bg-center bg-no-repeat transition-transform duration-1000"
               style={{ 
                 backgroundImage: `url(${project.bannerUrl || 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2000&auto=format&fit=crop'})`,
               }}
             />
-            {/* Glossy Overlay for Readability */}
-            <div className="absolute inset-0 bg-linear-to-b from-white/80 via-white/40 to-white/95 backdrop-blur-[2px]" />
           </div>
 
-          {/* Centered Content */}
-          <div className="relative z-10 w-full px-6 max-w-7xl mx-auto">
-            <div className="pt-12">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/50 backdrop-blur-md text-emerald-700 rounded-full border border-emerald-100/50 mb-8 shadow-sm">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+          {/* Tagline Overlay - Bottom Left */}
+          <div className="absolute bottom-0 left-0 z-10 w-full max-w-4xl">
+            <div className="bg-white/70 p-10 md:p-14 rounded-tr-[4rem] shadow-2xl border-t border-r border-white/30">
+               <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 text-white rounded-full mb-8 shadow-xl italic">
+                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                 <span className="text-[10px] font-extrabold uppercase tracking-widest">{project.stage || "Growth"}</span>
               </div>
               
-              <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-zinc-900 leading-[0.85] mb-12 italic uppercase drop-shadow-sm">
+              <h1 className="text-5xl md:text-[5.5rem] font-black tracking-tighter text-zinc-900 leading-[0.85] italic uppercase">
                 {(project.tagline || project.description) ? (
                   <>
                     {(project.tagline || project.description).split(" ").slice(0, 3).join(" ")} <br />
-                    <span className="bg-clip-text text-transparent bg-linear-to-r from-zinc-900 via-zinc-800 to-zinc-500">
+                    <span className="text-zinc-500">
                       {(project.tagline || project.description).split(" ").slice(3).join(" ")}
                     </span>
                   </>
                 ) : (
                   <>
-                    The future of <span className="bg-clip-text text-transparent bg-linear-to-r from-zinc-900 to-zinc-500">Infrastructure</span> <br /> is built here.
+                    The future of <span className="text-zinc-500">Infrastructure</span> <br /> is built here.
                   </>
                 )}
               </h1>
+            </div>
+          </div>
+        </section>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 border-t pt-12 border-zinc-200/50">
-                <div className="lg:col-span-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-zinc-900">
-                    <div>
-                      <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4">The Problem</h3>
-                      <p className="text-lg font-bold leading-relaxed italic">
-                        {project.problem || "Venture data is siloed, fragmented, and lacks real-time verification. Investors fly blind while founders drown in reporting."}
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4">The Solution</h3>
-                      <p className="text-lg  font-bold leading-relaxed">
-                        {project.solution || "A verifiable, agent-driven infrastructure that provides ground-truth metrics of execution at every stage of the lifecycle."}
-                      </p>
-                    </div>
-                  </div>
+        {/* Content Section - Below Banner */}
+        <section className="px-6 max-w-7xl mx-auto mb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="lg:col-span-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-zinc-900">
+                <div>
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 flex items-center gap-2">
+                    <span className="w-4 h-px bg-zinc-300" />
+                    The Problem
+                  </h3>
+                  <p className="text-xl font-bold leading-relaxed italic">
+                    {project.problem || "Venture data is siloed, fragmented, and lacks real-time verification. Investors fly blind while founders drown in reporting."}
+                  </p>
                 </div>
+                <div>
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 flex items-center gap-2">
+                    <span className="w-4 h-px bg-zinc-300" />
+                    The Solution
+                  </h3>
+                  <p className="text-xl font-bold leading-relaxed">
+                    {project.solution || "A verifiable, agent-driven infrastructure that provides ground-truth metrics of execution at every stage of the lifecycle."}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-                <div className="lg:col-span-4 flex flex-col justify-between p-8 bg-white/40 backdrop-blur-xl rounded-[2.5rem] border border-white/60 shadow-xl shadow-zinc-200/20">
-                  <div>
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 flex items-center gap-2">
-                      Current Valuation <ShieldCheck size={12} className="text-emerald-500" />
-                    </h3>
-                    <p className="text-5xl font-black text-zinc-900 tracking-tighter mb-2">{project.postMoneyValuation ? `$${project.postMoneyValuation}` : "$10M"}</p>
-                    <p className="text-sm font-bold text-zinc-500 uppercase tracking-tight">Estimated Post-Money Market Signal</p>
-                  </div>
-                  <div className="mt-8 flex gap-2 overflow-x-auto no-scrollbar">
-                      <span className="px-3 py-1 bg-white/60 border border-white/80 rounded-lg text-[10px] font-bold text-zinc-600 whitespace-nowrap backdrop-blur-sm">BOOTSTRAPPED</span>
-                      <span className="px-3 py-1 bg-white/60 border border-white/80 rounded-lg text-[10px] font-bold text-zinc-600 whitespace-nowrap backdrop-blur-sm">SERIES {project.id === 'p1' ? 'A' : 'SEED'}</span>
-                      <span className="px-3 py-1 bg-white/60 border border-white/80 rounded-lg text-[10px] font-bold text-zinc-500 whitespace-nowrap backdrop-blur-sm">+20% MOM</span>
-                  </div>
-                </div>
+            <div className="lg:col-span-4 flex flex-col justify-between p-8 bg-zinc-50 rounded-[3rem] border border-zinc-200/60 shadow-inner">
+              <div>
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-8 flex items-center gap-2">
+                  Current Valuation <ShieldCheck size={12} className="text-emerald-500" />
+                </h3>
+                <p className="text-6xl font-black text-zinc-900 tracking-tighter mb-2">{project.postMoneyValuation ? `$${project.postMoneyValuation}` : "$10M"}</p>
+                <p className="text-sm font-bold text-zinc-400 uppercase tracking-tight">Post-Money Market Signal</p>
+              </div>
+              <div className="mt-12 flex gap-2 overflow-x-auto no-scrollbar">
+                  <span className="px-3 py-1.5 bg-white border border-zinc-200 rounded-xl text-[10px] font-black text-zinc-800 whitespace-nowrap shadow-sm lowercase tracking-tight">bootstrapped</span>
+                  <span className="px-3 py-1.5 bg-white border border-zinc-200 rounded-xl text-[10px] font-black text-zinc-800 whitespace-nowrap shadow-sm lowercase tracking-tight">series {project.id === 'p1' ? 'A' : 'seed'}</span>
+                  <span className="px-3 py-1.5 bg-zinc-900 rounded-xl text-[10px] font-black text-white whitespace-nowrap shadow-sm lowercase tracking-tight">+20% mom</span>
               </div>
             </div>
           </div>
@@ -192,13 +200,13 @@ const ProjectPublicView = ({ project, organization, orgSlug }: ProjectPublicView
                     <p className="text-zinc-400 font-medium mb-12 text-sm leading-relaxed">
                         Every log entry and metric on this page is cryptographically verified by the Kiwiko protocol. We believe in high-certainty venture infrastructure.
                     </p>
-                    
+
                     <div className="space-y-6 mb-12">
-                        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                        <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
                             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Active Engineers</span>
                             <span className="text-xl font-black italic tracking-tighter">12</span>
                         </div>
-                        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                        <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
                             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Git Momentum</span>
                             <span className="text-xl font-black italic tracking-tighter text-emerald-400">EXCEPTIONAL</span>
                         </div>
@@ -207,6 +215,31 @@ const ProjectPublicView = ({ project, organization, orgSlug }: ProjectPublicView
                             <span className="text-xl font-black italic tracking-tighter text-emerald-400">98%</span>
                         </div>
                     </div>
+
+                    {/* Dynamic Relevant Links */}
+                    {project.links && project.links.length > 0 && (
+                        <div className="mb-12">
+                             <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Relevant Resources</h4>
+                             <div className="grid grid-cols-2 gap-3">
+                                {project.links.map((url: string, idx: number) => (
+                                    <a 
+                                        key={idx} 
+                                        href={url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors group/link"
+                                    >
+                                        <span className="text-zinc-400 group-hover/link:text-white transition-colors">
+                                            {getLinkIcon(url)}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-zinc-300 truncate group-hover/link:text-white transition-colors">
+                                            {getLinkLabel(url)}
+                                        </span>
+                                    </a>
+                                ))}
+                             </div>
+                        </div>
+                    )}
 
                     <Link 
                       href={`/${orgSlug}/mail`}

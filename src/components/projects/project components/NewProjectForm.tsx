@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import UploadDropzone from "../../ui/upload/UploadDropZone";
 import { createProjectAction } from "@/actions/project.actions";
+import { getLinkIcon } from "@/lib/url-utils";
 
 interface NewProjectFormProps {
     orgId: string; // This might be passed from a parent or we might need to derive it/fetch it if not available directly, but usually for this form we assume we have it or the slug. 
@@ -32,6 +33,9 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
     
     // Dynamic invites state
     const [invites, setInvites] = useState<{ email: string }[]>([{ email: "" }]);
+    
+    // Dynamic links state
+    const [links, setLinks] = useState<{ url: string }[]>([{ url: "" }]);
 
     const [pitchDeckUrl, setPitchDeckUrl] = useState("");
 
@@ -58,6 +62,22 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
         setInvites(newInvites.length > 0 ? newInvites : [{ email: "" }]);
     };
 
+    const handleLinkChange = (index: number, value: string) => {
+        const newLinks = [...links];
+        newLinks[index].url = value;
+        setLinks(newLinks);
+
+        if (index === links.length - 1 && value.trim() !== "") {
+            setLinks([...newLinks, { url: "" }]);
+        }
+    };
+
+    const handleRemoveLink = (index: number) => {
+        const newLinks = [...links];
+        newLinks.splice(index, 1);
+        setLinks(newLinks.length > 0 ? newLinks : [{ url: "" }]);
+    };
+
     const handleSubmit = async () => {
         setIsPending(true);
         setError("");
@@ -69,6 +89,10 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
             const validInvites = invites
                 .map(i => i.email.trim())
                 .filter(email => email !== "");
+
+            const validLinks = links
+                .map(l => l.url.trim())
+                .filter(link => link !== "");
 
             const formData = new FormData();
             formData.append("name", name);
@@ -83,6 +107,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
             if (currentRevenue) formData.append("currentRevenue", currentRevenue);
             if (postMoneyValuation) formData.append("postMoneyValuation", postMoneyValuation);
             formData.append("invites", JSON.stringify(validInvites));
+            formData.append("links", JSON.stringify(validLinks));
 
             if (logoUrl) formData.append("logoUrl", logoUrl);
             if (bannerUrl) formData.append("bannerUrl", bannerUrl);
@@ -91,28 +116,6 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
             const result = await createProjectAction(formData);
 
             if (result.success) {
-                // Trigger emails client-side
-                if (result.data.invites && result.data.invites.length > 0) {
-                    await Promise.all(result.data.invites.map(async (invite: any) => {
-                         try {
-                            await fetch("/api/send", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    email: invite.email,
-                                    orgName: "Global", // TODO: Fetch legit org name
-                                    inviterName: "Founder", // TODO: active user name
-                                    inviteLink: `${window.location.origin}/project-invite/${invite.token}`,
-                                    logoUrl: logoUrl,
-                                    bannerUrl: bannerUrl,
-                                    projectName: name
-                                })
-                            });
-                         } catch (e) {
-                             console.error("Failed to send invite email", e);
-                         }
-                    }));
-                }
                 router.push(`/${result.data.slug}`); 
             } else {
                 setError(result.error);
@@ -415,29 +418,67 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                     </div>
                 </div>
 
-                <div className="bg-zinc-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-zinc-200">
-                    <Link
-                        href={`/${orgSlug}/projects`}
-                        className="px-4 py-2 text-sm font-medium text-zinc-700 hover:text-zinc-900 bg-white border border-zinc-300 hover:bg-zinc-50 rounded-lg transition-colors shadow-sm"
-                    >
-                        Cancel
-                    </Link>
-                    <button 
-                         onClick={handleSubmit}
-                         disabled={isPending}
-                         className="px-6 py-2 text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
-                    >
-                        {isPending ? "Creating..." : "Create Project"}
-                    </button>
+            {/* Section: Links */}
+            <div className="p-6 border-t border-zinc-100 bg-zinc-50/10">
+                <h2 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <Globe size={16} className="text-zinc-400" />
+                    Relevant Links
+                </h2>
+                
+                <div className="space-y-4">
+                    <label className="block text-sm font-medium text-zinc-700">
+                        URLs (GitHub, Twitter, Website, etc.)
+                    </label>
+                    {links.map((link, index) => (
+                        <div key={index} className="flex gap-3">
+                            <div className="relative flex-1">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">
+                                    {getLinkIcon(link.url)}
+                                </div>
+                                <input
+                                    type="url"
+                                    value={link.url}
+                                    onChange={(e) => handleLinkChange(index, e.target.value)}
+                                    placeholder="https://..."
+                                    className="w-full pl-10 pr-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-400"
+                                />
+                            </div>
+                            {links.length > 1 && (
+                                <button 
+                                    onClick={() => handleRemoveLink(index)}
+                                    className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                    <X size={18} />
+                                </button>
+                            )}
+                        </div>
+                    ))}
                 </div>
-                 {error && (
-                    <div className="px-6 py-3 bg-red-50 border-t border-red-100">
-                        <p className="text-xs text-red-600 font-medium">{error}</p>
-                    </div>
-                )}
             </div>
+
+            <div className="bg-zinc-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-zinc-200">
+                <Link
+                    href={`/${orgSlug}/projects`}
+                    className="px-4 py-2 text-sm font-medium text-zinc-700 hover:text-zinc-900 bg-white border border-zinc-300 hover:bg-zinc-50 rounded-lg transition-colors shadow-sm"
+                >
+                    Cancel
+                </Link>
+                <button 
+                     onClick={handleSubmit}
+                     disabled={isPending}
+                     className="px-6 py-2 text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
+                >
+                    {isPending ? "Creating..." : "Create Project"}
+                </button>
+            </div>
+             {error && (
+                <div className="px-6 py-3 bg-red-50 border-t border-red-100">
+                    <p className="text-xs text-red-600 font-medium">{error}</p>
+                </div>
+            )}
         </div>
-    );
+    </div>
+);
 };
 
 export default NewProjectForm;

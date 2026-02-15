@@ -3,18 +3,31 @@
 import { useState } from "react";
 import { X, Mail } from "lucide-react";
 
-export default function InviteMember() {
+import { inviteTeamMembersAction } from "@/actions/email.actions";
+
+export default function InviteMember({ orgId }: { orgId: string }) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const [isPending, setIsPending] = useState(false);
 
-  const sendInvite = () => {
+  const sendInvite = async () => {
     if (!email) return;
+    setIsPending(true);
 
-    // 🔜 later: call server action
-    console.log("Inviting:", email);
-
-    setEmail("");
-    setOpen(false);
+    try {
+        const result = await inviteTeamMembersAction(orgId, [{ email, role: "Member" }]);
+        if (result.success) {
+            setEmail("");
+            setOpen(false);
+        } else {
+            alert(result.error);
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Failed to send invite");
+    } finally {
+        setIsPending(false);
+    }
   };
 
   return (
@@ -64,9 +77,10 @@ export default function InviteMember() {
               </button>
               <button
                 onClick={sendInvite}
-                className="text-sm px-4 py-2 rounded-lg bg-black text-white"
+                disabled={isPending}
+                className="text-sm px-4 py-2 rounded-lg bg-black text-white disabled:opacity-50"
               >
-                Send invite
+                {isPending ? "Sending..." : "Send invite"}
               </button>
             </div>
           </div>
