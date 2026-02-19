@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeft, Upload, Globe, Wallet, ChevronDown, Check, UserPlus, FileText, Target, Tag, Users, X } from "lucide-react";
+import { ArrowLeft, Upload, Globe, Wallet, ChevronDown, Check, UserPlus, FileText, Target, Tag, Users, X, Github, Lock, Search, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import UploadDropzone from "../../ui/upload/UploadDropZone";
 import { createProjectAction } from "@/actions/project.actions";
+import { getUserGithubRepos } from "@/actions/github.actions";
 import { getLinkIcon } from "@/lib/url-utils";
+import { useEffect } from "react";
+import { signIn } from "@/lib/auth-client";
 
 interface NewProjectFormProps {
     orgId: string; // This might be passed from a parent or we might need to derive it/fetch it if not available directly, but usually for this form we assume we have it or the slug. 
@@ -41,6 +44,36 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
 
     const [isPending, setIsPending] = useState(false);
     const [error, setError] = useState("");
+
+    // GitHub Integration State
+    const [githubRepos, setGithubRepos] = useState<any[]>([]);
+    const [selectedRepo, setSelectedRepo] = useState<string | null>(null);
+    const [repoSearch, setRepoSearch] = useState("");
+    const [isFetchingRepos, setIsFetchingRepos] = useState(false);
+    const [isLinkingGithub, setIsLinkingGithub] = useState(false);
+    const [repoError, setRepoError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchRepos = async () => {
+            setIsFetchingRepos(true);
+            setRepoError(null);
+            const res = await getUserGithubRepos();
+            if (res.success) {
+                setGithubRepos(res.data);
+            } else {
+                setRepoError(res.error);
+                if (res.error === "no linked github") {
+                    setGithubRepos([]);
+                }
+            }
+            setIsFetchingRepos(false);
+        };
+        fetchRepos();
+    }, []);
+
+    const filteredRepos = githubRepos.filter(repo => 
+        repo.full_name.toLowerCase().includes(repoSearch.toLowerCase())
+    ).slice(0, 5);
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
@@ -112,6 +145,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
             if (logoUrl) formData.append("logoUrl", logoUrl);
             if (bannerUrl) formData.append("bannerUrl", bannerUrl);
             if (pitchDeckUrl) formData.append("pitchDeckUrl", pitchDeckUrl);
+            if (selectedRepo) formData.append("githubRepoFullName", selectedRepo);
 
             const result = await createProjectAction(formData);
 
@@ -456,6 +490,127 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                 </div>
             </div>
 
+            {/* Section: Source Code (GitHub) */}
+            <div className="p-6 border-t border-zinc-100 bg-zinc-50/10">
+                <h2 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <Github size={16} className="text-zinc-400" />
+                    Source Code
+                </h2>
+                
+                <div className="space-y-4">
+                    <p className="text-xs text-zinc-500 mb-4">
+                        Link a GitHub repository to track development velocity and share open-source progress.
+                    </p>
+
+                    <div className="relative">
+                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                        <input
+                            type="text"
+                            placeholder="Search your repositories..."
+                            value={repoSearch}
+                            onChange={(e) => setRepoSearch(e.target.value)}
+                            className="w-full pl-9 pr-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-400"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2 mt-4">
+                        {isFetchingRepos ? (
+                            <div className="py-8 flex flex-col items-center justify-center gap-2 text-zinc-400">
+                                <div className="w-5 h-5 border-2 border-zinc-200 border-t-zinc-800 rounded-full animate-spin" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Fetching Repositories</span>
+                            </div>
+                        ) : repoError === "no linked github" ? (
+                            <div className="p-6 rounded-2xl border border-dashed border-zinc-200 bg-zinc-50/50 text-center space-y-4">
+                                <div className="w-12 h-12 bg-white rounded-xl border border-zinc-100 flex items-center justify-center mx-auto text-zinc-400">
+                                    <Github size={24} />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-sm font-semibold text-zinc-900">Connect GitHub</p>
+                                    <p className="text-xs text-zinc-500">Link your account to import project data from your repositories.</p>
+                                </div>
+                                <button 
+                                    type="button"
+                                    disabled={isLinkingGithub}
+                                    onClick={async () => {
+                                        setIsLinkingGithub(true);
+                                        await signIn.social({ 
+                                            provider: 'github', 
+                                            callbackURL: window.location.href 
+                                        });
+                                    }}
+                                    className="px-4 py-2 bg-zinc-900 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-black transition-all disabled:opacity-50 inline-flex items-center gap-2"
+                                >
+                                    {isLinkingGithub && <Loader2 size={12} className="animate-spin" />}
+                                    {isLinkingGithub ? "Redirecting..." : "Connect GitHub Account"}
+                                </button>
+                            </div>
+                        ) : githubRepos.length > 0 ? (
+                            filteredRepos.map((repo) => (
+                                <button
+                                    key={repo.id}
+                                    type="button"
+                                    onClick={() => setSelectedRepo(selectedRepo === repo.full_name ? null : repo.full_name)}
+                                    className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all text-left ${
+                                        selectedRepo === repo.full_name
+                                            ? "border-zinc-900 bg-zinc-900 text-white shadow-xl shadow-zinc-200"
+                                            : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedRepo === repo.full_name ? "bg-white/10" : "bg-zinc-50"}`}>
+                                            <Github size={20} className={selectedRepo === repo.full_name ? "text-white" : "text-zinc-400"} />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-bold truncate max-w-[250px]">{repo.full_name}</span>
+                                            <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-1">
+                                                <div className="flex items-center gap-1">
+                                                    <span className={`text-[10px] font-bold ${selectedRepo === repo.full_name ? "text-zinc-400" : "text-zinc-500"}`}>
+                                                        {repo.stargazers_count} stars
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <span className={`text-[10px] font-bold ${selectedRepo === repo.full_name ? "text-zinc-400" : "text-zinc-500"}`}>
+                                                        {repo.forks_count} forks
+                                                    </span>
+                                                </div>
+                                                {repo.commit_count !== undefined && (
+                                                    <div className="flex items-center gap-1">
+                                                        <span className={`text-[10px] font-bold ${selectedRepo === repo.full_name ? "text-zinc-400" : "text-zinc-500"}`}>
+                                                            {repo.commit_count} commits
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                <div className="flex items-center gap-1">
+                                                    <span className={`text-[10px] font-medium italic ${selectedRepo === repo.full_name ? "text-zinc-500" : "text-zinc-400"}`}>
+                                                        Last update: {new Date(repo.pushed_at).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {selectedRepo === repo.full_name && (
+                                        <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-zinc-900 shadow-sm">
+                                            <Check size={14} />
+                                        </div>
+                                    )}
+                                </button>
+                            ))
+                        ) : (
+                            <div className="p-6 rounded-2xl border border-dashed border-zinc-200 text-center bg-zinc-50/30">
+                                <p className="text-sm font-medium text-zinc-500 italic">
+                                    {repoError === "there is no repo" ? "No repositories found for this account." : "No projects detected."}
+                                </p>
+                            </div>
+                        )}
+                        
+                        {repoSearch && filteredRepos.length === 0 && !isFetchingRepos && (
+                             <p className="text-[10px] text-zinc-400 text-center py-2 italic uppercase">No matching repositories found</p>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+
             <div className="bg-zinc-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-zinc-200">
                 <Link
                     href={`/${orgSlug}/projects`}
@@ -477,7 +632,6 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                 </div>
             )}
         </div>
-    </div>
 );
 };
 

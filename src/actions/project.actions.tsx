@@ -43,6 +43,8 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
       console.error("Failed to parse links:", e);
   }
 
+  const githubRepoFullName = formData.get("githubRepoFullName") as string || null;
+
   if (!name || !slug || !orgId) {
     return { success: false, error: "Name, slug, and organization ID are required" };
   }
@@ -91,7 +93,9 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
             pitchDeckUrl,
             currentRevenue,
             postMoneyValuation,
-            links
+            links,
+            githubRepoFullName,
+            githubConnectedBy: githubRepoFullName ? userId : null,
         },
         });
 
@@ -154,6 +158,17 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
 
     revalidatePath(`/organizations/${orgId}`); 
     revalidatePath(`/${slug}`);
+
+    // Trigger initial GitHub sync if repo is linked
+    if (githubRepoFullName) {
+        try {
+            const { syncProjectGithubMetrics } = await import("@/actions/github.actions");
+            await syncProjectGithubMetrics(result.project.id);
+        } catch (syncError) {
+            console.error("Initial GitHub sync failed:", syncError);
+            // Don't fail the whole action if sync fails
+        }
+    }
 
     return { 
         success: true, 

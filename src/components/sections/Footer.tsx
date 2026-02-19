@@ -15,10 +15,10 @@ const Footer = () => {
             <p className="text-zinc-500 font-bold text-lg leading-relaxed max-w-sm">
               The high-conviction infrastructure for verifiable venture execution.
             </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 text-[10px] font-black uppercase tracking-widest italic">
+            {/* <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 text-[10px] font-black uppercase tracking-widest italic">
                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
                Audited Data Only
-            </div>
+            </div> */}
           </div>
 
           {/* Links Grid */}
@@ -57,7 +57,7 @@ const Footer = () => {
            <div className="flex items-center gap-6 text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">
               <span>© {new Date().getFullYear()} KIWIKO CORP</span>
               <span className="text-zinc-200">/</span>
-              <span>EST. 2024</span>
+              <span>EST. 2026</span>
            </div>
            
            <div className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.3em] flex items-center gap-3 italic">

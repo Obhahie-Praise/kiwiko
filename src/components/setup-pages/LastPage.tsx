@@ -16,40 +16,14 @@ import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
-const LastPage = ({
-  position,
-  userRole,
-  catergory,
-  projectDesc,
-  projectName,
-  theProblem,
-  theSolution,
-  stage,
-  linkToProduct,
-  userCount,
-  revenue,
-  teamSize,
-  leaderStatus,
-  fundsSeekingStatus,
-  fundingStage,
-  consent,
-  setConsent,
-}: StartupOnboarding) => {
-  const [infoisaccurate, setinfoisaccurate] = useState(false);
-  const [sharingisallowed, setsharingisallowed] = useState(false);
-  const [fundingsnotguaranteed, setfundingsnotguaranteed] = useState(false);
+const LastPage = ({ userRole }: { userRole: string }) => {
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>();
   const router = useRouter();
 
-  const isComplete =
-    infoisaccurate && sharingisallowed && fundingsnotguaranteed;
-
-  useEffect(() => {
-    if (userRole === "") {
-      redirect("/onboarding/setup?page=1");
-    }
-  }, []);
+  const isComplete = termsAccepted && privacyAccepted;
 
   const handleFinalSubmit = async () => {
     try {
@@ -57,21 +31,8 @@ const LastPage = ({
       setError(null);
 
       const result = await submitStartupOnboarding({
+        consent: isComplete,
         userRole,
-        projectName,
-        projectDesc,
-        catergory,
-        theProblem,
-        theSolution,
-        stage,
-        linkToProduct,
-        userCount,
-        revenue,
-        teamSize,
-        leaderStatus,
-        fundsSeekingStatus,
-        fundingStage,
-        consent,
       });
 
       if (!result.success) {
@@ -81,10 +42,11 @@ const LastPage = ({
         return;
       }
 
-      router.push("/kiwiko-corp/projects");
+      router.push("/dashboard");
     } catch (e) {
       console.error(e);
       setIsLoading(false);
+      setError("An unexpected error occurred.");
     }
   };
 
@@ -99,11 +61,10 @@ const LastPage = ({
             FIN
           </div>
           <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
-            Final <br /> <span className="text-zinc-500">Validation.</span>
+            One Last <br /> <span className="text-zinc-500">Step.</span>
           </h2>
           <p className="text-zinc-400 font-bold text-lg leading-relaxed">
-            One last step to initialize your protocol into the Kiwiko ecosystem.
-            Clarity is the final signal.
+            Accept our terms and initialize your protocol into the Kiwiko ecosystem.
           </p>
         </div>
 
@@ -124,64 +85,66 @@ const LastPage = ({
               Verification Protocol
             </span>
             <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">
-              Initialization.
+              Legal Consent.
             </h1>
           </div>
 
           <div className="space-y-6">
             <p className="text-zinc-500 font-bold text-lg mb-8 leading-relaxed">
-              Please confirm the following to complete your onboarding into the
-              Kiwiko Venture Engine.
+              Please review and accept our legal agreements to proceed.
             </p>
 
-            {[
-              {
-                id: "info-is-accurate",
-                label: "I confirm this project information is accurate",
-                state: infoisaccurate,
-                setState: setinfoisaccurate,
-              },
-              {
-                id: "sharing-is-allowed",
-                label:
-                  "I consent to sharing this project with verified investors",
-                state: sharingisallowed,
-                setState: setsharingisallowed,
-              },
-              {
-                id: "funding-not-guaranteed",
-                label: "I understand funding is not guaranteed",
-                state: fundingsnotguaranteed,
-                setState: setfundingsnotguaranteed,
-              },
-            ].map((item) => (
+            <div
+              onClick={() => setTermsAccepted(!termsAccepted)}
+              className={`flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${
+                termsAccepted
+                  ? "bg-zinc-900 border-zinc-900 shadow-xl shadow-zinc-200"
+                  : "bg-zinc-50 border-zinc-200 hover:border-zinc-300"
+              }`}
+            >
               <div
-                key={item.id}
-                onClick={() => item.setState(!item.state)}
-                className={`flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${
-                  item.state
-                    ? "bg-zinc-900 border-zinc-900 shadow-xl shadow-zinc-200"
-                    : "bg-zinc-50 border-zinc-200 hover:border-zinc-300"
+                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                  termsAccepted
+                    ? "bg-emerald-500 text-white"
+                    : "bg-white border border-zinc-300"
                 }`}
               >
-                <div
-                  className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
-                    item.state
-                      ? "bg-emerald-500 text-white"
-                      : "bg-white border border-zinc-300"
-                  }`}
-                >
-                  {item.state && <CheckCircle2 size={14} />}
-                </div>
-                <span
-                  className={`text-[11px] font-black uppercase tracking-tight transition-colors ${
-                    item.state ? "text-white" : "text-zinc-500"
-                  }`}
-                >
-                  {item.label}
-                </span>
+                {termsAccepted && <CheckCircle2 size={14} />}
               </div>
-            ))}
+              <span
+                className={`text-[11px] font-black uppercase tracking-tight transition-colors ${
+                  termsAccepted ? "text-white" : "text-zinc-500"
+                }`}
+              >
+                I accept the Terms of Service
+              </span>
+            </div>
+
+            <div
+              onClick={() => setPrivacyAccepted(!privacyAccepted)}
+              className={`flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${
+                privacyAccepted
+                  ? "bg-zinc-900 border-zinc-900 shadow-xl shadow-zinc-200"
+                  : "bg-zinc-50 border-zinc-200 hover:border-zinc-300"
+              }`}
+            >
+              <div
+                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                  privacyAccepted
+                    ? "bg-emerald-500 text-white"
+                    : "bg-white border border-zinc-300"
+                }`}
+              >
+                {privacyAccepted && <CheckCircle2 size={14} />}
+              </div>
+              <span
+                className={`text-[11px] font-black uppercase tracking-tight transition-colors ${
+                  privacyAccepted ? "text-white" : "text-zinc-500"
+                }`}
+              >
+                I accept the Privacy Policy
+              </span>
+            </div>
           </div>
 
           {error && (
@@ -192,17 +155,7 @@ const LastPage = ({
           )}
 
           {/* Navigation */}
-          <div className="pt-10 flex items-center justify-between border-t border-zinc-100">
-            <Link
-              href={`/onboarding/setup?page=8`}
-              className="group flex items-center gap-3 text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:text-zinc-900 transition-colors"
-            >
-              <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center group-hover:bg-zinc-100 transition-colors">
-                <ChevronLeft size={16} />
-              </div>
-              Back
-            </Link>
-
+          <div className="pt-10 flex items-center justify-end border-t border-zinc-100">
             <button
               disabled={!isComplete || isLoading}
               onClick={handleFinalSubmit}
@@ -219,7 +172,7 @@ const LastPage = ({
                 </>
               ) : (
                 <>
-                  Finish
+                  Get Started
                   <ChevronRight size={16} />
                 </>
               )}

@@ -54,15 +54,15 @@ const SignInPage = () => {
 
         {/* Center Content */}
         <div className="relative z-10 space-y-8 max-w-lg">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800 text-white rounded-full border border-zinc-700 text-[10px] font-black uppercase tracking-widest italic">
+          {/* <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800 text-white rounded-full border border-zinc-700 text-[10px] font-black uppercase tracking-widest italic">
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
             Venture Protocol v4.0
-          </div>
+          </div> */}
           <h2 className="text-6xl font-black text-white leading-[0.85] uppercase italic tracking-tighter">
-            Access the <br /> <span className="text-zinc-500">Execution Stack.</span>
+            Welcome back to <br /> <span className="text-zinc-500">Kiwiko.</span>
           </h2>
           <p className="text-zinc-400 font-bold text-xl leading-relaxed">
-            Verify venture signals, track live shipping momentum, and engage with high-conviction founders.
+            Access the global network of high-momentum builders. Your execution is your only credential.
           </p>
           
           <div className="grid grid-cols-2 gap-6 pt-8 border-t border-zinc-800">
@@ -79,8 +79,8 @@ const SignInPage = () => {
 
         {/* Bottom Section */}
         <div className="relative z-10 flex items-center justify-between text-[10px] font-black text-zinc-600 uppercase tracking-widest italic">
-           <span>Institutional Integrity Protocol</span>
-           <span>EST. 2024</span>
+           {/* <span>Institutional Integrity Protocol</span>
+           <span>EST. 2024</span> */}
         </div>
       </div>
 
@@ -139,8 +139,8 @@ const SignInPage = () => {
              <div className="h-px bg-zinc-100 flex-1" />
           </div>
 
-          <div className="bg-zinc-50/50 p-2 rounded-[2.5rem] border border-zinc-100">
-             <div className="bg-white p-6 rounded-[2rem] border border-zinc-200 shadow-sm">
+          <div className="">
+             <div className="bg-white p-6 rounded-[2rem] border-0.5 border-zinc-200 shadow-sm">
                 <AuthClient />
              </div>
           </div>

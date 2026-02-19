@@ -15,7 +15,7 @@ import MagneticCursor from "../Magnetic";
 
 const Features = () => {
   return (
-    <section id="features" className="py-32 relative overflow-hidden">
+    <section id="features" className="py-20 relative overflow-hidden">
       {/* Background Glows */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-zinc-100 rounded-full blur-[120px] -z-10 opacity-50" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-50/50 rounded-full blur-[120px] -z-10 opacity-30" />

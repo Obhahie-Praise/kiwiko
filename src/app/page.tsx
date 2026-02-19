@@ -6,6 +6,7 @@ import Activity from '@/components/sections/Activity'
 import Testimonials from '@/components/sections/Testimonials'
 import Footer from '@/components/sections/Footer'
 import { Metadata } from 'next'
+import About from '@/components/sections/About'
 
 export const metadata: Metadata = {
   title: 'Kiwiko - Track startup progress and connect with investors',
@@ -18,6 +19,7 @@ const HomePage = () => {
       <Navbar />
       <main className="">
         <Hero />
+        <About />
         <Activity />
         <Features />
         <Testimonials />

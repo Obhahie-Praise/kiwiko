@@ -14,16 +14,19 @@ datasource db {
 }
 
 model User {
-  id            String       @id
-  name          String
-  email         String
-  emailVerified Boolean      @default(false)
-  image         String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  memberships   Membership[]
+  id                  String        @id
+  name                String
+  email               String
+  emailVerified       Boolean       @default(false)
+  image               String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  onboardingCompleted Boolean       @default(false)
+  role                String?
+  sessions            Session[]
+  accounts            Account[]
+  integrations        Integration[]
+  memberships         Membership[]
 
   @@unique([email])
   @@map("user")
@@ -78,31 +81,10 @@ model Verification {
 }
 
 model StartupOnboarding {
-  id String @id @default(cuid())
-
-  userId   String @unique
-  userRole String
-
-  projectName String
-  projectDesc String
-  catergory   String
-
-  theProblem  String
-  theSolution String
-
-  stage String
-
-  linkToProduct String @unique
-  userCount     String
-  revenue       String
-  teamSize      String
-
-  leaderStatus       String?
-  fundsSeekingStatus String
-  fundingStage       String
-
-  consent Boolean
-
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  userRole  String
+  consent   Boolean
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -201,7 +183,7 @@ model Project {
   lastDataChangeAt   DateTime?
   links              Json?
 
- githubStars          Int?
+  githubStars          Int?
   githubForks          Int?
   githubOpenIssues     Int?
   githubClosedIssues   Int?
@@ -213,6 +195,8 @@ model Project {
   githubConnectedBy  String? // userId who linked
   githubLastSyncedAt DateTime?
 
+  metricSnapshots ProjectMetricSnapshot[]
+
   invites ProjectInvite[]
 
   createdAt DateTime @default(now())
@@ -220,6 +204,23 @@ model Project {
 
   @@unique([orgId, slug])
   @@index([orgId])
+}
+
+model ProjectMetricSnapshot {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  stars          Int
+  forks          Int
+  openIssues     Int
+  commitCount30d Int
+
+  timestamp DateTime @default(now())
+
+  @@index([projectId])
+  @@index([timestamp])
+  @@map("project_metric_snapshot")
 }
 
 model ProjectInvite {
@@ -248,4 +249,20 @@ enum ProjectRole {
   MAINTAINER
   CONTRIBUTOR
   VIEWER
+}
+
+model Integration {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String
+  accessToken  String
+  refreshToken String?
+  expiresAt    DateTime?
+  metadata     Json?
+  connectedAt  DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([userId, provider])
+  @@map("integration")
 }

@@ -67,7 +67,7 @@ const ProjectPublicView = ({ project, organization, orgSlug }: ProjectPublicView
 
       {/* Hero Section with Prominent Banner */}
       <main className="pt-20 pb-20 overflow-x-hidden">
-        {/* Banner Section */}
+        {/* Banner Section */} 
         <section className="relative w-full h-[600px] mb-16 overflow-hidden bg-zinc-50">
           {/* Background Image/Banner - Clean and Clear */}
           <div className="absolute inset-0">
@@ -83,7 +83,7 @@ const ProjectPublicView = ({ project, organization, orgSlug }: ProjectPublicView
           <div className="absolute bottom-0 left-0 z-10 w-full max-w-4xl">
             <div className="bg-white/70 p-10 md:p-14 rounded-tr-[4rem] shadow-2xl border-t border-r border-white/30">
                <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 text-white rounded-full mb-8 shadow-xl italic">
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                {/* <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" /> */}
                 <span className="text-[10px] font-extrabold uppercase tracking-widest">{project.stage || "Growth"}</span>
               </div>
               

@@ -48,12 +48,12 @@ const DiscoveryPage = () => {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest italic">
+            {/* <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest italic">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
               Live Execution Feed
-            </div>
+            </div> */}
             <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic leading-[0.85]">
-              Discovery <br /> <span className="text-zinc-400">Protocol.</span>
+              Discovery <br /> <span className="text-zinc-400">Feed.</span>
             </h1>
             <p className="text-zinc-500 font-bold max-w-md text-lg italic">
               The high-conviction map of verifiable startup progress and execution signals.

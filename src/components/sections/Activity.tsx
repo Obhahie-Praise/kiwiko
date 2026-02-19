@@ -8,7 +8,7 @@ const Activity = () => {
   const displayedStartups = recentActivity.slice(0, 8);
 
   return (
-    <section id="activity" className="w-full py-10">
+    <section id="activity" className="w-full py-20">
       {/* Header */}
       <div className="flex flex-col items-center text-center mb-12 px-6">
         <div className="px-3 py-1 text-[10px] font-black uppercase tracking-[0.09em] bg-black text-white rounded-full border border-zinc-200 mb-4 italic">

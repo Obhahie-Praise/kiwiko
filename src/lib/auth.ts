@@ -21,4 +21,48 @@ export const auth = betterAuth({
     },
   },
   trustedOrigins: ["https://kiwiko.vercel.app", "http://localhost:3000"],
+  databaseHooks: {
+    account: {
+      create: {
+        before: async (account, context) => {
+          if (account.providerId === "github" && context) {
+            const session = await auth.api.getSession({
+              headers: context.headers,
+            });
+
+            if (session?.user) {
+              // User is already logged in, save to Integration instead of Account
+              // @ts-ignore - prisma client might not be generated with integration yet
+              await prisma.integration.upsert({
+                where: {
+                  userId_provider: {
+                    userId: session.user.id,
+                    provider: "github",
+                  },
+                },
+                update: {
+                  accessToken: account.accessToken || "",
+                  refreshToken: account.refreshToken,
+                  expiresAt: account.accessTokenExpiresAt,
+                  updatedAt: new Date(),
+                },
+                create: {
+                  userId: session.user.id,
+                  provider: "github",
+                  accessToken: account.accessToken || "",
+                  refreshToken: account.refreshToken,
+                  expiresAt: account.accessTokenExpiresAt,
+                },
+              });
+
+              // Prevent Account creation by returning false (cancels create)
+              return {
+                data: undefined
+              };
+            }
+          }
+        },
+      },
+    },
+  },
 });

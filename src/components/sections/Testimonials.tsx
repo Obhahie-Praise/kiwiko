@@ -6,7 +6,7 @@ import { testimonialCarouselItems } from "@/utils/mapTestimonialsToCarousel";
 
 const Testimonials = () => {
   return (
-    <section id="testimonials" className="mt-40 mx-10 relative">
+    <section id="testimonials" className="py-20 mx-10 relative">
       <div className="flex flex-col items-center text-center mb-20 px-6">
         <div className="px-3 py-1 text-[10px] font-black uppercase tracking-[0.15em] bg-zinc-900 text-white rounded-full border border-zinc-800 mb-4 italic">
           Testimonials{" "}

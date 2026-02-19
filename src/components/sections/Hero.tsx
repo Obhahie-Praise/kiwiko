@@ -19,10 +19,10 @@ const Hero = () => {
       {/* Hero Content */}
       <div className="max-w-7xl mx-auto px-6 space-y-8">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-zinc-200 rounded-full shadow-xl shadow-zinc-100/50 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-           <span className="w-1 h-1 bg-emerald-500 rounded-full animate-ping" />
-           <span className="text-[9px] font-bold uppercase tracking-[0.0em] text-zinc-900">Venture Protocol v4.0 Live</span>
-        </div>
+        <Link href="#" className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-zinc-200 rounded-full shadow-xl shadow-zinc-100/50 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+           <span className="" ><svg width={13} height={13} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17.6874 3.0625L12.6907 8.77425L8.37045 3.0625H2.11328L9.58961 12.8387L2.50378 20.9375H5.53795L11.0068 14.6886L15.7863 20.9375H21.8885L14.095 10.6342L20.7198 3.0625H17.6874ZM16.6232 19.1225L5.65436 4.78217H7.45745L18.3034 19.1225H16.6232Z"></path></svg></span>
+           <span className="text-[9px] font-bold uppercase tracking-[0.0em] text-zinc-900">Engage our launch post on X 🎊</span>
+        </Link>
 
         {/* Headline */}
         <h1 className="text-6xl md:text-[5.5rem] font-black tracking- text-zinc-900 leading-none uppercase italic animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">

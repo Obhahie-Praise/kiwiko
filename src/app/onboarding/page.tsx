@@ -50,12 +50,12 @@ const StartUpOnboarding = () => {
 
         {/* Center Content */}
         <div className="relative z-10 space-y-8 max-w-lg">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800 text-white rounded-full border border-zinc-700 text-[10px] font-black uppercase tracking-widest italic">
+          {/* <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800 text-white rounded-full border border-zinc-700 text-[10px] font-black uppercase tracking-widest italic">
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
             Initialization Sequence
-          </div>
+          </div> */}
           <h2 className="text-6xl font-black text-white leading-[0.85] uppercase italic tracking-tighter">
-            Deploy your <br /> <span className="text-zinc-500">Venture Alias.</span>
+            Get started with <br /> <span className="text-zinc-500">Kiwiko.</span>
           </h2>
           <p className="text-zinc-400 font-bold text-xl leading-relaxed">
             Join the global network of high-momentum builders. Your execution is your only credential.
@@ -75,8 +75,8 @@ const StartUpOnboarding = () => {
 
         {/* Bottom Section */}
         <div className="relative z-10 flex items-center justify-between text-[10px] font-black text-zinc-600 uppercase tracking-widest italic">
-           <span>Protocol Initialization Layer</span>
-           <span>SECURE NODE 04</span>
+           {/* <span>Protocol Initialization Layer</span>
+           <span>SECURE NODE 04</span> */}
         </div>
       </div>
 
@@ -95,7 +95,7 @@ const StartUpOnboarding = () => {
               Get Started.
             </h1>
             <p className="font-bold text-zinc-500">
-              Already a verified founder?{" "}
+              Already have an account?{" "}
               <Link href="/sign-in" className="text-zinc-900 underline decoration-zinc-200 underline-offset-4 hover:decoration-zinc-900 transition-all">
                 Sign In
               </Link>
@@ -143,8 +143,8 @@ const StartUpOnboarding = () => {
              <div className="h-px bg-zinc-100 flex-1" />
           </div>
 
-          <div className="bg-zinc-50/50 p-2 rounded-[2.5rem] border border-zinc-100">
-             <div className="bg-white p-6 rounded-[2rem] border border-zinc-200 shadow-sm">
+          <div className="">
+             <div className="bg-white p-6 rounded-[2rem] border-0.5 border-zinc-200 shadow-sm">
                 <AuthClient />
              </div>
           </div>

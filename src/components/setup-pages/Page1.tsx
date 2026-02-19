@@ -17,10 +17,10 @@ const Page1 = ({
       <div className="max-w-4xl w-full space-y-16">
         {/* Header */}
         <div className="text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest italic mx-auto">
+          {/* <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest italic mx-auto">
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
             Onboarding Phase
-          </div>
+          </div> */}
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic leading-[0.85] text-zinc-900">
             Continue as. . . <br /> <span className="text-zinc-400"></span>
           </h1>

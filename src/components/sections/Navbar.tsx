@@ -21,10 +21,10 @@ const Navbar = () => {
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          {["Activity", "Features", "Testimonials", "Resources"].map((item) => (
+          {["About", "Activity", "Features", "Testimonials", "Resources"].map((item) => (
             <Link 
               key={item}
-              className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-900 transition-colors" 
+              className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-900 transition-colors" 
               href={item === "Resources" ? "/resources" : `#${item.toLowerCase()}`}
             >
               {item}
