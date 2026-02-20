@@ -55,7 +55,7 @@ const blurClassMap: Record<BlurSize, string> = {
 function WaveBackground({
   backdropBlurAmount = "sm",
   className = "",
-}: WaveBackgroundProps): JSX.Element {
+}: WaveBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {

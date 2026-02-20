@@ -31,23 +31,21 @@ const Calendar = () => {
   ]);
   const [range, setRange] = useState<DateRange | undefined>({
     from: today,
-    // Use our new helper function here as well
     to: addDays(today, 7),
   });
 
-  const handleModeChange = (value: "single" | "multiple" | "range") => {
-    setMode(value);
+  const handleModeChange = (value: string) => {
+    setMode(value as "single" | "multiple" | "range");
   };
 
-  // This logic uses native Date methods, so it doesn't need to change.
   const disabledDays = [
-    new Date(2025, 6, 25), // July 25, 2025 (Month is 0-indexed)
-    new Date(2025, 6, 26), // July 26, 2025
+    new Date(2025, 6, 25),
+    new Date(2025, 6, 26),
     {
-      from: new Date(2025, 6, 28), // July 28, 2025
-      to: new Date(2025, 6, 30), // July 30, 2025
+      from: new Date(2025, 6, 28),
+      to: new Date(2025, 6, 30),
     },
-    (date: Date) => date.getDay() === 0 || date.getDay() === 6, // disable weekends (Sunday and Saturday)
+    (date: Date) => date.getDay() === 0 || date.getDay() === 6,
   ];
 
   const commonDayPickerProps = {

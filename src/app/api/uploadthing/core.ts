@@ -75,6 +75,34 @@ export const ourFileRouter = {
       };
     }),
 
+  // 🚀 PROJECT LOGO
+  projectLogoUploader: f({
+    image: { maxFileSize: "2MB", maxFileCount: 1 },
+  })
+    .middleware(async () => {
+      return await handleAuth();
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      return {
+        uploadedBy: metadata.userId,
+        url: file.url,
+      };
+    }),
+
+  // 🖼️ PROJECT BANNER
+  projectBannerUploader: f({
+    image: { maxFileSize: "4MB", maxFileCount: 1 },
+  })
+    .middleware(async () => {
+      return await handleAuth();
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      return {
+        uploadedBy: metadata.userId,
+        url: file.url,
+      };
+    }),
+
   // 🚀 PROJECT PITCH DECK
   projectPitchDeckUploader: f({
     pdf: { maxFileSize: "8MB", maxFileCount: 1 },

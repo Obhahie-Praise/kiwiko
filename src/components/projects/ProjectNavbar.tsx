@@ -4,20 +4,18 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter, usePathname } from "next/navigation";
-import { 
-  Bell, 
-  Settings, 
-  ChevronDown, 
-  Search, 
-  Plus, 
-  Building2, 
-  Check, 
-  User, 
-  LogOut,
-  ExternalLink,
+import {
+  Bell,
+  Search,
+  Plus,
+  HelpCircle,
+  Building2,
+  ChevronDown,
+  Check,
   ChevronRight,
-  UserRoundPen
+  Settings,
 } from "lucide-react";
+import NavProfileDropdown from "../NavProfileDropdown";
 import { getUserContextAction } from "@/actions/project.actions";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useSession } from "@/lib/auth-client";
@@ -253,50 +251,7 @@ const ProjectNavbar = () => {
         <div className="w-px h-6 bg-zinc-200 mx-1" />
 
         {/* Profile */}
-        <div className="relative" ref={profileRef}>
-          <button 
-            onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-2 pl-2 p-1 pr-3 rounded-full hover:bg-zinc-50 transition-all border border-transparent hover:border-zinc-200 group"
-          >
-            <img 
-              src={session?.user?.image || `https://ui-avatars.com/api/?name=${session?.user?.name || 'U'}&background=f4f4f5&color=71717a`} 
-              className="w-8 h-8 rounded-full border border-zinc-200 shadow-sm transition-transform group-hover:scale-105" 
-              alt="Avatar" 
-            />
-            <div className="flex flex-col items-start hidden md:flex">
-              <span className="text-xs font-black text-zinc-900 leading-none mb-0.5">{session?.user?.name || "Member"}</span>
-              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">Verified</span>
-            </div>
-          </button>
-
-          {isProfileOpen && (
-            <div className="absolute top-11 right-0 w-64 bg-white border border-zinc-200 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="px-4 py-4 bg-zinc-50/50 rounded-xl mb-2 flex items-center gap-3 border border-zinc-100/50">
-                 <img src={session?.user?.image || ""} className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="" />
-                 <div className="overflow-hidden">
-                   <p className="font-black text-sm text-zinc-900 truncate">{session?.user?.name}</p>
-                   <p className="text-[10px] text-zinc-400 truncate font-bold">{session?.user?.email}</p>
-                 </div>
-              </div>
-              
-              <div className="space-y-0.5">
-                <Link href="/profile" className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 rounded-lg transition-all group">
-                  <User size={18} className="text-zinc-400 group-hover:text-zinc-900" />
-                  <span>Your Profile</span>
-                </Link>
-                <Link href="/billing" className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 rounded-lg transition-all group">
-                  <UserRoundPen size={18} className="text-zinc-400 group-hover:text-zinc-900" />
-                  <span>Subscription</span>
-                </Link>
-                <div className="h-px bg-zinc-100 my-1.5 mx-2" />
-                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all group">
-                  <LogOut size={18} className="text-red-400 group-hover:text-red-900" />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+        <NavProfileDropdown session={session} orgSlug={orgSlug} />
       </div>
     </nav>
   );

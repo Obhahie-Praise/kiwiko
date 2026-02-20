@@ -82,7 +82,7 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
                 router.refresh();
             }
         } else {
-            setError(result.error);
+            setError((result as any).error);
         }
     } catch (err) {
         setError("An unexpected error occurred.");
@@ -118,11 +118,11 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
     try {
         const result = await inviteProjectMemberAction(project.id, inviteEmail);
         
-        if (result.success && result.data) {
+        if (result.success && (result as any).data) {
             setInviteSuccess(`Invitation sent to ${inviteEmail}`);
             setInviteEmail("");
         } else {
-            setError(result.error);
+            setError((result as any).error);
         }
     } catch (err) {
         console.error(err);

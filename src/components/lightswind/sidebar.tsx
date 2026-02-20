@@ -3,10 +3,10 @@ import * as React from "react";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { motion, useInView, HTMLMotionProps } from "framer-motion";
 import { twMerge } from "tailwind-merge";
-import clsx from "clsx";
+import { type ClassValue, clsx } from "clsx";
 
 // Re-implementing the 'cn' utility function directly for self-containment
-function cn(...inputs: clsx.ClassValue[]) {
+function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
@@ -22,12 +22,11 @@ interface SidebarContextType {
     height: number;
   }>;
   menuItemRefs: React.MutableRefObject<Map<string, HTMLDivElement | null>>;
-  menuRef: React.RefObject<HTMLDivElement>;
+  menuRef: React.RefObject<HTMLDivElement | null>;
   updateIndicatorPosition: (id: string | null) => void;
   // New: Function to notify provider when a menu item ref is added/removed
   notifyMenuItemRefChange: () => void;
 }
-
 const SidebarContext = React.createContext<SidebarContextType | undefined>(
   undefined
 );
@@ -528,14 +527,14 @@ export function SidebarMenuButton({
         >
           {React.Children.map(children, (child) => {
             if (React.isValidElement(child)) {
-              return React.cloneElement(child, {
-                ...child.props,
+              return React.cloneElement(child as any, {
+                ...(child as any).props,
                 className: cn(
                   sharedClassName,
                   "justify-center p-2",
                   "hover:bg-primary/10 hover:scale-110",
                   isActive ? "text-primary font-medium" : "",
-                  child.props?.className
+                  (child as any).props?.className
                 ),
               });
             }
@@ -576,14 +575,14 @@ export function SidebarMenuButton({
       >
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
-            return React.cloneElement(child, {
-              ...child.props,
+            return React.cloneElement(child as any, {
+              ...(child as any).props,
               className: cn(
                 sharedClassName,
                 "justify-start gap-2",
                 "hover:bg-primary/10 hover:translate-x-1",
                 isActive ? "text-primary font-medium" : "",
-                child.props?.className
+                (child as any).props?.className
               ),
             });
           }

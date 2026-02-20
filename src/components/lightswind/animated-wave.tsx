@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import * as THREE from 'three';
-import { createNoise2D } from 'simplex-noise';
+import { createNoise2D, createNoise3D } from 'simplex-noise';
 import { cn } from '../../lib/utils'; // Assuming this utility is correctly set up
 
 export interface AnimatedWaveProps {
@@ -263,7 +263,7 @@ const AnimatedWave: React.FC<AnimatedWaveProps> = ({
       geometry: null as THREE.PlaneGeometry | null,
       material: null as THREE.MeshLambertMaterial | null,
       plane: null as THREE.Mesh | null,
-      simplex: null as ReturnType<typeof createNoise2D> | null, // Simplex noise generator
+      simplex: null as any, // Simplex noise generator (can be 2D or 3D)
       factor: smoothness, // Controls the "wavelength" of the noise
       scale: amplitude, // Controls the "height" of the noise
       speed: speed, // Controls how fast the wave moves over time
@@ -291,7 +291,7 @@ const AnimatedWave: React.FC<AnimatedWaveProps> = ({
         // Create a new Three.js Group to hold the plane, allowing easier positioning/rotation
         this.group = new THREE.Object3D();
         this.group.position.copy(this.move);
-        this.group.rotation.copy(this.look);
+        this.group!.rotation.set(this.look.x, this.look.y, this.look.z);
 
         // Define the plane geometry (width, height, segmentsX, segmentsY)
         this.geometry = new THREE.PlaneGeometry(
@@ -324,7 +324,7 @@ const AnimatedWave: React.FC<AnimatedWaveProps> = ({
         this.plane.position.set(0, 0, 0); // Position the plane at the center of its group
 
         // Initialize Simplex noise generator
-        this.simplex = createNoise2D();
+        this.simplex = createNoise3D();
 
         // Perform initial noise calculation (no mouse influence initially)
         this.moveNoise({ x: 0, y: 0 });
@@ -428,9 +428,11 @@ const AnimatedWave: React.FC<AnimatedWaveProps> = ({
         if (mouseInteraction && this.group) {
           // Fix mouse direction: invert X to match natural movement and correct Y direction
           this.move.x = -(mouse.x * 0.04);
-          this.move.y = waveOffsetY + (mouse.y * 0.04); // Add Y movement with corrected direction
+          this.move.y = waveOffsetY + (mouse.y * 0.04); // Add Y movement
           addEase(this.group.position, this.move, this.ease);
-          addEase(this.group.rotation, this.look, this.ease);
+          // For Euler rotation, we can use the same logic if we cast to any or use a dedicated helper
+          // Since Euler has x, y, z properties, addEase works at runtime but fails at compile time
+          addEase(this.group.rotation as any, this.look, this.ease);
         }
       },
 

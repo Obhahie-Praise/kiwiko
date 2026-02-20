@@ -34,7 +34,7 @@ type IconKey =
   | "internal_completion"
   | SocialIcon;
 
-const iconMap: Record<IconKey, React.ElementType> = {
+const iconMap: Record<IconKey, any> = {
   startup_success: Sparkles,
   internal_activity: Rocket,
   internal_completion: CheckCircle,
@@ -43,7 +43,7 @@ const iconMap: Record<IconKey, React.ElementType> = {
   github: Github,
 };
 
-const initialNotifications = [
+const initialNotifications: Notification[] = [
   {
     id: "n1",
     context: "startup_success",

@@ -74,7 +74,7 @@ const blurClassMap: Record<BlurSize, string> = {
 function ReflectBackground({
   backdropBlurAmount = "sm",
   className = "",
-}: ReflectBackgroundProps): JSX.Element {
+}: ReflectBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {

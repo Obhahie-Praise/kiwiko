@@ -9,16 +9,19 @@ import {
   Building2,
   ArrowRightLeft,
   ChevronDown,
+  GithubIcon
 } from "lucide-react";
 
 const HomeNavProfileBtn = ({
   session,
   truncateEmail,
-  startup,
+  project,
+  userRole,
 }: {
   session: any;
   truncateEmail: string;
-  startup: any;
+  project: any;
+  userRole: string;
 }) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -36,7 +39,7 @@ const HomeNavProfileBtn = ({
       >
         <div className="relative">
           <img
-            src={session?.user.image as string}
+            src={session?.user?.image as string}
             width={32}
             height={32}
             alt="profile-image"
@@ -46,10 +49,10 @@ const HomeNavProfileBtn = ({
         </div>
         <div className="text-left hidden sm:block">
           <p className="text-sm text-zinc-900 font-bold tracking-tight leading-none">
-            {startup?.projectName || "My Project"}
+            {project?.name || "My Project"}
           </p>
           <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-1 block">
-            {startup?.userRole || "Founder"}
+            {userRole}
           </span>
         </div>
         <ChevronDown
@@ -65,12 +68,24 @@ const HomeNavProfileBtn = ({
           {/* Identity */}
           <div className="px-4 py-3 bg-zinc-50 rounded-xl mb-2">
             <p className="text-sm font-bold text-zinc-900 leading-none">
-              {startup?.projectName || "My Project"}
+              {session?.user?.name || "Member"}
             </p>
-            <p className="text-xs font-medium text-zinc-500 mt-1.5 flex items-center gap-2">
-              <span className="w-1 h-1 bg-zinc-300 rounded-full" />
-              Founder • Pre-seed
-            </p>
+            <p className="text-[10px] text-zinc-400 mt-1 truncate">{session?.user?.email}</p>
+            <div className="mt-3 flex items-center gap-2">
+               <div className="px-2 py-0.5 rounded-md bg-white border border-zinc-200 inline-block shadow-sm">
+                  <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{userRole || "Founder"}</span>
+               </div>
+               {session?.account?.provider && (
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white border border-zinc-200 shadow-sm">
+                    {session.account.provider === "github" ? (
+                      <GithubIcon size={10} className="text-zinc-600" />
+                    ) : (
+                      <img src="/google.png" className="w-2.5 h-2.5" alt="Google" />
+                    )}
+                    <span className="text-[9px] font-bold text-zinc-400 capitalize">{session.account.provider}</span>
+                  </div>
+                )}
+            </div>
           </div>
 
           <div className="space-y-0.5">
@@ -86,7 +101,7 @@ const HomeNavProfileBtn = ({
 
           <div className="px-4 py-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest space-y-2">
             <p className="flex justify-between">
-              Current Role: <span className="text-zinc-600">Founder</span>
+              Current Role: <span className="text-zinc-600">{userRole}</span>
             </p>
             <p className="flex justify-between">
               Visibility: <span className="text-emerald-600">Public</span>

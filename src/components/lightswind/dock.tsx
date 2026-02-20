@@ -15,7 +15,7 @@ function useDockItemSize(
   baseItemSize: number,
   magnification: number,
   distance: number,
-  ref: React.RefObject<HTMLDivElement>,
+  ref: React.RefObject<HTMLDivElement | null>,
   spring: { mass: number; stiffness: number; damping: number }
 ) {
   const mouseDistance = useTransform(mouseX, (val) => {

@@ -1,11 +1,16 @@
-import { recentActivity, nicheIcons } from "@/constants";
-import { ChevronRight, ExternalLink, Zap, Users, DollarSign } from "lucide-react";
-import Link from "next/link";
 import React from "react";
+import { getDiscoverProjectsAction } from "@/actions/project.actions";
+import { recentActivity } from "@/constants";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 
-const Activity = () => {
-  // Only display the first 8 startups
-  const displayedStartups = recentActivity.slice(0, 8);
+const Activity = async () => {
+  // Fetch real projects from DB
+  const res = await getDiscoverProjectsAction();
+  const dbStartups = res.success ? res.data : [];
+  
+  // Merge and display the first 8 startups
+  const displayedStartups = [...dbStartups, ...recentActivity].slice(0, 8);
 
   return (
     <section id="activity" className="w-full py-20">
@@ -26,8 +31,6 @@ const Activity = () => {
       <div className="px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {displayedStartups.map((s: any, index: number) => {
-            const NicheIcon = nicheIcons[s.niche as keyof typeof nicheIcons] || Zap;
-            
             return (
               <Link
                 href={s.profileLink}
@@ -53,12 +56,15 @@ const Activity = () => {
                 <div className="flex-1 relative z-10 px-7">
                   <div className="flex items-center gap-1 mb-3">
                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{s.niche}</span>
-                    <div className="w-1 h-1 bg-zinc-200 rounded-full" />
-                    <span className="text-[10px] font-black text-emerald-600 tracking-widest uppercase">Verified Signal</span>
+                    {/* Removed Verified Signal */}
                   </div>
                   
                   <h3 className="text-2xl font-black text-zinc-900 mb-3 tracking-tighter uppercase italic group-hover:text-black transition-colors flex items-center gap-2">
-                    <NicheIcon size={18} className="text-zinc-400 group-hover:text-zinc-900 transition-colors" />
+                     <img 
+                        src={s.logo || "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=100&auto=format&fit=crop"} 
+                        alt="" 
+                        className="w-6 h-6 rounded-md object-cover border border-zinc-100"
+                      />
                     {s.name}
                   </h3>
                   
@@ -80,7 +86,7 @@ const Activity = () => {
                       </div>
                    </div>
                    <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 group-hover:bg-zinc-900 group-hover:text-white transition-all scale-75 group-hover:scale-100 duration-500 shadow-sm shadow-zinc-100">
-                      <Zap size={16} fill="currentColor" strokeWidth={0} />
+                      <ChevronRight size={16} />
                    </div>
                 </div>
               </Link>

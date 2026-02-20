@@ -7,6 +7,8 @@ import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useParams, useRouter, usePathname } from "next/navigation";
+import NavProfileDropdown from "../NavProfileDropdown";
+import { GithubIcon } from "lucide-react";
 
 // Mock organizations data REMOVED
 
@@ -166,16 +168,10 @@ const Navbar = ({
           </div>
         )}
         <div className="flex items-center gap-2 pl-4 border-l">
-          <img
-            src={displayUser?.image as string || "https://ui-avatars.com/api/?name=User"}
-            alt="user-pfp"
-            width={30}
-            height={30}
-            className="rounded-full border shadow-sm"
+          <NavProfileDropdown 
+            session={{ user: displayUser, account: (internalUser as any)?.account }} 
+            orgSlug={activeOrg.slug}
           />
-          <p className="text-sm font-medium text-zinc-600">
-            {displayUser?.name || "Loading..."}
-          </p>
         </div>
       </div>
     </nav>

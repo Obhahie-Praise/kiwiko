@@ -4,13 +4,12 @@ import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
 import { cn } from "../../lib/utils"; // Assuming you have this utility function
-
 interface SelectContextType {
   value: string;
   onValueChange: (value: string) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
-  triggerRef: React.RefObject<HTMLButtonElement>;
+  triggerRef: React.RefObject<HTMLButtonElement | null>;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 }
@@ -143,13 +142,13 @@ const SelectValue = React.forwardRef<HTMLSpanElement, SelectValueProps>(
         // Check if it's a SelectItem
         if (
           (node.type as any).displayName === "SelectItem" &&
-          node.props.value === context.value
+          (node as any).props.value === context.value
         ) {
-          displayValue = node.props.children;
+          displayValue = (node as any).props.children;
         }
         // Check if it's a SelectGroup and recurse
         else if ((node.type as any).displayName === "SelectGroup") {
-          findDisplayValue(node.props.children);
+          findDisplayValue((node as any).props.children);
         }
       });
     };
@@ -401,10 +400,13 @@ const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps>(
             if (typeof child === "string" || typeof child === "number") {
                 return child.toString();
             }
-            if (React.isValidElement(child) && child.props.children) {
-                return React.Children.map(child.props.children, getChildText).join(
-                    ""
-                );
+            if (React.isValidElement(child) && (child as any).props.children) {
+                return (
+                    React.Children.map(
+                        (child as any).props.children,
+                        getChildText
+                    ) || []
+                ).join("");
             }
             return "";
         };
@@ -416,21 +418,21 @@ const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps>(
 
             if ((child.type as any).displayName === "SelectGroup") {
                 const matchedItems = React.Children.toArray(
-                    child.props.children
+                    (child as any).props.children
                 ).filter((groupChild) => {
                     if (
                         React.isValidElement(groupChild) &&
                         (groupChild.type as any).displayName === "SelectItem"
                     ) {
-                        const text = getChildText(groupChild.props.children);
+                        const text = getChildText((groupChild as any).props.children);
                         return text.toLowerCase().includes(lowerCaseQuery);
                     }
                     return false;
                 });
 
                 if (matchedItems.length > 0) {
-                    return React.cloneElement(child, {
-                        ...child.props,
+                    return React.cloneElement(child as any, {
+                        ...(child as any).props,
                         children: matchedItems,
                     });
                 }
@@ -438,7 +440,7 @@ const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps>(
             }
 
             if ((child.type as any).displayName === "SelectItem") {
-                const text = getChildText(child.props.children);
+                const text = getChildText((child as any).props.children);
                 return text.toLowerCase().includes(lowerCaseQuery) ? child : null;
             }
 

@@ -71,14 +71,13 @@ const AlertDialogTrigger = React.forwardRef<HTMLButtonElement, AlertDialogTrigge
 
     // Remove onClick from props to avoid duplicate handlers
     const { onClick, ...otherProps } = props;
-
     if (asChild) {
       return (
         <>
           {React.Children.map(children, child => {
             if (React.isValidElement(child)) {
-              return React.cloneElement(child, {
-                ...child.props,
+              const element = child as React.ReactElement<any>;
+              return React.cloneElement(element, {
                 ref,
                 onClick: handleClick
               });

@@ -21,13 +21,20 @@ export const auth = betterAuth({
     },
   },
   trustedOrigins: ["https://kiwiko.vercel.app", "http://localhost:3000"],
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+      },
+    },
+  },
   databaseHooks: {
     account: {
       create: {
         before: async (account, context) => {
           if (account.providerId === "github" && context) {
             const session = await auth.api.getSession({
-              headers: context.headers,
+              headers: context.headers as any,
             });
 
             if (session?.user) {
@@ -56,9 +63,7 @@ export const auth = betterAuth({
               });
 
               // Prevent Account creation by returning false (cancels create)
-              return {
-                data: undefined
-              };
+              return false;
             }
           }
         },

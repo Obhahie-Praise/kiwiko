@@ -33,10 +33,10 @@ export interface ScrollCarouselProps {
 
 // --- Custom Hook for Animations ---
 const useFeatureAnimations = (
-  containerRef: React.RefObject<HTMLDivElement>,
-  scrollContainerRef: React.RefObject<HTMLDivElement>,
-  scrollContainerRef2: React.RefObject<HTMLDivElement>,
-  progressBarRef: React.RefObject<HTMLDivElement>,
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>,
+  scrollContainerRef2: React.RefObject<HTMLDivElement | null>,
+  progressBarRef: React.RefObject<HTMLDivElement | null>,
   cardRefs: React.MutableRefObject<HTMLDivElement[]>,
   cardRefs2: React.MutableRefObject<HTMLDivElement[]>,
   isDesktop: boolean,

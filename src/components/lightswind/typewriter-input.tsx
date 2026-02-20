@@ -98,7 +98,7 @@ export const TypewriterInput: React.FC<TypewriterInputProps> = ({
   var [showCaret, setShowCaret] = useState(true);
   var [internalValue, setInternalValue] = useState(value);
   var prevValueRef = useRef(value);
-  var timeoutRef = useRef<NodeJS.Timeout>();
+  var timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Update internal value when prop changes
   useEffect(function () {

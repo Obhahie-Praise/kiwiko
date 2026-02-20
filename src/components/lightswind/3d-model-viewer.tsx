@@ -11,12 +11,8 @@ import {
   ContactShadows,
   Center,
 } from "@react-three/drei";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import * as THREE from "three";
-
-// ---
-// Types and Constants
-// ---
 
 export interface ViewerProps {
   url: string;
@@ -73,7 +69,7 @@ const GltfContent: FC<{ url: string; onLoaded: () => void }> = ({
   const { scene } = useGLTF(url);
   useLayoutEffect(() => {
     if (scene) {
-      scene.traverse((o) => {
+      scene.traverse((o: any) => {
         if ((o as THREE.Mesh).isMesh) {
           o.castShadow = true;
           o.receiveShadow = true;
@@ -93,7 +89,7 @@ const FbxContent: FC<{ url: string; onLoaded: () => void }> = ({
   const fbx = useFBX(url);
   useLayoutEffect(() => {
     if (fbx) {
-      fbx.traverse((o) => {
+      fbx.traverse((o: any) => {
         if ((o as THREE.Mesh).isMesh) {
           o.castShadow = true;
           o.receiveShadow = true;
@@ -113,7 +109,7 @@ const ObjContent: FC<{ url: string; onLoaded: () => void }> = ({
   const obj = useLoader(OBJLoader as unknown as any, url);
   useLayoutEffect(() => {
     if (obj) {
-      obj.traverse((o) => {
+      obj.traverse((o: any) => {
         if ((o as THREE.Mesh).isMesh) {
           o.castShadow = true;
           o.receiveShadow = true;

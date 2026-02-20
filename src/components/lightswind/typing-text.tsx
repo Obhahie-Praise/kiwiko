@@ -36,6 +36,7 @@ export const TypingText = ({
   align = "left",
   loop = false,
 }: TypingTextProps) => {
+  const DynamicComponent = Component as any;
   const [textContent, setTextContent] = useState<string>("");
 
   useEffect(() => {
@@ -48,9 +49,9 @@ export const TypingText = ({
       }
       if (
         React.isValidElement(node) &&
-        typeof node.props.children !== "undefined"
+        typeof (node as any).props.children !== "undefined"
       ) {
-        return extractText(node.props.children);
+        return extractText((node as any).props.children);
       }
       return "";
     };
@@ -76,7 +77,7 @@ export const TypingText = ({
   };
 
   return (
-    <Component
+    <DynamicComponent
       className={cn(
         "inline-flex",
         className,
@@ -111,6 +112,6 @@ export const TypingText = ({
           </motion.span>
         ))}
       </motion.span>
-    </Component>
+    </DynamicComponent>
   );
 };

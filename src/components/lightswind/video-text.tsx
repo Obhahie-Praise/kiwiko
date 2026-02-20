@@ -58,7 +58,7 @@ export function VideoText({
   const validTags = ["div", "span", "section", "article", "p", "h1", "h2", "h3", "h4", "h5", "h6"] as const;
   type ValidTag = (typeof validTags)[number];
 
-  const MotionComponent = motion[validTags.includes(as) ? as : "div"] as React.ElementType;
+  const MotionComponent = motion[validTags.includes(as) ? as : "div"] as any;
 
   if (!svgMask) {
     return (

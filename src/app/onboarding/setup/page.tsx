@@ -1,12 +1,24 @@
 "use client";
 import { redirect, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Page1 from "@/components/setup-pages/Page1";
 import LastPage from "@/components/setup-pages/LastPage";
 
 const SignUpPage = () => {
-  const [userRole, setUserRole] = useState<"investor" | "founder" | "">("");
+  const [userRole, setUserRole] = useState<"investor" | "founder" | "">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("kiwiko_onboarding_role");
+      return (saved as any) || "";
+    }
+    return "";
+  });
   const position = useSearchParams().get("page");
+
+  useEffect(() => {
+    if (userRole) {
+      localStorage.setItem("kiwiko_onboarding_role", userRole);
+    }
+  }, [userRole]);
 
   if (!position) {
     redirect("/onboarding/setup?page=1");
@@ -23,6 +35,9 @@ const SignUpPage = () => {
   }
 
   if (position === "finished") {
+    if (!userRole) {
+      redirect("/onboarding/setup?page=1");
+    }
     return <LastPage userRole={userRole} />;
   }
 

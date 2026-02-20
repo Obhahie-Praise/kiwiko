@@ -4,7 +4,7 @@ import { cn } from "../../lib/utils";
 interface BentoCardData {
   title: string;
   description: string;
-  icon: React.ElementType;
+  icon: any;
   className?: string;
   background?: React.ReactNode;
 }

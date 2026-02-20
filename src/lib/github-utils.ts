@@ -8,7 +8,7 @@ import prisma from "@/lib/prisma";
  * @throws Error if the user is not connected via GitHub.
  */
 export async function getGithubAccessToken(userId: string): Promise<string> {
-  // @ts-ignore
+  // First check the Integration table (for users who linked GitHub later)
   const integration = await prisma.integration.findUnique({
     where: {
       userId_provider: {
@@ -21,9 +21,24 @@ export async function getGithubAccessToken(userId: string): Promise<string> {
     },
   });
 
-  if (!integration || !integration.accessToken) {
+  if (integration && integration.accessToken) {
+    return integration.accessToken;
+  }
+
+  // Fallback to the Account table (for users who signed up with GitHub)
+  const account = await prisma.account.findFirst({
+    where: {
+      userId: userId,
+      providerId: "github",
+    },
+    select: {
+      accessToken: true,
+    },
+  });
+
+  if (!account || !account.accessToken) {
     throw new Error("no linked github");
   }
 
-  return integration.accessToken;
+  return account.accessToken;
 }

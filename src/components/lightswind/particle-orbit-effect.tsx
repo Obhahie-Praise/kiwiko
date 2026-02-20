@@ -47,7 +47,7 @@ const ParticleOrbitEffect: React.FC<ParticleOrbitEffectProps> = ({
   particleSize = 2
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({
     x: 0,

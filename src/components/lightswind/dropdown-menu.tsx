@@ -140,8 +140,9 @@ const DropdownMenuTrigger = React.forwardRef<
       );
     }
 
-    return React.cloneElement(child, {
-      ...child.props,
+    const element = child as React.ReactElement<any>;
+    return React.cloneElement(element, {
+      ...element.props,
       ref: (node: HTMLElement | null) => {
         // Update the internal triggerRef
         triggerRef.current = node;
@@ -155,7 +156,7 @@ const DropdownMenuTrigger = React.forwardRef<
         }
 
         // Handle the original ref of the child element
-        const childRef = (child as any).ref;
+        const childRef = (element as any).ref;
         if (childRef) {
           if (typeof childRef === "function") {
             childRef(node);
@@ -167,15 +168,15 @@ const DropdownMenuTrigger = React.forwardRef<
       },
       onClick: (e: React.MouseEvent) => {
         handleClick(e as React.MouseEvent<HTMLButtonElement>);
-        if (child.props.onClick) child.props.onClick(e);
+        if (element.props.onClick) element.props.onClick(e);
       },
       onMouseEnter: (e: React.MouseEvent) => {
         handleMouseEnter(e as React.MouseEvent<HTMLElement>);
-        if (child.props.onMouseEnter) child.props.onMouseEnter(e);
+        if (element.props.onMouseEnter) element.props.onMouseEnter(e);
       },
       onMouseLeave: (e: React.MouseEvent) => {
         handleMouseLeaveTrigger(e as React.MouseEvent<HTMLElement>);
-        if (child.props.onMouseLeave) child.props.onMouseLeave(e);
+        if (element.props.onMouseLeave) element.props.onMouseLeave(e);
       },
     });
   }

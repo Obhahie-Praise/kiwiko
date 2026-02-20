@@ -11,7 +11,7 @@ export interface StartupOnboarding {
   userRole: string;
 }
 
-type SubmitSetupResult = { success: true } | { success: false; error: string };
+type SubmitSetupResult = { success: true; orgSlug: string } | { success: false; error: string };
 
 export const submitStartupOnboarding = async (
   data: StartupOnboarding
@@ -34,11 +34,8 @@ export const submitStartupOnboarding = async (
     }
 
     const userId = session.user.id;
-    const userName = session.user.name || "User";
-    const orgName = `${userName}'s Workspace`;
-    const orgSlug = `${userName.toLowerCase().replace(/[^a-z0-9]/g, "-")}-${Math.random().toString(36).substring(2, 7)}`;
 
-    await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       // 1. Update user onboarding status and role
       await tx.user.update({
         where: { id: userId },
@@ -64,35 +61,49 @@ export const submitStartupOnboarding = async (
         },
       });
 
-      // 3. Create default organization
-      const org = await tx.organization.create({
-        data: {
+      // 3. Create or get default Organization
+      const orgName = "Personal Organisation";
+      const orgSlug = orgName.toLowerCase().replace(/\s+/g, "-");
+
+      const org = await tx.organization.upsert({
+        where: { slug: orgSlug },
+        update: {},
+        create: {
           name: orgName,
           slug: orgSlug,
           ownerId: userId,
         },
       });
 
-      // 4. Create membership
-      await tx.membership.create({
-        data: {
-          userId: userId,
+      // 4. Create Membership
+      await tx.membership.upsert({
+        where: {
+          userId_orgId: {
+            userId,
+            orgId: org.id,
+          },
+        },
+        update: { role: "OWNER" },
+        create: {
+          userId,
           orgId: org.id,
           role: "OWNER",
         },
       });
+
+      return { success: true as const, orgSlug: org.slug };
     });
 
-    return { success: true };
-  } catch (error) {
-    console.error(error);
-    return { success: false, error: "Failed to finalize onboarding" };
+    return result;
+  } catch (error: any) {
+    console.error("Onboarding Error:", error);
+    return { success: false, error: error.message || "Failed to complete onboarding" };
   }
 };
 
 export const authCallBack = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
-  
+
   if (!session?.user?.id) {
     redirect("/sign-in");
   }

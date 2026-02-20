@@ -82,9 +82,9 @@ const DialogTrigger = React.forwardRef<HTMLDivElement, DialogTriggerProps & Reac
   >
    {React.Children.map(children, child => {
    if (React.isValidElement(child)) {
- return React.cloneElement(child, {
-    ...child.props
- });
+     const element = child as React.ReactElement<any>;
+  return React.cloneElement(element, {
+  });
    }
    return child;
    })}
@@ -134,39 +134,39 @@ const DialogContent = React.forwardRef<HTMLDivElement, OmittedDialogContentHTMLA
    <div className="fixed inset-0 z-50 flex items-center justify-center">
    {/* Backdrop Overlay */}
    <motion.div
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- exit={{ opacity: 0 }}
- transition={{ duration: 0.2 }}
- className="absolute inset-0 bg-background/80 backdrop-blur-sm"
- onClick={() => setOpen(false)} // Close dialog when clicking overlay
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  transition={{ duration: 0.2 }}
+  className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+  onClick={() => setOpen(false)} // Close dialog when clicking overlay
    />
 
    {/* Dialog Content */}
    <motion.div
- ref={ref}
- initial={{ opacity: 0, scale: 0.95 }} // Start slightly scaled down and invisible
- animate={{ opacity: 1, scale: 1 }} // Scale up to full size and visible
- exit={{ opacity: 0, scale: 0.95 }}  // Scale down and invisible on exit
- transition={{ duration: 0.2, ease: "easeOut" }} // Smooth transition for content
- className={cn(
-    "relative z-50 w-full max-w-lg rounded-lg border   bg-background p-6 shadow-lg",
-    className
- )}
- role="dialog"
- aria-modal="true"
+  ref={ref}
+  initial={{ opacity: 0, scale: 0.95 }} // Start slightly scaled down and invisible
+  animate={{ opacity: 1, scale: 1 }} // Scale up to full size and visible
+  exit={{ opacity: 0, scale: 0.95 }}  // Scale down and invisible on exit
+  transition={{ duration: 0.2, ease: "easeOut" }} // Smooth transition for content
+  className={cn(
+     "relative z-50 w-full max-w-lg rounded-lg border   bg-background p-6 shadow-lg",
+     className
+  )}
+  role="dialog"
+  aria-modal="true"
               // Cast props to HTMLMotionProps<'div'> to satisfy TypeScript
- {...props as HTMLMotionProps<'div'>}
- >
- {children}
- <button
-    onClick={() => setOpen(false)}
-    className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-    aria-label="Close dialog"
- >
-    <X className="h-4 w-4" />
-    <span className="sr-only">Close</span>
- </button>
+  {...props as HTMLMotionProps<'div'>}
+  >
+  {children}
+  <button
+     onClick={() => setOpen(false)}
+     className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+     aria-label="Close dialog"
+  >
+     <X className="h-4 w-4" />
+     <span className="sr-only">Close</span>
+  </button>
    </motion.div>
    </div>
   )}
@@ -218,7 +218,7 @@ const DialogFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLD
   ref={ref}
    className={cn(
    "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
- className
+  className
    )}
  {...props}
   />
@@ -233,5 +233,5 @@ export {
  DialogHeader,
  DialogTitle,
  DialogDescription,
-DialogFooter
+ DialogFooter
 };

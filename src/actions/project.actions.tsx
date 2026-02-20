@@ -446,3 +446,95 @@ export async function getUserContextAction(): Promise<ActionResponse<{ organizat
     }
 }
 
+export async function getProjectHomeDataAction(orgSlug: string, projectSlug: string): Promise<ActionResponse<{ project: any; organization: any; membership: any }>> {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+
+    try {
+        const organization = await prisma.organization.findUnique({
+            where: { slug: orgSlug },
+            include: {
+                memberships: {
+                    include: {
+                        user: true
+                    }
+                }
+            }
+        });
+
+        if (!organization) return { success: false, error: "Organization not found" };
+
+        const project = await prisma.project.findUnique({
+            where: {
+                orgId_slug: {
+                    orgId: organization.id,
+                    slug: projectSlug
+                }
+            }
+        });
+
+        if (!project) return { success: false, error: "Project not found" };
+
+        const membership = await prisma.membership.findUnique({
+            where: {
+                userId_orgId: {
+                    userId: session.user.id,
+                    orgId: organization.id
+                }
+            }
+        });
+
+        return { 
+            success: true, 
+            data: { 
+                project, 
+                organization,
+                membership
+            } 
+        };
+    } catch (error) {
+        console.error("Failed to fetch project home data:", error);
+        return { success: false, error: "Failed to fetch project data" };
+    }
+}
+
+export async function getDiscoverProjectsAction(): Promise<ActionResponse<any[]>> {
+    try {
+        const projects = await prisma.project.findMany({
+            include: {
+                organization: true
+            },
+            take: 20,
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        const mappedProjects = projects.map(p => ({
+            id: p.id,
+            name: p.name,
+            desc: p.tagline || p.description || "No description provided.",
+            tagline: p.tagline || p.description || "No description provided.",
+            category: "latest", 
+            niche: (p.niche as any) || "SaaS",
+            stage: (p.stage as any) || "Idea",
+            funding: p.postMoneyValuation ? `Val: ${p.postMoneyValuation}` : (p.currentRevenue ? `Rev: ${p.currentRevenue}` : "Seed"),
+            traction: p.currentRevenue ? `${p.currentRevenue} rev` : "Stealth",
+            image: p.bannerUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2832&auto=format&fit=crop",
+            logo: p.logoUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2832&auto=format&fit=crop",
+            profileLink: `/${p.organization.slug}/${p.slug}`,
+            lastUpdate: "New on Kiwiko",
+            tags: [p.niche || "Startup"],
+            isLive: true
+        }));
+
+        return { success: true, data: mappedProjects };
+    } catch (error) {
+        console.error("Failed to fetch discover projects:", error);
+        return { success: false, error: "Failed to fetch discover projects" };
+    }
+}
+

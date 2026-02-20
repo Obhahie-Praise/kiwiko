@@ -38,11 +38,11 @@ const LastPage = ({ userRole }: { userRole: string }) => {
       if (!result.success) {
         console.error(result.error);
         setIsLoading(false);
-        setError("Something went wrong. Please try again");
+        setError(result.error || "Something went wrong. Please try again");
         return;
       }
 
-      router.push("/dashboard");
+      router.push(`/${result.orgSlug}/new-project`);
     } catch (e) {
       console.error(e);
       setIsLoading(false);

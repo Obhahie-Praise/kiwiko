@@ -9,6 +9,7 @@ import {
   StartupCategory, 
   StartupNiche 
 } from "@/constants";
+import { getDiscoverProjectsAction } from "@/actions/project.actions";
 import { 
   Search, 
   Filter, 
@@ -28,9 +29,24 @@ const DiscoveryPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<StartupCategory | "all">("trending");
   const [activeNiche, setActiveNiche] = useState<StartupNiche | "All">("All");
+  const [dbProjects, setDbProjects] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  React.useEffect(() => {
+    const fetchProjects = async () => {
+      const res = await getDiscoverProjectsAction();
+      if (res.success) {
+        setDbProjects(res.data);
+      }
+      setIsLoading(false);
+    };
+    fetchProjects();
+  }, []);
 
   const filteredStartups = useMemo(() => {
-    return startups.filter((s) => {
+    // Merge curated startups with DB projects
+    const allStartups = [...dbProjects, ...startups];
+    return allStartups.filter((s) => {
       const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           s.desc.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesTab = activeTab === "all" || s.category === activeTab;
@@ -132,12 +148,11 @@ const DiscoveryPage = () => {
         {filteredStartups.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in duration-700">
             {filteredStartups.map((s, i) => {
-              const NicheIcon = nicheIcons[s.niche] || Zap;
               const profileSlug = s.name.toLowerCase().replace(/\s+/g, '-');
               
               return (
                 <Link 
-                  href={`/${profileSlug}`} 
+                  href={s.profileLink || `/${profileSlug}`} 
                   key={s.id}
                   className="group bg-white border border-zinc-200 rounded-4xl pb-7 hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 flex flex-col h-full overflow-hidden relative"
                 >
@@ -160,12 +175,15 @@ const DiscoveryPage = () => {
                   <div className="flex-1 relative z-10 px-7">
                     <div className="flex items-center gap-1 mb-3">
                       <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{s.niche}</span>
-                      <div className="w-1 h-1 bg-zinc-200 rounded-full" />
-                      <span className="text-[10px] font-black text-emerald-600 tracking-widest uppercase">Verified Signal</span>
+                      {/* Removed Verified Signal */}
                     </div>
                     
                     <h3 className="text-2xl font-black text-zinc-900 mb-3 tracking-tighter uppercase italic group-hover:text-black transition-colors flex items-center gap-2">
-                      <NicheIcon size={18} className="text-zinc-400 group-hover:text-zinc-900 transition-colors" />
+                       <img 
+                          src={s.logo || "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=100&auto=format&fit=crop"} 
+                          alt="" 
+                          className="w-6 h-6 rounded-md object-cover border border-zinc-100"
+                        />
                       {s.name}
                     </h3>
                     
@@ -187,7 +205,7 @@ const DiscoveryPage = () => {
                       </div>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 group-hover:bg-zinc-900 group-hover:text-white transition-all scale-75 group-hover:scale-100 duration-500 shadow-sm shadow-zinc-100">
-                      <Zap size={16} fill="currentColor" strokeWidth={0} />
+                      <ChevronRight size={16} />
                     </div>
                   </div>
                 </Link>

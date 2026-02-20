@@ -35,6 +35,7 @@ export default function UniversalUploadDropzone({
   initialImage,
   icon: Icon = Upload,
 }: Props) {
+  const DynamicIcon = Icon as any;
   const inputRef = useRef<HTMLInputElement>(null);
   const [filePreview, setFilePreview] = useState<{ url: string; type: string; name?: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -173,7 +174,7 @@ const handleFileAction = useCallback(
                 "p-3 rounded-xl transition-all duration-300",
                 isDragging ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-500 group-hover:bg-zinc-200 group-hover:text-zinc-600"
               )}>
-                <Icon size={24} />
+                <DynamicIcon size={24} />
               </div>
 
               <div className="text-center">

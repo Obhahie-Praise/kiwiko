@@ -13,26 +13,31 @@ import prisma from "@/lib/prisma";
 import { Activity, Bolt, Check, EllipsisVertical, Search } from "lucide-react";
 import { redirect } from "next/navigation";
 
-const HomePage = async () => {
+import { getProjectHomeDataAction } from "@/actions/project.actions";
+
+const HomePage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
+  const { orgSlug, projectSlug } = await params;
   const session = await getSession();
-  const userId = session?.user.id;
-  const onboardingCheck = await prisma.startupOnboarding.count({
-    where: { userId },
-  });
-  const startup = await prisma.startupOnboarding.findUnique({
-    where: { userId },
-  });
+  
+  if (!session?.user) {
+    redirect("/sign-in");
+  }
+
+  const contextRes = await getProjectHomeDataAction(orgSlug, projectSlug);
+
+  if (!contextRes.success) {
+     // If project not found or unauthorized, redirect back to projects or show 404
+     redirect(`/${orgSlug}/projects`);
+  }
+
+  const { project, organization, membership } = contextRes.data;
+  const userId = session.user.id;
+
   const truncateEmail =
     String(session?.user.email).length > 15
       ? String(session?.user.email).slice(0, 15).padEnd(22, " . . . ")
       : String(session?.user.email);
 
-if (!session?.user) {
-  redirect("/sign-in")
-}
-  if (onboardingCheck === 0) {
-    redirect("/onboarding/setup?page=1");
-  }
   return (
     <div className="overflow-x-hidden">
       <nav className="flex items-center justify-between px-3 py-0.5">
@@ -56,7 +61,8 @@ if (!session?.user) {
           <HomeNavProfileBtn
             session={session}
             truncateEmail={truncateEmail}
-            startup={startup}
+            project={project}
+            userRole={membership?.role || session.user.role || "Member"}
           />
         </div>
       </nav>
@@ -98,21 +104,24 @@ if (!session?.user) {
 
             <div className="flex-col flex justify-between h-[90%]">
               <div className="space-y-3">
-                {/* Member */}
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={session?.user.image as string}
-                      className="w-9 h-9 rounded-full border border-zinc-300"
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-zinc-900">You</p>
-                      <p className="text-xs text-zinc-500">Founder • Product</p>
+                {organization.memberships.map((m: any) => (
+                  <div key={m.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={m.user.image || "/default-avatar.png"}
+                        className="w-9 h-9 rounded-full border border-zinc-300"
+                        alt={m.user.name || "User"}
+                      />
+                      <div>
+                        <p className="text-sm font-medium text-zinc-900">
+                          {m.userId === userId ? "You" : (m.user.name || m.user.email)}
+                        </p>
+                        <p className="text-xs text-zinc-500 capitalize">{m.role.toLowerCase()}</p>
+                      </div>
                     </div>
+                    {m.userId === userId && <span className="text-xs text-zinc-500">100%</span>}
                   </div>
-                  <span className="text-xs text-zinc-500">100%</span>
-                </div>
+                ))}
 
                 {/* Empty member (future-facing) */}
                 <div className="flex items-center justify-between opacity-70">
@@ -133,7 +142,7 @@ if (!session?.user) {
 
               <div className="pt-4 border-t border-zinc-200 flex justify-between text-xs text-zinc-500">
                 <span>Team size</span>
-                <span className="text-zinc-900 font-medium">1</span>
+                <span className="text-zinc-900 font-medium">{organization.memberships.length}</span>
               </div>
             </div>
           </div>
