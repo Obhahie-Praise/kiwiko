@@ -8,6 +8,11 @@ import prisma from "@/lib/prisma";
 import { organizations, projects } from "@/constants";
 import { auth } from "@/lib/auth"; // Assuming auth is available here
 import { headers } from "next/headers";
+import { 
+  getProjectRepoDetails, 
+  getProjectGithubBranches, 
+  getProjectGithubCommits 
+} from "@/actions/github.actions";
 
 interface PageProps {
   params: Promise<{
@@ -98,7 +103,32 @@ export default async function PublicProjectProfilePage({ params }: PageProps) {
   });
 
   if (projectDB) {
-      return <ProjectPublicView project={projectDB} organization={projectDB.organization} orgSlug={orgSlug} />;
+      let githubData = null;
+      let branches: any[] = [];
+      let initialCommits: any[] = [];
+
+      if (projectDB.githubRepoFullName && projectDB.githubConnectedBy) {
+        const [repoRes, branchesRes, commitsRes] = await Promise.all([
+          getProjectRepoDetails(projectDB.githubRepoFullName, projectDB.githubConnectedBy),
+          getProjectGithubBranches(projectDB.githubRepoFullName, projectDB.githubConnectedBy),
+          getProjectGithubCommits(projectDB.githubRepoFullName, projectDB.githubConnectedBy)
+        ]);
+
+        if (repoRes.success) githubData = repoRes.data;
+        if (branchesRes.success) branches = branchesRes.data;
+        if (commitsRes.success) initialCommits = commitsRes.data;
+      }
+
+      return (
+        <ProjectPublicView 
+          project={projectDB} 
+          organization={projectDB.organization} 
+          orgSlug={orgSlug}
+          githubData={githubData}
+          branches={branches}
+          initialCommits={initialCommits}
+        />
+      );
   }
 
   // 3. Fallback to mock data (Constants)

@@ -16,16 +16,28 @@ import {
 } from "lucide-react";
 import PitchDeck from "@/components/projects/PitchDeck";
 import Link from "next/link";
-import Navbar from "@/components/common/Navbar";
 import { getLinkIcon, getLinkLabel } from "@/lib/url-utils";
+import GithubRepoStats from "@/components/projects/GithubRepoStats";
+import GithubCommitList from "@/components/projects/GithubCommitList";
+import { Github as GithubIcon } from "lucide-react";
 
 interface ProjectPublicViewProps {
-    project: any; // TODO: Type this properly based on DB or Constant
+    project: any; 
     organization: any;
     orgSlug: string;
+    githubData?: any;
+    initialCommits?: any[];
+    branches?: any[];
 }
 
-const ProjectPublicView = ({ project, organization, orgSlug }: ProjectPublicViewProps) => {
+const ProjectPublicView = ({ 
+  project, 
+  organization, 
+  orgSlug,
+  githubData,
+  initialCommits,
+  branches
+}: ProjectPublicViewProps) => {
 
   const activity = [
     { id: 1, type: "commit", text: "Refactored core engine for concurrency", meta: "v2.1.0", time: "2h ago", icon: Terminal },
@@ -161,36 +173,35 @@ const ProjectPublicView = ({ project, organization, orgSlug }: ProjectPublicView
             <div className="flex-1">
                 <div className="flex items-center gap-4 mb-10">
                     <div className="w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center text-zinc-900 shadow-inner">
-                        <Terminal size={24} />
+                        <GithubIcon size={24} />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-black text-zinc-900 tracking-tighter uppercase italic">Live Execution Logs</h2>
-                        <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Real-time Proof of Concept</p>
+                        <h2 className="text-3xl font-black text-zinc-900 tracking-tighter uppercase italic">Commit History</h2>
+                        <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Real-time Proof of Execution</p>
                     </div>
                 </div>
 
-                <div className="space-y-4">
-                  {activity.map((item) => (
-                    <div key={item.id} className="group p-6 bg-white border border-zinc-100 rounded-3xl hover:border-zinc-300 transition-all flex items-center justify-between shadow-sm hover:shadow-xl hover:shadow-zinc-100 overflow-hidden relative">
-                        <div className="flex items-center gap-6 relative z-10">
-                            <div className="p-3 bg-zinc-50 text-zinc-400 rounded-xl group-hover:bg-zinc-900 group-hover:text-white transition-colors duration-300">
-                                <item.icon size={20} />
-                            </div>
-                            <div>
-                                <p className="text-sm font-bold text-zinc-900 leading-tight mb-1">{item.text}</p>
-                                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">{item.meta} • {item.time}</span>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4 relative z-10">
-                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                            <ChevronRight size={16} className="text-zinc-300 group-hover:text-zinc-900 transition-colors" />
-                        </div>
-
-                        {/* Background Decoration */}
-                        <div className="absolute right-0 top-0 h-full w-32 bg-linear-to-l from-zinc-50/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  ))}
-                </div>
+                {project.githubRepoFullName ? (
+                  <>
+                    <GithubRepoStats 
+                      repoData={githubData} 
+                      branchCount={branches?.length || 0} 
+                    />
+                    <GithubCommitList 
+                      repoFullName={project.githubRepoFullName}
+                      connectedByUserId={project.githubConnectedBy || ""}
+                      initialCommits={initialCommits || []}
+                      branches={branches || []}
+                    />
+                  </>
+                ) : (
+                  <div className="p-12 text-center bg-zinc-50 rounded-[3rem] border border-dashed border-zinc-200">
+                    <GithubIcon size={32} className="mx-auto text-zinc-300 mb-4" />
+                    <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest leading-relaxed">
+                      No GitHub repository connected to this project yet.
+                    </p>
+                  </div>
+                )}
             </div>
 
             <div className="md:w-1/3">

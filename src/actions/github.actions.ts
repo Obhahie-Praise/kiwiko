@@ -258,3 +258,117 @@ export async function syncProjectGithubMetrics(projectId: string): Promise<Actio
     return { success: false, error: error.message || "Failed to sync GitHub metrics" };
   }
 }
+
+/**
+ * Fetches repository metadata directly from GitHub.
+ */
+export async function getProjectRepoDetails(repoFullName: string, connectedByUserId: string): Promise<ActionResponse<any>> {
+  try {
+    const accessToken = await getGithubAccessToken(connectedByUserId);
+    
+    // Fetch basic repo data
+    const repoResponse = await fetch(`https://api.github.com/repos/${repoFullName}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+      next: { revalidate: 3600 }
+    });
+
+    if (!repoResponse.ok) {
+      throw new Error(`GitHub API error: ${repoResponse.statusText}`);
+    }
+
+    const repoData = await repoResponse.json();
+
+    // Fetch total commit count using Link header trick
+    const commitsRes = await fetch(
+      `https://api.github.com/repos/${repoFullName}/commits?per_page=1`, 
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    );
+    
+    let totalCommits = 0;
+    if (commitsRes.ok) {
+      const linkHeader = commitsRes.headers.get("Link");
+      if (linkHeader) {
+        const match = linkHeader.match(/&page=(\d+)>; rel="last"/);
+        if (match) totalCommits = parseInt(match[1]);
+      } else {
+        const commits = await commitsRes.json();
+        totalCommits = commits.length;
+      }
+    }
+
+    return { 
+      success: true, 
+      data: { 
+        ...repoData, 
+        total_commits: totalCommits 
+      } 
+    };
+  } catch (error: any) {
+    console.error("getProjectRepoDetails error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Fetches all branches for a repository.
+ */
+export async function getProjectGithubBranches(repoFullName: string, connectedByUserId: string): Promise<ActionResponse<any[]>> {
+  try {
+    const accessToken = await getGithubAccessToken(connectedByUserId);
+    const response = await fetch(`https://api.github.com/repos/${repoFullName}/branches`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+      next: { revalidate: 1800 } // Cache for 30 mins
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitHub API error: ${response.statusText}`);
+    }
+
+    return { success: true, data: await response.json() };
+  } catch (error: any) {
+    console.error("getProjectGithubBranches error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Fetches commits for a specific branch.
+ */
+export async function getProjectGithubCommits(
+  repoFullName: string, 
+  connectedByUserId: string, 
+  branch?: string
+): Promise<ActionResponse<any[]>> {
+  try {
+    const accessToken = await getGithubAccessToken(connectedByUserId);
+    const url = `https://api.github.com/repos/${repoFullName}/commits?per_page=20${branch ? `&sha=${branch}` : ""}`;
+    
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+      next: { revalidate: 600 } // Cache for 10 mins
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitHub API error: ${response.statusText}`);
+    }
+
+    return { success: true, data: await response.json() };
+  } catch (error: any) {
+    console.error("getProjectGithubCommits error:", error);
+    return { success: false, error: error.message };
+  }
+}
