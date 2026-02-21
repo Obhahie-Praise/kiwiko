@@ -45,24 +45,25 @@ const GithubCommitList = ({
 
   return (
     <div className="w-full">
-      <div className="flex items-center gap-4 mb-10 overflow-x-auto no-scrollbar pb-2">
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest mr-4 shadow-xl">
-          <GitBranch size={12} />
-          <span>Branches</span>
+      <div className="relative mb-8">
+        <div className="flex items-center gap-8 border-b border-zinc-100 overflow-x-auto no-scrollbar scroll-smooth">
+          {branches.map((branch) => (
+            <button
+              key={branch.name}
+              onClick={() => fetchCommits(branch.name)}
+              className={`pb-4 text-xs font-bold uppercase tracking-widest transition-all relative group whitespace-nowrap ${
+                currentBranch === branch.name
+                  ? "text-zinc-900 border-b-2 border-zinc-900"
+                  : "text-zinc-400 hover:text-zinc-600"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <GitBranch size={14} className={currentBranch === branch.name ? "text-zinc-900" : "text-zinc-400"} />
+                {branch.name}
+              </div>
+            </button>
+          ))}
         </div>
-        {branches.map((branch) => (
-          <button
-            key={branch.name}
-            onClick={() => fetchCommits(branch.name)}
-            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all whitespace-nowrap ${
-              currentBranch === branch.name
-                ? "bg-zinc-100 border-zinc-200 text-zinc-900 shadow-inner"
-                : "bg-white border-transparent text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50"
-            }`}
-          >
-            {branch.name}
-          </button>
-        ))}
       </div>
 
       <div className="space-y-4 relative min-h-[400px]">

@@ -62,7 +62,10 @@ export default async function PublicProjectProfilePage({ params }: PageProps) {
         return {
           id: m.userId,
           email: u?.email || "Unknown",
+          name: u?.name || "Member",
+          image: u?.image || "",
           role: m.role,
+          joinedAt: m.joinedAt,
           status: "active" as const, // Cast strictly
         };
       }),
@@ -98,7 +101,13 @@ export default async function PublicProjectProfilePage({ params }: PageProps) {
   const projectDB = await prisma.project.findFirst({
     where: { slug: orgSlug },
     include: {
-      organization: true
+      organization: {
+        include: {
+          memberships: true,
+          invites: true
+        }
+      },
+      integrations: true
     }
   });
 
@@ -119,10 +128,66 @@ export default async function PublicProjectProfilePage({ params }: PageProps) {
         if (commitsRes.success) initialCommits = commitsRes.data;
       }
 
+      // Enrich organization members
+      const org = projectDB.organization as any;
+      const userIds = org.memberships.map((m: any) => m.userId);
+      // Ensure owner is included
+      if (!userIds.includes(org.ownerId)) userIds.push(org.ownerId);
+
+      const users = await prisma.user.findMany({
+        where: { id: { in: userIds } },
+        select: { id: true, email: true, name: true, image: true },
+      });
+
+      const members = [
+        ...org.memberships.map((m: any) => {
+          const u = users.find((user) => user.id === m.userId);
+          return {
+            id: m.userId,
+            email: u?.email || "Unknown",
+            name: u?.name || "Member",
+            image: u?.image || "",
+            role: m.role,
+            joinedAt: m.joinedAt,
+            status: "active" as const,
+          };
+        }),
+        ...org.invites.map((i: any) => ({
+          id: i.id,
+          email: i.email,
+          name: i.email.split('@')[0],
+          image: "",
+          role: i.role,
+          joinedAt: i.createdAt,
+          status: "invited" as const,
+        })),
+      ];
+
+      // Handle owner if not in memberships explicitly
+      if (!members.some(m => m.id === org.ownerId)) {
+        const owner = users.find(u => u.id === org.ownerId);
+        if (owner) {
+          members.push({
+            id: owner.id,
+            email: owner.email,
+            name: owner.name,
+            image: owner.image || "",
+            role: "OWNER",
+            joinedAt: org.createdAt,
+            status: "active" as const,
+          });
+        }
+      }
+
+      const enrichedOrg = {
+        ...org,
+        members: members
+      };
+
       return (
         <ProjectPublicView 
           project={projectDB} 
-          organization={projectDB.organization} 
+          organization={enrichedOrg} 
           orgSlug={orgSlug}
           githubData={githubData}
           branches={branches}

@@ -50,7 +50,8 @@ export default async function ProjectSettingsPage({ params }: PageProps) {
           }
       },
       include: {
-          invites: true
+          invites: true,
+          integrations: true
       }
   });
 

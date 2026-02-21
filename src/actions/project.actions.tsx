@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { SignalType } from "@/generated/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import crypto from "node:crypto";
@@ -43,7 +44,40 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
       console.error("Failed to parse links:", e);
   }
 
+
   const githubRepoFullName = formData.get("githubRepoFullName") as string || null;
+  const signalsJson = formData.get("signals") as string;
+  let selectedSignals: SignalType[] = [];
+  try {
+      if (signalsJson) selectedSignals = JSON.parse(signalsJson);
+  } catch (e) {
+      console.error("Failed to parse signals:", e);
+  }
+
+  // If no signal selected -> auto-select MANUAL
+  if (selectedSignals.length === 0) {
+      selectedSignals = ["MANUAL"];
+  }
+
+  // If GITHUB selected -> validate GitHub integration exists
+  if (selectedSignals.includes("GITHUB")) {
+      const githubIntegration = await prisma.integration.findUnique({
+          where: {
+              userId_provider: {
+                  userId,
+                  provider: "github",
+              },
+          },
+      });
+
+      if (!githubIntegration) {
+          return { success: false, error: "Please connect your GitHub account first" };
+      }
+      
+      if (!githubRepoFullName) {
+          return { success: false, error: "GitHub signal selected but no repository provided" };
+      }
+  }
 
   if (!name || !slug || !orgId) {
     return { success: false, error: "Name, slug, and organization ID are required" };
@@ -98,6 +132,20 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
             githubConnectedBy: githubRepoFullName ? userId : null,
         },
         });
+
+        // Create ProjectIntegrations for GITHUB and MANUAL
+        const integrationsToCreate = selectedSignals.filter(s => s === "GITHUB" || s === "MANUAL");
+        
+        await Promise.all(
+            integrationsToCreate.map(type => 
+                (tx as any).projectIntegration.create({
+                    data: {
+                        projectId: project.id,
+                        type,
+                    }
+                })
+            )
+        );
 
         const createdInvites = await Promise.all(
             inviteEmails.map(async (email) => {
@@ -291,12 +339,43 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
     const postMoneyValuation = formData.get("postMoneyValuation") as string;
     const logoUrl = formData.get("logoUrl") as string;
     const bannerUrl = formData.get("bannerUrl") as string;
+    const signalsJson = formData.get("signals") as string;
     const linksJson = formData.get("links") as string;
+    const githubRepoFullName = formData.get("githubRepoFullName") as string;
+    
     let links = undefined;
     try {
         if (linksJson) links = JSON.parse(linksJson);
     } catch (e) {
         console.error("Failed to parse links:", e);
+    }
+
+    let selectedSignals: SignalType[] = [];
+    try {
+        if (signalsJson) selectedSignals = JSON.parse(signalsJson);
+    } catch (e) {
+        console.error("Failed to parse signals:", e);
+    }
+
+    // Auto-select MANUAL if none
+    if (selectedSignals.length === 0) {
+        selectedSignals = ["MANUAL"];
+    }
+
+    // GitHub validation
+    if (selectedSignals.includes("GITHUB")) {
+        const githubIntegration = await prisma.integration.findUnique({
+            where: {
+                userId_provider: {
+                    userId: session.user.id,
+                    provider: "github",
+                },
+            },
+        });
+
+        if (!githubIntegration) {
+            return { success: false, error: "Please connect your GitHub account first" };
+        }
     }
 
     try {
@@ -312,23 +391,45 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
             if (existingSlug) return { success: false, error: "Project URL is already taken in this organization." };
         }
 
-        await prisma.project.update({
-            where: { id: projectId },
-            data: {
-                name,
-                slug: slug || project.slug,
-                description,
-                problem,
-                solution,
-                stage,
-                currentRevenue,
-                postMoneyValuation,
-                logoUrl,
-                bannerUrl,
-                links,
-                dataChangeCount: currentCount + 1,
-                lastDataChangeAt: now
-            }
+        await prisma.$transaction(async (tx) => {
+            await tx.project.update({
+                where: { id: projectId },
+                data: {
+                    name,
+                    slug: slug || project.slug,
+                    description,
+                    problem,
+                    solution,
+                    stage,
+                    currentRevenue,
+                    postMoneyValuation,
+                    logoUrl,
+                    bannerUrl,
+                    links,
+                    githubRepoFullName: githubRepoFullName || project.githubRepoFullName,
+                    githubConnectedBy: githubRepoFullName ? session.user.id : project.githubConnectedBy,
+                    dataChangeCount: currentCount + 1,
+                    lastDataChangeAt: now
+                }
+            });
+
+            // Delete old ones first (or sync)
+            await (tx as any).projectIntegration.deleteMany({
+                where: { projectId }
+            });
+
+            const integrationsToCreate = selectedSignals.filter(s => s === "GITHUB" || s === "MANUAL");
+            
+            await Promise.all(
+                integrationsToCreate.map(type => 
+                    (tx as any).projectIntegration.create({
+                        data: {
+                            projectId,
+                            type,
+                        }
+                    })
+                )
+            );
         });
 
         revalidatePath(`/${project.organization.slug}/projects`);

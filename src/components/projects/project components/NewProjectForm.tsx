@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeft, Upload, Globe, Wallet, ChevronDown, Check, UserPlus, FileText, Target, Tag, Users, X, Github, Lock, Search, Loader2 } from "lucide-react";
+import { ArrowLeft, Upload, Globe, Wallet, ChevronDown, Check, UserPlus, FileText, Target, Tag, Users, X, Github, Lock, Search, Loader2, Instagram, Linkedin, Twitter, Youtube, Info, Sparkles, Zap } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import UploadDropzone from "../../ui/upload/UploadDropZone";
@@ -10,6 +10,8 @@ import { getUserGithubRepos } from "@/actions/github.actions";
 import { getLinkIcon } from "@/lib/url-utils";
 import { useEffect } from "react";
 import { signIn } from "@/lib/auth-client";
+import { Tooltip } from "../../lightswind/tooltip";
+import { SignalType } from "@/generated/prisma";
 
 interface NewProjectFormProps {
     orgId: string; // This might be passed from a parent or we might need to derive it/fetch it if not available directly, but usually for this form we assume we have it or the slug. 
@@ -52,6 +54,8 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
     const [isFetchingRepos, setIsFetchingRepos] = useState(false);
     const [isLinkingGithub, setIsLinkingGithub] = useState(false);
     const [repoError, setRepoError] = useState<string | null>(null);
+    const [selectedSignals, setSelectedSignals] = useState<SignalType[]>([]);
+    const [showAllRepos, setShowAllRepos] = useState(false);
 
     useEffect(() => {
         const fetchRepos = async () => {
@@ -71,9 +75,10 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
         fetchRepos();
     }, []);
 
-    const filteredRepos = githubRepos.filter(repo => 
+    const allFilteredRepos = githubRepos.filter(repo => 
         repo.full_name.toLowerCase().includes(repoSearch.toLowerCase())
-    ).slice(0, 5);
+    );
+    const filteredRepos = showAllRepos ? allFilteredRepos : allFilteredRepos.slice(0, 5);
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
@@ -146,6 +151,8 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
             if (bannerUrl) formData.append("bannerUrl", bannerUrl);
             if (pitchDeckUrl) formData.append("pitchDeckUrl", pitchDeckUrl);
             if (selectedRepo) formData.append("githubRepoFullName", selectedRepo);
+            
+            formData.append("signals", JSON.stringify(selectedSignals));
 
             const result = await createProjectAction(formData);
 
@@ -490,122 +497,201 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                 </div>
             </div>
 
-            {/* Section: Source Code (GitHub) */}
+            {/* Section: Connect Signals */}
             <div className="p-6 border-t border-zinc-100 bg-zinc-50/10">
                 <h2 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-6 flex items-center gap-2">
-                    <Github size={16} className="text-zinc-400" />
-                    Source Code
+                    <Sparkles size={16} className="text-zinc-400" />
+                    Connect Signals
                 </h2>
                 
-                <div className="space-y-4">
-                    <p className="text-xs text-zinc-500 mb-4">
-                        Link a GitHub repository to track development velocity and share open-source progress.
-                    </p>
+                <div className="space-y-6">
+                    <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Available Now</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {/* GitHub Signal */}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (selectedSignals.includes("GITHUB")) {
+                                        setSelectedSignals(selectedSignals.filter(s => s !== "GITHUB"));
+                                        setSelectedRepo(null);
+                                    } else {
+                                        setSelectedSignals([...selectedSignals, "GITHUB"]);
+                                    }
+                                }}
+                                className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left ${
+                                    selectedSignals.includes("GITHUB")
+                                        ? "border-zinc-900 bg-zinc-900 text-white shadow-lg"
+                                        : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
+                                }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedSignals.includes("GITHUB") ? "bg-white/10" : "bg-zinc-50"}`}>
+                                        <Github size={20} className={selectedSignals.includes("GITHUB") ? "text-white" : "text-zinc-400"} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold">GitHub</p>
+                                        <p className={`text-[10px] ${selectedSignals.includes("GITHUB") ? "text-zinc-400" : "text-zinc-500"}`}>Sync code activity</p>
+                                    </div>
+                                </div>
+                                {selectedSignals.includes("GITHUB") && <Check size={16} />}
+                            </button>
 
-                    <div className="relative">
-                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                        <input
-                            type="text"
-                            placeholder="Search your repositories..."
-                            value={repoSearch}
-                            onChange={(e) => setRepoSearch(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-400"
-                        />
+                            {/* Manual Signal */}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (selectedSignals.includes("MANUAL")) {
+                                        setSelectedSignals(selectedSignals.filter(s => s !== "MANUAL"));
+                                    } else {
+                                        setSelectedSignals([...selectedSignals, "MANUAL"]);
+                                    }
+                                }}
+                                className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left ${
+                                    selectedSignals.includes("MANUAL")
+                                        ? "border-zinc-900 bg-zinc-900 text-white shadow-lg"
+                                        : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
+                                }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedSignals.includes("MANUAL") ? "bg-white/10" : "bg-zinc-50"}`}>
+                                        <FileText size={20} className={selectedSignals.includes("MANUAL") ? "text-white" : "text-zinc-400"} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold">Manual Updates</p>
+                                        <p className={`text-[10px] ${selectedSignals.includes("MANUAL") ? "text-zinc-400" : "text-zinc-500"}`}>Post manual progress</p>
+                                    </div>
+                                </div>
+                                {selectedSignals.includes("MANUAL") && <Check size={16} />}
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-2 mt-4">
-                        {isFetchingRepos ? (
-                            <div className="py-8 flex flex-col items-center justify-center gap-2 text-zinc-400">
-                                <div className="w-5 h-5 border-2 border-zinc-200 border-t-zinc-800 rounded-full animate-spin" />
-                                <span className="text-[10px] font-bold uppercase tracking-widest">Fetching Repositories</span>
-                            </div>
-                        ) : repoError === "no linked github" ? (
-                            <div className="p-6 rounded-2xl border border-dashed border-zinc-200 bg-zinc-50/50 text-center space-y-4">
-                                <div className="w-12 h-12 bg-white rounded-xl border border-zinc-100 flex items-center justify-center mx-auto text-zinc-400">
-                                    <Github size={24} />
+                    {/* GitHub Repo Selection (Conditional) */}
+                    {selectedSignals.includes("GITHUB") && (
+                        <div className="mt-4 p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                             <div className="flex items-center justify-between">
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Select Repository</p>
+                                    <p className="text-[9px] font-medium text-zinc-400">{allFilteredRepos.length} Repositories Found</p>
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-semibold text-zinc-900">Connect GitHub</p>
-                                    <p className="text-xs text-zinc-500">Link your account to import project data from your repositories.</p>
-                                </div>
-                                <button 
-                                    type="button"
-                                    disabled={isLinkingGithub}
-                                    onClick={async () => {
-                                        setIsLinkingGithub(true);
-                                        await signIn.social({ 
-                                            provider: 'github', 
-                                            callbackURL: window.location.href 
-                                        });
-                                    }}
-                                    className="px-4 py-2 bg-zinc-900 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-black transition-all disabled:opacity-50 inline-flex items-center gap-2"
-                                >
-                                    {isLinkingGithub && <Loader2 size={12} className="animate-spin" />}
-                                    {isLinkingGithub ? "Redirecting..." : "Connect GitHub Account"}
-                                </button>
+                                {selectedRepo && (
+                                    <div className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] rounded-full font-bold uppercase tracking-tight flex items-center gap-1">
+                                        <Check size={10} /> {selectedRepo}
+                                    </div>
+                                )}
                             </div>
-                        ) : githubRepos.length > 0 ? (
-                            filteredRepos.map((repo) => (
-                                <button
-                                    key={repo.id}
-                                    type="button"
-                                    onClick={() => setSelectedRepo(selectedRepo === repo.full_name ? null : repo.full_name)}
-                                    className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all text-left ${
-                                        selectedRepo === repo.full_name
-                                            ? "border-zinc-900 bg-zinc-900 text-white shadow-xl shadow-zinc-200"
-                                            : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedRepo === repo.full_name ? "bg-white/10" : "bg-zinc-50"}`}>
-                                            <Github size={20} className={selectedRepo === repo.full_name ? "text-white" : "text-zinc-400"} />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-bold truncate max-w-[250px]">{repo.full_name}</span>
-                                            <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-1">
-                                                <div className="flex items-center gap-1">
-                                                    <span className={`text-[10px] font-bold ${selectedRepo === repo.full_name ? "text-zinc-400" : "text-zinc-500"}`}>
-                                                        {repo.stargazers_count} stars
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <span className={`text-[10px] font-bold ${selectedRepo === repo.full_name ? "text-zinc-400" : "text-zinc-500"}`}>
-                                                        {repo.forks_count} forks
-                                                    </span>
-                                                </div>
-                                                {repo.commit_count !== undefined && (
-                                                    <div className="flex items-center gap-1">
-                                                        <span className={`text-[10px] font-bold ${selectedRepo === repo.full_name ? "text-zinc-400" : "text-zinc-500"}`}>
-                                                            {repo.commit_count} commits
-                                                        </span>
+
+                            <div className="relative">
+                                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Search your repositories..."
+                                    value={repoSearch}
+                                    onChange={(e) => setRepoSearch(e.target.value)}
+                                    className="w-full pl-9 pr-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-400"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                {isFetchingRepos ? (
+                                    <div className="py-6 flex flex-col items-center justify-center gap-2 text-zinc-400">
+                                        <Loader2 size={20} className="animate-spin" />
+                                        <span className="text-[10px] font-bold uppercase tracking-widest">Fetching...</span>
+                                    </div>
+                                ) : repoError === "no linked github" ? (
+                                    <div className="p-4 rounded-xl border border-dashed border-zinc-200 bg-white text-center space-y-3">
+                                        <p className="text-xs text-zinc-500">Connect GitHub to see your repositories.</p>
+                                        <button 
+                                            type="button"
+                                            onClick={() => signIn.social({ provider: 'github', callbackURL: window.location.href })}
+                                            className="px-4 py-2 bg-zinc-900 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-black transition-all"
+                                        >
+                                            Connect GitHub
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {filteredRepos.map((repo) => (
+                                            <button
+                                                key={repo.id}
+                                                type="button"
+                                                onClick={() => setSelectedRepo(selectedRepo === repo.full_name ? null : repo.full_name)}
+                                                className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all text-left ${
+                                                    selectedRepo === repo.full_name
+                                                        ? "border-zinc-900 bg-zinc-900 text-white shadow-md scale-[1.01]"
+                                                        : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
+                                                }`}
+                                            >
+                                                <div className="flex flex-col gap-0.5">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs font-bold truncate">{repo.full_name}</span>
+                                                        {repo.private && <Lock size={10} className={selectedRepo === repo.full_name ? "text-zinc-500" : "text-zinc-400"} />}
+                                                        {repo.is_deployed && (
+                                                            <span className="px-1.5 py-0.5 bg-sky-100 text-sky-700 text-[8px] rounded font-bold uppercase tracking-wider flex items-center gap-0.5 ml-auto">
+                                                                <Zap size={8} /> Deployed
+                                                            </span>
+                                                        )}
                                                     </div>
-                                                )}
-                                                <div className="flex items-center gap-1">
-                                                    <span className={`text-[10px] font-medium italic ${selectedRepo === repo.full_name ? "text-zinc-500" : "text-zinc-400"}`}>
-                                                        Last update: {new Date(repo.pushed_at).toLocaleDateString()}
-                                                    </span>
+                                                    <div className={`flex items-center gap-3 text-[10px] ${selectedRepo === repo.full_name ? "text-zinc-400" : "text-zinc-500"}`}>
+                                                        <span className="flex items-center gap-1">
+                                                            <Sparkles size={10} /> {repo.commit_count || 0} commits
+                                                        </span>
+                                                        <span className="flex items-center gap-1 font-mono bg-zinc-100 px-1 rounded text-[8px]">
+                                                            {repo.default_branch}
+                                                        </span>
+                                                        <span>{repo.stargazers_count} stars</span>
+                                                        <span>Updated {new Date(repo.pushed_at).toLocaleDateString()}</span>
+                                                    </div>
                                                 </div>
+                                                {selectedRepo === repo.full_name && <Check size={12} />}
+                                            </button>
+                                        ))}
+                                        {!showAllRepos && allFilteredRepos.length > 5 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowAllRepos(true)}
+                                                className="w-full py-2.5 text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-zinc-900 transition-colors border border-dashed border-zinc-200 rounded-xl hover:bg-zinc-50"
+                                            >
+                                                See All ({allFilteredRepos.length})
+                                            </button>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Coming Soon</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {[
+                                { type: "INSTAGRAM", label: "Instagram", icon: <Instagram size={18} /> },
+                                { type: "LINKEDIN", label: "LinkedIn", icon: <Linkedin size={18} /> },
+                                { type: "TWITTER", label: "Twitter/X", icon: <Twitter size={18} /> },
+                                { type: "YOUTUBE", label: "YouTube", icon: <Youtube size={18} /> },
+                            ].map((signal) => (
+                                <Tooltip
+                                    key={signal.type}
+                                    content="OAuth integration launching soon"
+                                    side="top"
+                                >
+                                    <div className="relative group">
+                                        <div className="flex flex-col items-center justify-center p-4 rounded-2xl border border-zinc-200 bg-white opacity-40 cursor-not-allowed transition-all grayscale">
+                                            <div className="w-10 h-10 rounded-xl bg-zinc-50 flex items-center justify-center mb-2 text-zinc-400">
+                                                {signal.icon}
+                                            </div>
+                                            <p className="text-[10px] font-bold text-zinc-500">{signal.label}</p>
+                                            <div className="absolute top-2 right-2">
+                                                <span className="px-1.5 py-0.5 bg-zinc-100 text-zinc-500 text-[8px] rounded font-bold uppercase tracking-tighter">
+                                                    Soon
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                    {selectedRepo === repo.full_name && (
-                                        <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-zinc-900 shadow-sm">
-                                            <Check size={14} />
-                                        </div>
-                                    )}
-                                </button>
-                            ))
-                        ) : (
-                            <div className="p-6 rounded-2xl border border-dashed border-zinc-200 text-center bg-zinc-50/30">
-                                <p className="text-sm font-medium text-zinc-500 italic">
-                                    {repoError === "there is no repo" ? "No repositories found for this account." : "No projects detected."}
-                                </p>
-                            </div>
-                        )}
-                        
-                        {repoSearch && filteredRepos.length === 0 && !isFetchingRepos && (
-                             <p className="text-[10px] text-zinc-400 text-center py-2 italic uppercase">No matching repositories found</p>
-                        )}
+                                </Tooltip>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
