@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import UploadDropzone from "@/components/ui/upload/UploadDropZone";
-import { Loader2, Plus, X, Save, Zap, Building2, ArrowLeft, AlertTriangle, Briefcase, Link as LinkIcon, Users, Github, Instagram, Linkedin, Twitter, Youtube, Check, Search, Sparkles, FileText, Info, Lock, Facebook } from "lucide-react";
+import { Loader2, Plus, X, Save, Zap, Building2, ArrowLeft, AlertTriangle, Briefcase, Link as LinkIcon, Users, Github, Instagram, Linkedin, Twitter, Youtube, Check, Search, Sparkles, FileText, Info, Lock, Facebook, Mail, Crown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { updateProjectSettingsAction, inviteProjectMemberAction } from "@/actions/project.actions";
 import { getUserGithubRepos } from "@/actions/github.actions";
@@ -44,11 +44,12 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
   
   // Invite State
   const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("Developer");
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
 
   const [selectedSignals, setSelectedSignals] = useState<SignalType[]>(
-    project.integrations?.map((i: any) => i.type) || []
+    project.signals?.map((i: any) => i.signalType) || []
   );
 
   // GitHub Integration State
@@ -177,7 +178,7 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
     setError(null);
     
     try {
-        const result = await inviteProjectMemberAction(project.id, inviteEmail);
+        const result = await inviteProjectMemberAction(project.id, inviteEmail, inviteRole);
         
         if (result.success && (result as any).data) {
             setInviteSuccess(`Invitation sent to ${inviteEmail}`);
@@ -490,16 +491,37 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
             </h2>
             
             <div className="flex flex-col md:flex-row gap-4 items-end bg-zinc-50 p-6 rounded-3xl border border-zinc-100">
-              <div className="flex-1 w-full">
-                <label className="text-xs font-black text-zinc-500 uppercase tracking-widest pl-1 mb-2 block">Grant Access via Email</label>
-                <input 
-                  type="email" 
-                  value={inviteEmail} 
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="personnel@kiwiko.io"
-                  className="w-full px-4 py-3 bg-white border border-zinc-100 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-zinc-900 transition-all outline-none"
-                />
-              </div>
+                <div className="flex-1 w-full space-y-4">
+                  <div>
+                    <label className="text-xs font-black text-zinc-500 uppercase tracking-widest pl-1 mb-2 block">Grant Access via Email</label>
+                    <input 
+                      type="email" 
+                      value={inviteEmail} 
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      placeholder="personnel@kiwiko.io"
+                      className="w-full px-4 py-3 bg-white border border-zinc-100 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-zinc-900 transition-all outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-black text-zinc-500 uppercase tracking-widest pl-1 mb-2 block">Assign Role</label>
+                    <select
+                      value={inviteRole}
+                      onChange={(e) => setInviteRole(e.target.value)}
+                      className="w-full px-4 py-3 bg-white border border-zinc-100 rounded-2xl text-xs font-black uppercase tracking-widest text-zinc-500 outline-none cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-size-[24px_24px] bg-no-repeat bg-position-[right_12px_center]"
+                    >
+                      <option value="Admin">Admin</option>
+                      <option value="Advisor">Advisor</option>
+                      <option value="Co-founder">Co-founder</option>
+                      <option value="Consultant">Consultant</option>
+                      <option value="Designer">Designer</option>
+                      <option value="Developer">Developer</option>
+                      <option value="Founder">Founder</option>
+                      <option value="HR">HR</option>
+                      <option value="Marketer">Marketer</option>
+                      <option value="Spectator">Spectator</option>
+                    </select>
+                  </div>
+                </div>
               <button 
                 onClick={handleInvite}
                 disabled={inviteLoading || !inviteEmail}
@@ -514,6 +536,67 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
                 {inviteSuccess}
               </div>
             )}
+
+            {/* Existing Members & Invites List */}
+            <div className="mt-10 space-y-4">
+              <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] pl-1">Active Personnel</h3>
+              <div className="grid grid-cols-1 gap-2">
+                {project.members?.map((member: any) => (
+                  <div key={member.id} className="group flex items-center justify-between p-4 bg-zinc-50 rounded-2xl border border-zinc-100 transition-all hover:bg-white hover:shadow-lg hover:shadow-zinc-200/50">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center text-white overflow-hidden border-2 border-white shadow-sm">
+                          {member.user.image ? (
+                            <img src={member.user.image} alt={member.user.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-xs font-black tracking-tighter italic uppercase">{member.user.name?.charAt(0)}</span>
+                          )}
+                        </div>
+                        {member.userId === project.createdById && (
+                          <div className="absolute -top-1.5 -right-1.5 text-amber-500 bg-white rounded-full shadow-sm">
+                            <Crown size={12} fill="currentColor" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-black text-zinc-900 tracking-tight uppercase italic">{member.user.name}</p>
+                          {member.userId === project.createdById && (
+                            <span className="text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 bg-amber-50 text-amber-600 border border-amber-100 rounded-full">Founder</span>
+                          )}
+                        </div>
+                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{member.role}</p>
+                      </div>
+                    </div>
+                    {member.userId !== project.createdById && (
+                      <button className="text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                        Revoke
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                {project.invites?.filter((i: any) => !i.accepted).map((invite: any) => (
+                  <div key={invite.id} className="flex items-center justify-between p-4 bg-zinc-50/50 rounded-2xl border border-dashed border-zinc-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-dashed border-zinc-300 flex items-center justify-center text-zinc-300">
+                        <Mail size={18} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-zinc-500 italic lowercase">{invite.email}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                           <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">{invite.role}</p>
+                           <span className="text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 bg-zinc-100 text-zinc-500 rounded-full italic animate-pulse">Invited</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button className="text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-red-500 transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="bg-white rounded-[2rem] border border-zinc-100 shadow-sm overflow-hidden p-8 space-y-8">

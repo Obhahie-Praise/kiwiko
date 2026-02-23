@@ -48,40 +48,48 @@ export async function GET(request: NextRequest) {
     const thumbnail = channel.snippet?.thumbnails?.default?.url;
     const subscriberCount = channel.statistics?.subscriberCount;
 
-    await prisma.integration.upsert({
+    // Use findFirst + create/update instead of upsert to avoid potential P2022 with composite keys
+    const existing = await prisma.connectedAccount.findFirst({
       where: {
-        userId_provider: {
-          userId: session.user.id,
-          provider: "YOUTUBE",
-        },
-      },
-      update: {
-        providerAccountId,
-        accessToken: tokens.access_token!,
-        refreshToken: tokens.refresh_token || undefined,
-        expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
-        metadata: {
-          channelId: providerAccountId,
-          channelTitle,
-          thumbnail,
-          subscriberCount,
-        },
-      },
-      create: {
         userId: session.user.id,
         provider: "YOUTUBE",
-        providerAccountId,
-        accessToken: tokens.access_token!,
-        refreshToken: tokens.refresh_token,
-        expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
-        metadata: {
-          channelId: providerAccountId,
-          channelTitle,
-          thumbnail,
-          subscriberCount,
-        },
-      },
+      }
     });
+
+    if (existing) {
+      await prisma.connectedAccount.update({
+        where: { id: existing.id },
+        data: {
+          providerAccountId,
+          accessToken: tokens.access_token!,
+          refreshToken: tokens.refresh_token || undefined,
+          expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
+          metadata: {
+            channelId: providerAccountId,
+            channelTitle,
+            thumbnail,
+            subscriberCount,
+          },
+        }
+      });
+    } else {
+      await prisma.connectedAccount.create({
+        data: {
+          userId: session.user.id,
+          provider: "YOUTUBE",
+          providerAccountId,
+          accessToken: tokens.access_token!,
+          refreshToken: tokens.refresh_token,
+          expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
+          metadata: {
+            channelId: providerAccountId,
+            channelTitle,
+            thumbnail,
+            subscriberCount,
+          },
+        }
+      });
+    }
 
     return NextResponse.redirect(`${process.env.BETTER_AUTH_URL}/onboarding?success=youtube`);
   } catch (error) {

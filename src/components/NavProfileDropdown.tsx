@@ -90,14 +90,7 @@ const NavProfileDropdown = ({ session, orgSlug }: NavProfileDropdownProps) => {
                 <span>Organization Settings</span>
               </Link>
             )}
-            <Link 
-              href="/billing" 
-              className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 rounded-lg transition-colors group"
-              onClick={() => setIsOpen(false)}
-            >
-              <UserRoundPen size={16} className="text-zinc-400 group-hover:text-zinc-600" />
-              <span>Subscription</span>
-            </Link>
+            {/* Removed Subscription button per user request */}
           </div>
 
           <div className="h-px bg-zinc-100 my-1 px-1" />

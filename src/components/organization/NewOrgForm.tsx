@@ -24,7 +24,7 @@ const NewOrgForm = () => {
   const [description, setDescription] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
-  const [members, setMembers] = useState([{ email: "", role: "Admin" }]);
+  const [members, setMembers] = useState([{ email: "", role: "Developer" }]);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -50,7 +50,7 @@ const NewOrgForm = () => {
       index === members.length - 1 &&
       value.trim() !== ""
     ) {
-      newMembers.push({ email: "", role: "Member" });
+      newMembers.push({ email: "", role: "Developer" });
     }
 
     setMembers(newMembers);
@@ -305,11 +305,16 @@ const NewOrgForm = () => {
                     }
                     className="w-full h-10 px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-size-[24px_24px] bg-no-repeat bg-position-[right_8px_center]"
                   >
-                    <option value="Admin">Admin / Founder</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Advisor">Advisor</option>
                     <option value="Co-founder">Co-founder</option>
-                    <option value="Member">General Member</option>
-                    <option value="Investor">Investor / Advisor</option>
-                    <option value="Viewer">Viewer Only</option>
+                    <option value="Consultant">Consultant</option>
+                    <option value="Designer">Designer</option>
+                    <option value="Developer">Developer</option>
+                    <option value="Founder">Founder</option>
+                    <option value="HR">HR</option>
+                    <option value="Marketer">Marketer</option>
+                    <option value="Spectator">Spectator</option>
                   </select>
                 </div>
               </div>

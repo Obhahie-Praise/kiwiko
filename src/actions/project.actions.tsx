@@ -1,13 +1,31 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { SignalType } from "@/generated/prisma";
+import prisma, { PrismaClient } from "@/lib/prisma";
+import { SignalType } from "../generated/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import crypto from "node:crypto";
 import { sendTeamInviteEmail } from "@/app/api/send/send";
 import { getGithubAccessToken } from "@/lib/github-utils";
+
+// Standardized role mapping helper
+function mapRole(uiRole: string): string {
+    const roles: Record<string, string> = {
+        "Admin": "ADMIN",
+        "Advisor": "ADVISOR",
+        "Co-founder": "CO_FOUNDER",
+        "Consultant": "CONSULTANT",
+        "Designer": "DESIGNER",
+        "Developer": "DEVELOPER",
+        "Founder": "FOUNDER",
+        "HR": "HR",
+        "Marketer": "MARKETER",
+        "Spectator": "SPECTATOR"
+    };
+
+    return roles[uiRole] || "DEVELOPER";
+}
 
 export type ActionResponse<T = any> = 
   | { success: true; data: T }
@@ -96,20 +114,21 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
   // Let's allow all members for now as per "user wants to populate db".
 
   const invitesJson = formData.get("invites") as string;
-  let inviteEmails: string[] = [];
+  let projectInvites: { email: string; role: string }[] = [];
   try {
-      inviteEmails = JSON.parse(invitesJson) || [];
+      projectInvites = JSON.parse(invitesJson) || [];
   } catch (e) {
       console.error("Failed to parse invites:", e);
   }
 
   try {
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await (prisma as any).$transaction(async (tx: any) => {
         const project = await tx.project.create({
         data: {
             name,
             slug,
             orgId,
+            createdById: userId,
             description,
             tagline,
             stage,
@@ -127,51 +146,82 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
         },
         });
 
-        // Create ProjectIntegrations for all selected signals
+        // Create ProjectMember for the creator
+        await tx.projectMember.create({
+            data: {
+                userId,
+                projectId: project.id,
+                role: "OWNER"
+            }
+        });
+
+        // Create ProjectSignals for all selected signals
         for (const signalType of selectedSignals) {
-            let integrationId = null;
+            let connectedAccountId = null;
             
             if (signalType === "GITHUB") {
-                const integration = await tx.integration.findFirst({
+                let connectedAccount = await tx.connectedAccount.findFirst({
                     where: { userId, provider: "GITHUB" }
                 });
-                if (!integration) throw new Error("Please connect your GitHub account first");
-                integrationId = integration.id;
+
+                if (!connectedAccount) {
+                    // Check if they signed up with GitHub
+                    const account = await tx.account.findFirst({
+                        where: { userId, providerId: "github" }
+                    });
+                    
+                    if (account) {
+                        // Create a ConnectedAccount record for them so we can link it
+                        connectedAccount = await tx.connectedAccount.create({
+                            data: {
+                                userId,
+                                provider: "GITHUB",
+                                providerAccountId: account.accountId,
+                                accessToken: account.accessToken || "",
+                                refreshToken: account.refreshToken,
+                                expiresAt: account.accessTokenExpiresAt,
+                            }
+                        });
+                    }
+                }
+
+                if (!connectedAccount) throw new Error("Please connect your GitHub account first");
+                connectedAccountId = connectedAccount.id;
             } else if (signalType === "YOUTUBE") {
-                const integration = await tx.integration.findFirst({
+                const connectedAccount = await tx.connectedAccount.findFirst({
                     where: { userId, provider: "YOUTUBE" }
                 });
-                if (!integration) throw new Error("Please connect your YouTube account first");
-                integrationId = integration.id;
+                if (!connectedAccount) throw new Error("Please connect your YouTube account first");
+                connectedAccountId = connectedAccount.id;
             }
 
-            await (tx as any).projectIntegration.create({
+            await tx.projectSignal.create({
                 data: {
                     projectId: project.id,
                     signalType,
-                    integrationId,
+                    connectedAccountId: connectedAccountId,
                 }
             });
         }
 
         const createdInvites = await Promise.all(
-            inviteEmails.map(async (email) => {
+            projectInvites.map(async (inv) => {
+                if (!inv.email) return null;
                 const token = crypto.randomBytes(32).toString("hex");
-                // Check if invite already exists? For now just create.
                 return tx.projectInvite.create({
                     data: {
-                        email,
-                        role: "CONTRIBUTOR", // Default role
+                        email: inv.email,
+                        role: mapRole(inv.role) as any,
                         projectId: project.id,
                         invitedById: userId,
                         token,
-                        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+                        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
                     },
                 });
             })
         );
         
-        return { project, createdInvites };
+        return { project, createdInvites: createdInvites.filter(Boolean) };
     });
 
     // Send emails
@@ -201,7 +251,7 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
             
              await sendTeamInviteEmail({
                 email: invite.email,
-                // orgName is optional now, allowing projectName to be the context
+                // @ts-ignore - prisma client might not be generated with connectedAccount yet
                 inviterName: session.user.name || "Someone",
                 inviteLink: `${process.env.BETTER_AUTH_URL}/invite/${invite.token}`,
                 logoUrl,
@@ -269,7 +319,13 @@ export async function deleteProjectAction(projectId: string, orgSlug: string): P
       }
   });
 
-  if (!membership || (membership.role !== "OWNER" && membership.role !== "ADMIN")) {
+  if (!membership) {
+      return { success: false, error: "Membership not found" };
+  }
+
+  const isAdmin = ["OWNER", "ADMIN", "FOUNDER", "CO_FOUNDER"].includes(membership.role);
+
+  if (!isAdmin) {
       return { success: false, error: "Insufficient permissions to delete project" };
   }
 
@@ -391,7 +447,7 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
             if (existingSlug) return { success: false, error: "Project URL is already taken in this organization." };
         }
 
-        await prisma.$transaction(async (tx) => {
+        await (prisma as any).$transaction(async (tx: any) => {
             await tx.project.update({
                 where: { id: projectId },
                 data: {
@@ -413,34 +469,53 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
                 }
             });
 
-            // Delete old ones first (or sync)
-            await (tx as any).projectIntegration.deleteMany({
+            // Delete old signals first (or sync)
+            await tx.projectSignal.deleteMany({
                 where: { projectId }
             });
 
-            // Create ProjectIntegrations for all selected signals
+            // Create ProjectSignals for all selected signals
             for (const signalType of selectedSignals) {
-                let integrationId = null;
+                let connectedAccountId = null;
                 
                 if (signalType === "GITHUB") {
-                    const integration = await tx.integration.findFirst({
+                    let connectedAccount = await tx.connectedAccount.findFirst({
                         where: { userId: session.user.id, provider: "GITHUB" }
                     });
-                    if (!integration) throw new Error("Please connect your GitHub account first");
-                    integrationId = integration.id;
+
+                    if (!connectedAccount) {
+                        const account = await tx.account.findFirst({
+                            where: { userId: session.user.id, providerId: "github" }
+                        });
+                        if (account) {
+                            connectedAccount = await tx.connectedAccount.create({
+                                data: {
+                                    userId: session.user.id,
+                                    provider: "GITHUB",
+                                    providerAccountId: account.accountId,
+                                    accessToken: account.accessToken || "",
+                                    refreshToken: account.refreshToken,
+                                    expiresAt: account.accessTokenExpiresAt,
+                                }
+                            });
+                        }
+                    }
+
+                    if (!connectedAccount) throw new Error("Please connect your GitHub account first");
+                    connectedAccountId = connectedAccount.id;
                 } else if (signalType === "YOUTUBE") {
-                    const integration = await tx.integration.findFirst({
+                    const connectedAccount = await tx.connectedAccount.findFirst({
                         where: { userId: session.user.id, provider: "YOUTUBE" }
                     });
-                    if (!integration) throw new Error("Please connect your YouTube account first");
-                    integrationId = integration.id;
+                    if (!connectedAccount) throw new Error("Please connect your YouTube account first");
+                    connectedAccountId = connectedAccount.id;
                 }
 
-                await (tx as any).projectIntegration.create({
+                await tx.projectSignal.create({
                     data: {
                         projectId,
                         signalType,
-                        integrationId,
+                        connectedAccountId: connectedAccountId,
                     }
                 });
             }
@@ -457,7 +532,7 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
     }
 }
 
-export async function inviteProjectMemberAction(projectId: string, email: string): Promise<ActionResponse<{email: string; token: string; project: any}>> {
+export async function inviteProjectMemberAction(projectId: string, email: string, role: string): Promise<ActionResponse<{email: string; token: string; project: any}>> {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -487,7 +562,7 @@ export async function inviteProjectMemberAction(projectId: string, email: string
         await prisma.projectInvite.create({
             data: {
                 email,
-                role: "CONTRIBUTOR",
+                role: mapRole(role) as any,
                 projectId,
                 invitedById: session.user.id,
                 token,
@@ -570,14 +645,7 @@ export async function getProjectHomeDataAction(orgSlug: string, projectSlug: str
 
     try {
         const organization = await prisma.organization.findUnique({
-            where: { slug: orgSlug },
-            include: {
-                memberships: {
-                    include: {
-                        user: true
-                    }
-                }
-            }
+            where: { slug: orgSlug }
         });
 
         if (!organization) return { success: false, error: "Organization not found" };
@@ -588,6 +656,14 @@ export async function getProjectHomeDataAction(orgSlug: string, projectSlug: str
                     orgId: organization.id,
                     slug: projectSlug
                 }
+            },
+            include: {
+                members: {
+                    include: {
+                        user: true
+                    }
+                },
+                invites: true
             }
         });
 
@@ -661,7 +737,7 @@ export async function getUserIntegrationsAction(): Promise<ActionResponse<any[]>
     if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
     try {
-        const integrations = await prisma.integration.findMany({
+        const integrations = await prisma.connectedAccount.findMany({
             where: { userId: session.user.id }
         });
         return { success: true, data: integrations };

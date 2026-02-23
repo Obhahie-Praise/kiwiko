@@ -1,14 +1,14 @@
-import { Metadata } from 'next'
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Create Account - Kiwiko',
-  description: 'Join Kiwiko to share your startup journey, track progress, and connect with investors who want to see real execution.',
-}
+  title: "Onboarding | Kiwiko",
+  description: "Join the Kiwiko community and start building your venture profile.",
+};
 
 export default function OnboardingLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  return children
+  return <>{children}</>;
 }

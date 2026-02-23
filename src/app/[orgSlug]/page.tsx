@@ -14,29 +14,27 @@ import {
   getProjectGithubCommits 
 } from "@/actions/github.actions";
 
-interface PageProps {
-  params: Promise<{
-    orgSlug: string;
-  }>;
+export async function generateMetadata({ params }: any) {
+  const { orgSlug } = await params;
+  return {
+    title: `${orgSlug} | Kiwiko`,
+    description: `View and manage the ${orgSlug} ecosystem on Kiwiko.`,
+  };
 }
 
-export default async function PublicProjectProfilePage({ params }: PageProps) {
+export default async function PublicProjectProfilePage({ params }: any) {
   const { orgSlug } = await params;
-
-// ... imports
 
   const session = await auth.api.getSession({
      headers: await headers()
   });
 
-  // Fetch user's organizations for Navbar
+  // Fetch user's organizations for Navbar - Only owned ones!
   let userOrgs: any[] = [];
   if (session?.user?.id) {
-    const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
-        include: { memberships: { include: { organization: true } } }
+    userOrgs = await prisma.organization.findMany({
+        where: { ownerId: session.user.id }
     });
-    userOrgs = user?.memberships.map(m => m.organization) || [];
   }
   
   // 1. Try to find Organization in DB
@@ -49,78 +47,97 @@ export default async function PublicProjectProfilePage({ params }: PageProps) {
   });
 
   if (org) {
-    // Fetch user details for memberships
-    const userIds = org.memberships.map((m) => m.userId);
-    const users = await prisma.user.findMany({
-      where: { id: { in: userIds } },
-      select: { id: true, email: true, name: true, image: true },
-    });
+    // SECURITY: Only allow owner to see the control center
+    if (!session?.user?.id || org.ownerId !== session.user.id) {
+        // If it's not the owner, we check if it's a project slug (handled below)
+        // or redirect to projects if they are logged in, or sign-in if not.
+        if (session?.user?.id) {
+            // Redirect to their own dashboard or projects
+            // But wait, let's let the project check run first in case the orgSlug is actually a project slug
+        } else {
+            return redirect("/sign-in");
+        }
+    } else {
+        // Owner access - Render OrgControlCenter
+        const userIds = org.memberships.map((m) => m.userId);
+        const users = await prisma.user.findMany({
+          where: { id: { in: userIds } },
+          select: { id: true, email: true, name: true, image: true },
+        });
 
-    const members = [
-      ...org.memberships.map((m) => {
-        const u = users.find((user) => user.id === m.userId);
-        return {
-          id: m.userId,
-          email: u?.email || "Unknown",
-          name: u?.name || "Member",
-          image: u?.image || "",
-          role: m.role,
-          joinedAt: m.joinedAt,
-          status: "active" as const, // Cast strictly
+        const members = [
+          ...org.memberships.map((m) => {
+            const u = users.find((user) => user.id === m.userId);
+            return {
+              id: m.userId,
+              email: u?.email || "Unknown",
+              name: u?.name || "Member",
+              image: u?.image || "",
+              role: m.role,
+              joinedAt: m.joinedAt,
+              status: "active" as const,
+            };
+          }),
+          ...org.invites.map((i) => ({
+            id: i.id,
+            email: i.email,
+            role: i.role,
+            status: "invited" as const,
+          })),
+        ];
+
+        const initialData = {
+            name: org.name,
+            slug: org.slug,
+            niche: org.niche || "",
+            description: org.description || "",
+            logoUrl: org.logoUrl || "",
+            bannerUrl: org.bannerUrl || "",
+            members: members,
         };
-      }),
-      ...org.invites.map((i) => ({
-        id: i.id,
-        email: i.email,
-        role: i.role,
-        status: "invited" as const, // Cast strictly
-      })),
-    ];
 
-    const initialData = {
-        name: org.name,
-        slug: org.slug,
-        niche: org.niche || "",
-        description: org.description || "",
-        logoUrl: org.logoUrl || "",
-        bannerUrl: org.bannerUrl || "",
-        members: members,
-    };
-
-    return (
-      <div className="min-h-screen bg-white">
-        <Navbar organizations={userOrgs} currentOrg={org} user={session?.user} />
-        <main className="pt-12 px-6">
-          <OrgControlCenter orgId={org.id} initialData={initialData} />
-        </main>
-      </div>
-    );
+        return (
+          <div className="min-h-screen bg-white">
+            <Navbar organizations={userOrgs} currentOrg={org} user={session?.user} />
+            <main className="pt-12 px-6">
+              <OrgControlCenter orgId={org.id} initialData={initialData} />
+            </main>
+          </div>
+        );
+    }
   }
 
   // 2. Try to find Project in DB
   const projectDB = await prisma.project.findFirst({
     where: { slug: orgSlug },
     include: {
-      organization: {
-        include: {
-          memberships: true,
-          invites: true
-        }
+      organization: true,
+      members: {
+        include: { user: true }
       },
-      integrations: true
+      invites: true,
+      signals: true,
     }
   });
+
+  // Fetch organization separately if project found (already included above)
+  let projectOrg = null;
+  if (projectDB) {
+      projectOrg = (projectDB as any).organization;
+  }
 
   if (projectDB) {
       let githubData = null;
       let branches: any[] = [];
       let initialCommits: any[] = [];
 
-      if (projectDB.githubRepoFullName && projectDB.githubConnectedBy) {
+      const projectAny = projectDB as any;
+
+      if (projectAny.githubRepoFullName && projectAny.githubConnectedBy) {
         const [repoRes, branchesRes, commitsRes] = await Promise.all([
-          getProjectRepoDetails(projectDB.githubRepoFullName, projectDB.githubConnectedBy),
-          getProjectGithubBranches(projectDB.githubRepoFullName, projectDB.githubConnectedBy),
-          getProjectGithubCommits(projectDB.githubRepoFullName, projectDB.githubConnectedBy)
+          getProjectRepoDetails(projectAny.githubRepoFullName, projectAny.githubConnectedBy),
+          getProjectGithubBranches(projectAny.githubRepoFullName, projectAny.githubConnectedBy),
+          getProjectGithubCommits(projectAny.githubRepoFullName, projectAny.githubConnectedBy)
         ]);
 
         if (repoRes.success) githubData = repoRes.data;
@@ -128,31 +145,20 @@ export default async function PublicProjectProfilePage({ params }: PageProps) {
         if (commitsRes.success) initialCommits = commitsRes.data;
       }
 
-      // Enrich organization members
-      const org = projectDB.organization as any;
-      const userIds = org.memberships.map((m: any) => m.userId);
-      // Ensure owner is included
-      if (!userIds.includes(org.ownerId)) userIds.push(org.ownerId);
-
-      const users = await prisma.user.findMany({
-        where: { id: { in: userIds } },
-        select: { id: true, email: true, name: true, image: true },
-      });
+      // Enrich project members
+      const org = projectAny.organization as any;
 
       const members = [
-        ...org.memberships.map((m: any) => {
-          const u = users.find((user) => user.id === m.userId);
-          return {
-            id: m.userId,
-            email: u?.email || "Unknown",
-            name: u?.name || "Member",
-            image: u?.image || "",
-            role: m.role,
-            joinedAt: m.joinedAt,
-            status: "active" as const,
-          };
-        }),
-        ...org.invites.map((i: any) => ({
+        ...(projectAny.members || []).map((m: any) => ({
+          id: m.userId,
+          email: m.user?.email || "Unknown",
+          name: m.user?.name || "Member",
+          image: m.user?.image || "",
+          role: m.role,
+          joinedAt: m.joinedAt,
+          status: "active" as const,
+        })),
+        ...(projectAny.invites || []).filter((i: any) => !i.accepted).map((i: any) => ({
           id: i.id,
           email: i.email,
           name: i.email.split('@')[0],
@@ -163,22 +169,6 @@ export default async function PublicProjectProfilePage({ params }: PageProps) {
         })),
       ];
 
-      // Handle owner if not in memberships explicitly
-      if (!members.some(m => m.id === org.ownerId)) {
-        const owner = users.find(u => u.id === org.ownerId);
-        if (owner) {
-          members.push({
-            id: owner.id,
-            email: owner.email,
-            name: owner.name,
-            image: owner.image || "",
-            role: "OWNER",
-            joinedAt: org.createdAt,
-            status: "active" as const,
-          });
-        }
-      }
-
       const enrichedOrg = {
         ...org,
         members: members
@@ -186,7 +176,10 @@ export default async function PublicProjectProfilePage({ params }: PageProps) {
 
       return (
         <ProjectPublicView 
-          project={projectDB} 
+          project={{
+            ...projectAny,
+            signals: projectAny.signals || []
+          }} 
           organization={enrichedOrg} 
           orgSlug={orgSlug}
           githubData={githubData}
@@ -195,6 +188,7 @@ export default async function PublicProjectProfilePage({ params }: PageProps) {
         />
       );
   }
+
 
   // 3. Fallback to mock data (Constants)
   // Find the project - mapping name to slug

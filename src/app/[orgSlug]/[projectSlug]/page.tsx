@@ -51,7 +51,12 @@ export default async function ProjectSettingsPage({ params }: PageProps) {
       },
       include: {
           invites: true,
-          integrations: true
+          members: {
+              include: {
+                  user: true
+              }
+          },
+          signals: true
       }
   });
 

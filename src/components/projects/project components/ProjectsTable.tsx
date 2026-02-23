@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal, ExternalLink, GitBranch, Clock, Search } from "lucide-react";
+import { MoreHorizontal, ExternalLink, GitBranch, Clock, Search, Plus, Instagram, Linkedin, Twitter } from "lucide-react";
 import React, { useState, useRef } from "react";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useRouter, useParams } from "next/navigation";
@@ -188,6 +188,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
                 <p>No projects match your search.</p>
             </div>
           )}
+
         </div>
       </div>
       

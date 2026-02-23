@@ -14,14 +14,15 @@ import {
   Gem,
   Crown,
   CheckCircle2,
-  FileText
+  FileText,
+  Lock
 } from "lucide-react";
 import PitchDeck from "@/components/projects/PitchDeck";
 import Link from "next/link";
 import { getLinkIcon, getLinkLabel } from "@/lib/url-utils";
 import GithubRepoStats from "@/components/projects/GithubRepoStats";
 import GithubCommitList from "@/components/projects/GithubCommitList";
-import { Github as GithubIcon } from "lucide-react";
+import { Github as GithubIcon, Youtube } from "lucide-react";
 import { format } from "date-fns";
 
 interface ProjectPublicViewProps {
@@ -46,7 +47,7 @@ const ProjectPublicView = ({
     { id: 1, type: "commit", text: "Refactored core engine for concurrency", meta: "v2.1.0", time: "2h ago", icon: Terminal },
     { id: 2, type: "growth", text: "New milestone: 10k monthly active users", meta: "+15% WoW", time: "1d ago", icon: Users },
     { id: 3, type: "feature", text: "Live: Multi-tenant database partitioning", meta: "Production", time: "3d ago", icon: Zap },
-    { id: 4, type: "metric", text: "Valuation signal increased to " + project.valuation, meta: "Market adjusted", time: "1w ago", icon: TrendingUp },
+    { id: 4, type: "metric", text: "Valuation signal increased to " + (project.postMoneyValuation || "$10M"), meta: "Market adjusted", time: "1w ago", icon: TrendingUp },
   ];
 
   return (
@@ -173,15 +174,9 @@ const ProjectPublicView = ({
         {/* Proof of Concept / Activity Section */}
         <section className="px-6 max-w-7xl mx-auto mb-32">
           <div className="flex flex-col md:flex-row gap-16">
-            <div className="flex-1">
-                <div className="flex items-center gap-4 mb-10">
-                    <div className="w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center text-zinc-900 shadow-inner">
-                        <GithubIcon size={24} />
-                    </div>
-                    <div>
-                        <h2 className="text-3xl font-black text-zinc-900 tracking-tighter uppercase italic">Commit History</h2>
-                        <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Real-time Proof of Execution</p>
-                    </div>
+            <div className="flex-1 min-w-0">
+                <div>
+                    <h2 className="text-3xl font-black text-zinc-900 tracking-tighter italic capitalize mb-12">Proof of Execution</h2>
                 </div>
 
                 {project.githubRepoFullName ? (
@@ -216,24 +211,24 @@ const ProjectPublicView = ({
                     </p>
 
                     {/* Verified Signals Section */}
-                    {project.integrations && project.integrations.length > 0 && (
+                    {project.signals && project.signals.length > 0 && (
                         <div className="mb-12 space-y-4">
                             <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
                                 <Zap size={10} className="text-amber-400" />
                                 Verified Signals
                             </h4>
                             <div className="flex flex-wrap gap-2">
-                                {project.integrations.map((integration: any) => (
+                                {project.signals.map((signal: any) => (
                                     <div 
-                                        key={integration.id}
+                                        key={signal.id}
                                         className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl"
                                     >
-                                        {integration.type === "GITHUB" && <GithubIcon size={12} className="text-white" />}
-                                        {integration.type === "MANUAL" && <FileText size={12} className="text-white" />}
-                                        <span className="text-[10px] font-bold text-zinc-100 uppercase tracking-tight">
-                                            {integration.type === "GITHUB" ? "Code verified" : "Manual Pulse"}
+                                        {signal.signalType === "GITHUB" && <GithubIcon size={12} className="text-zinc-400" />}
+                                        {signal.signalType === "YOUTUBE" && <Youtube size={12} className="text-zinc-400" />}
+                                        {signal.signalType === "MANUAL" && <FileText size={12} className="text-zinc-400" />}
+                                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">
+                                            {signal.signalType === "GITHUB" ? "Github" : signal.signalType === "YOUTUBE" ? "Youtube" : "Manual"}
                                         </span>
-                                        <CheckCircle2 size={10} className="text-emerald-400" />
                                     </div>
                                 ))}
                             </div>
@@ -295,7 +290,8 @@ const ProjectPublicView = ({
                       href={`/${orgSlug}/mail`}
                       className="w-full flex items-center justify-center gap-2 py-4 bg-white text-black rounded-2xl font-black tracking-widest uppercase text-[10px] hover:bg-zinc-100 transition-all active:scale-[0.98]"
                     >
-                        Secure Access Inquiry
+                        <Lock size={14} className="shrink-0" />
+                        <span className="hidden md:inline">Secure Access Inquiry</span>
                     </Link>
                 </div>
             </div>
@@ -304,73 +300,48 @@ const ProjectPublicView = ({
 
         {/* Meet the Team Section - Full Width */}
         <section className="px-6 max-w-7xl mx-auto mb-32">
-           <div className="flex items-center gap-4 mb-16">
-              <div className="w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center text-zinc-900 shadow-inner">
-                  <Users size={24} />
-              </div>
-              <div>
-                  <h2 className="text-3xl font-black text-zinc-900 tracking-tighter uppercase italic">Meet the Team</h2>
-                  <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest">The minds behind the mission</p>
-              </div>
+           <div className="mb-12">
+                <h2 className="text-3xl font-bold text-zinc-900 tracking-tighter flex items-center gap-3"><Users size={24} className="text-zinc-700" /> The Team</h2>
            </div>
 
            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {organization?.members?.sort((a: any, b: any) => {
-                if (a.role === 'OWNER') return -1;
-                if (b.role === 'OWNER') return 1;
-                return 0;
-              }).map((member: any) => (
-                <div key={member.id} className={`group p-8 bg-white border rounded-[3rem] transition-all hover:shadow-2xl hover:shadow-zinc-200/50 relative overflow-hidden flex flex-col items-center text-center ${
-                  member.status === 'invited' ? 'opacity-70 border-zinc-100 border-dashed hover:opacity-100' : 'border-zinc-100 hover:border-zinc-300'
+               {organization?.members?.sort((a: any, b: any) => {
+                 if (a.id === project.createdById) return -1;
+                 if (b.id === project.createdById) return 1;
+                 return 0;
+               }).map((member: any) => (
+                <div key={member.id} className={`group p-8 bg-white border border-zinc-200 rounded-2xl transition-all hover:shadow-2xl hover:shadow-zinc-200/50 relative overflow-hidden flex flex-col items-center text-center ${
+                  member.status === 'invited' ? 'opacity-70 border-dashed hover:opacity-100' : ''
                 }`}>
-                   {member.role === 'OWNER' && (
-                     <div className="absolute top-6 right-6 text-amber-500">
-                       <Crown size={24} fill="currentColor" />
-                     </div>
-                   )}
-                   
-                   {member.status === 'invited' && (
-                     <div className="absolute top-6 left-6">
-                       <span className="px-2 py-1 bg-zinc-100 text-zinc-500 text-[10px] font-black uppercase tracking-widest rounded-lg">Pending Invite</span>
-                     </div>
-                   )}
-                   
-                   <div className="mb-8 relative">
-                      <div className="w-32 h-32 rounded-3xl bg-zinc-50 border border-zinc-100 overflow-hidden shadow-inner group-hover:scale-105 transition-transform duration-500">
+                   <div className="mb-6 relative">
+                      <div className="w-24 h-24 rounded-2xl bg-zinc-50 border border-zinc-100 overflow-hidden shadow-inner group-hover:scale-105 transition-transform duration-500">
                         {member.image ? (
                           <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-zinc-300 bg-zinc-50">
-                            <Users size={48} />
+                            <Users size={32} />
                           </div>
                         )}
                       </div>
-                      {member.role === 'OWNER' && (
-                         <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-zinc-900 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-full shadow-xl">
-                            Founder
-                         </div>
-                      )}
                    </div>
 
                    <div className="w-full">
-                      <h4 className="text-2xl font-black text-zinc-900 tracking-tighter uppercase italic mb-2">{member.name}</h4>
-                      <p className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-8 px-4 py-1.5 bg-zinc-50 rounded-xl inline-block">
-                        {member.role === 'OWNER' ? 'Visionary & CEO' : member.role}
+                      <h4 className="text-xl font-bold text-zinc-900 tracking-tight capitalize mb-1">{member.name?.toLowerCase()}</h4>
+                      <p className="text-[10px] font-bold text-zinc-400 tracking-widest mb-6">
+                        {member.role ? member.role.charAt(0).toUpperCase() + member.role.slice(1).toLowerCase() : "Member"}
                       </p>
 
-                      <div className="pt-6 border-t border-zinc-50 flex items-center justify-between w-full">
-                        <div className="text-left">
-                          <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest leading-none mb-1">Status</p>
-                          <p className="text-[10px] font-black text-zinc-900 uppercase tracking-widest">{member.status === 'invited' ? 'Awaiting' : 'Verified'}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest leading-none mb-1">{member.status === 'invited' ? 'Since' : 'Joined'}</p>
-                          <p className="text-[10px] font-black text-zinc-900 uppercase tracking-widest">{member.joinedAt ? format(new Date(member.joinedAt), "MMM yyyy") : "Feb 2026"}</p>
+                      <div className="pt-4 border-t border-zinc-50 flex items-center justify-center w-full">
+                        <div className="text-center">
+                          <p className="text-[9px] font-black text-zinc-300 uppercase tracking-widest leading-none mb-1">{member.status === 'invited' ? 'Status' : 'Joined'}</p>
+                          <p className="text-[10px] font-bold text-zinc-500 tracking-widest">
+                            {member.status === 'invited' ? 'Pending' : (member.joinedAt ? format(new Date(member.joinedAt), "MMM yyyy") : "Feb 2026")}
+                          </p>
                         </div>
                       </div>
                    </div>
                 </div>
-              ))}
+               ))}
            </div>
         </section>
       </main>

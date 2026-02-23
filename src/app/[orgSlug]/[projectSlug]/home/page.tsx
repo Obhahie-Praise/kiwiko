@@ -104,7 +104,8 @@ const HomePage = async ({ params }: { params: { orgSlug: string, projectSlug: st
 
             <div className="flex-col flex justify-between h-[90%]">
               <div className="space-y-3">
-                {organization.memberships.map((m: any) => (
+                {/* Render Project Members */}
+                {project.members && project.members.map((m: any) => (
                   <div key={m.id} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <img
@@ -120,6 +121,26 @@ const HomePage = async ({ params }: { params: { orgSlug: string, projectSlug: st
                       </div>
                     </div>
                     {m.userId === userId && <span className="text-xs text-zinc-500">100%</span>}
+                  </div>
+                ))}
+
+                {/* Render Pending Invites */}
+                {project.invites && project.invites.filter((i: any) => !i.accepted).map((invite: any) => (
+                  <div key={invite.id} className="flex items-center justify-between opacity-60">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full border border-dashed border-zinc-300 flex items-center justify-center text-zinc-400">
+                        <Users size={16} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-zinc-900">
+                          {invite.email.split('@')[0]}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-[10px] text-zinc-500 capitalize">{invite.role.toLowerCase()}</p>
+                          <span className="px-1 py-0.5 bg-zinc-100 text-[8px] font-bold uppercase rounded">Invited</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
 
@@ -142,7 +163,7 @@ const HomePage = async ({ params }: { params: { orgSlug: string, projectSlug: st
 
               <div className="pt-4 border-t border-zinc-200 flex justify-between text-xs text-zinc-500">
                 <span>Team size</span>
-                <span className="text-zinc-900 font-medium">{organization.memberships.length}</span>
+                <span className="text-zinc-900 font-medium">{(project.members?.length || 0) + (project.invites?.filter((i: any) => !i.accepted).length || 0)}</span>
               </div>
             </div>
           </div>

@@ -43,10 +43,10 @@ const GithubRepoStats = ({ repoData, branchCount }: GithubRepoStatsProps) => {
                href={repoData.html_url} 
                target="_blank" 
                rel="noopener noreferrer"
-               className="text-2xl font-black text-zinc-900 tracking-tighter hover:underline flex items-center gap-2"
+               className="text-2xl font-black text-zinc-900 tracking-tighter hover:underline flex items-center gap-2 whitespace-nowrap"
              >
                {repoData.full_name}
-               <ExternalLink size={14} className="text-zinc-400" />
+               <ExternalLink size={14} className="text-zinc-400 shrink-0" />
              </a>
           </div>
           
@@ -71,7 +71,7 @@ const GithubRepoStats = ({ repoData, branchCount }: GithubRepoStatsProps) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div className="px-4 py-2 bg-zinc-50 border border-zinc-100 rounded-2xl flex flex-col items-center min-w-[100px]">
             <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1 flex items-center gap-1">
               <Star size={10} /> Stars
@@ -89,12 +89,6 @@ const GithubRepoStats = ({ repoData, branchCount }: GithubRepoStatsProps) => {
               <GitCommit size={10} /> Commits
             </span>
             <span className="text-lg font-black tracking-tighter">{repoData.total_commits || 0}</span>
-          </div>
-          <div className="px-4 py-2 bg-zinc-50 border border-zinc-100 rounded-2xl flex flex-col items-center min-w-[100px]">
-            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-              <ShieldCheck size={10} /> Status
-            </span>
-            <span className="text-lg font-black tracking-tighter text-emerald-600">Verified</span>
           </div>
         </div>
       </div>

@@ -39,13 +39,13 @@ export const auth = betterAuth({
             });
 
             if (session?.user) {
-              // User is already logged in, save to Integration instead of Account
-              // @ts-ignore - prisma client might not be generated with integration yet
-              await prisma.integration.upsert({
+              // User is already logged in, save to connectedAccount instead of Account
+              // @ts-ignore - prisma client might not be generated with connectedAccount yet
+              await (prisma as any).connectedAccount.upsert({
                 where: {
                   userId_provider: {
                     userId: session.user.id,
-                    provider: "github",
+                    provider: "GITHUB",
                   },
                 },
                 update: {
@@ -56,7 +56,7 @@ export const auth = betterAuth({
                 },
                 create: {
                   userId: session.user.id,
-                  provider: "github",
+                  provider: "GITHUB",
                   accessToken: account.accessToken || "",
                   refreshToken: account.refreshToken,
                   expiresAt: account.accessTokenExpiresAt,

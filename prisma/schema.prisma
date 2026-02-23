@@ -14,19 +14,21 @@ datasource db {
 }
 
 model User {
-  id                  String        @id
+  id                  String             @id
   name                String
   email               String
-  emailVerified       Boolean       @default(false)
+  emailVerified       Boolean            @default(false)
   image               String?
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
-  onboardingCompleted Boolean       @default(false)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  onboardingCompleted Boolean            @default(false)
   role                String?
   sessions            Session[]
   accounts            Account[]
-  integrations        Integration[]
   memberships         Membership[]
+  createdProjects     Project[]          @relation("ProjectCreator")
+  projectMemberships  ProjectMember[]
+  connectedAccounts   ConnectedAccount[]
 
   @@unique([email])
   @@map("user")
@@ -112,8 +114,15 @@ model Membership {
 enum OrgRole {
   OWNER
   ADMIN
-  MEMBER
-  VIEWER
+  ADVISOR
+  CO_FOUNDER
+  CONSULTANT
+  DESIGNER
+  DEVELOPER
+  FOUNDER
+  HR
+  MARKETER
+  SPECTATOR
 }
 
 model Organization {
@@ -195,17 +204,39 @@ model Project {
   githubConnectedBy  String? // userId who linked
   githubLastSyncedAt DateTime?
 
+  createdById String
+  creator     User   @relation("ProjectCreator", fields: [createdById], references: [id])
+
   metricSnapshots ProjectMetricSnapshot[]
 
   invites ProjectInvite[]
+  members ProjectMember[]
 
-  integrations ProjectIntegration[]
+  signals ProjectSignal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([orgId, slug])
   @@index([orgId])
+  @@index([createdById])
+}
+
+model ProjectMember {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  role ProjectRole
+
+  joinedAt DateTime @default(now())
+
+  @@unique([userId, projectId])
+  @@index([projectId])
 }
 
 model ProjectMetricSnapshot {
@@ -248,48 +279,55 @@ model ProjectInvite {
 
 enum ProjectRole {
   OWNER
-  MAINTAINER
-  CONTRIBUTOR
-  VIEWER
+  ADMIN
+  ADVISOR
+  CO_FOUNDER
+  CONSULTANT
+  DESIGNER
+  DEVELOPER
+  FOUNDER
+  HR
+  MARKETER
+  SPECTATOR
 }
 
-model Integration {
-  id                String              @id @default(cuid())
-  userId            String
-  provider          IntegrationProvider
-  providerAccountId String
-  accessToken       String
-  refreshToken      String?
-  expiresAt         DateTime?
+model ConnectedAccount {
+  id                String          @id @default(cuid())
+  userId            String          @map("user_id")
+  provider          AccountProvider
+  providerAccountId String          @map("provider_account_id")
+  accessToken       String          @map("access_token")
+  refreshToken      String?         @map("refresh_token")
+  expiresAt         DateTime?       @map("expires_at")
   metadata          Json?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
 
-  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  projectIntegrations ProjectIntegration[]
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectSignals ProjectSignal[]
 
   @@unique([userId, provider])
-  @@map("integration")
+  @@map("connected_accounts")
 }
 
-enum IntegrationProvider {
+enum AccountProvider {
   GITHUB
   YOUTUBE
 }
 
-model ProjectIntegration {
-  id            String     @id @default(cuid())
-  projectId     String
-  integrationId String?
-  signalType    SignalType
+model ProjectSignal {
+  id                 String     @id @default(cuid())
+  projectId          String     @map("project_id")
+  connectedAccountId String?    @map("connected_account_id")
+  signalType         SignalType @map("signal_type")
 
-  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  integration Integration? @relation(fields: [integrationId], references: [id], onDelete: SetNull)
+  project          Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  connectedAccount ConnectedAccount? @relation(fields: [connectedAccountId], references: [id], onDelete: SetNull)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("project_integration")
+  @@map("project_signals")
 }
 
 enum SignalType {

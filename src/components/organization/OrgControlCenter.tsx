@@ -55,7 +55,7 @@ const OrgControlCenter = ({ orgId, initialData }: OrgControlCenterProps) => {
   const [bannerUrl, setBannerUrl] = useState(initialData.bannerUrl || "");
   const [members, setMembers] = useState<Member[]>(initialData.members);
   
-  const [invites, setInvites] = useState([{ email: "", role: "Admin" }]);
+  const [invites, setInvites] = useState([{ email: "", role: "Developer" }]);
   const [isInviting, setIsInviting] = useState(false);
   const [inviteError, setInviteError] = useState("");
 
@@ -91,7 +91,7 @@ const OrgControlCenter = ({ orgId, initialData }: OrgControlCenterProps) => {
       index === invites.length - 1 &&
       value.trim() !== ""
     ) {
-      newInvites.push({ email: "", role: "Member" });
+      newInvites.push({ email: "", role: "Developer" });
     }
 
     setInvites(newInvites);
@@ -113,7 +113,7 @@ const OrgControlCenter = ({ orgId, initialData }: OrgControlCenterProps) => {
           const result = await inviteTeamMembersAction(orgId, validInvites);
           
           if (result.success) {
-              setInvites([{ email: "", role: "Admin" }]);
+              setInvites([{ email: "", role: "Developer" }]);
               // Ideally refresh data or show success message. 
               // Since we don't have a full refresh mechanism here without router.refresh(), 
               // we can rely on optimist update or just wait for revalidatePath from action to kick in on next nav.
@@ -139,6 +139,7 @@ const OrgControlCenter = ({ orgId, initialData }: OrgControlCenterProps) => {
     setSaveError("");
     const formData = new FormData();
     formData.append("name", name);
+    formData.append("slug", slug);
     formData.append("description", description);
     formData.append("niche", niche);
     formData.append("logoUrl", logoUrl);
@@ -181,7 +182,7 @@ const OrgControlCenter = ({ orgId, initialData }: OrgControlCenterProps) => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
         <div>
           <Link
-            href="/projects"
+            href={`/${initialData.slug}/projects`}
             className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-800 transition-colors mb-4"
           >
             <ArrowLeft size={16} />
@@ -250,7 +251,7 @@ const OrgControlCenter = ({ orgId, initialData }: OrgControlCenterProps) => {
                     setBannerUrl(url);
                     setHasChanges(true);
                 }}
-                className="w-full h-full border-none rounded-none min-h-0 !p-0 bg-transparent"
+                className="w-full h-full border-none rounded-none min-h-0 p-0! bg-transparent"
                 containerClassName="h-full"
                 showPreview={false}
              />
@@ -418,8 +419,15 @@ const OrgControlCenter = ({ orgId, initialData }: OrgControlCenterProps) => {
                     >
                       <option value="OWNER">Owner</option>
                       <option value="ADMIN">Admin</option>
-                      <option value="MEMBER">Member</option>
-                      <option value="VIEWER">Viewer</option>
+                      <option value="ADVISOR">Advisor</option>
+                      <option value="CO_FOUNDER">Co-founder</option>
+                      <option value="CONSULTANT">Consultant</option>
+                      <option value="DESIGNER">Designer</option>
+                      <option value="DEVELOPER">Developer</option>
+                      <option value="FOUNDER">Founder</option>
+                      <option value="HR">HR</option>
+                      <option value="MARKETER">Marketer</option>
+                      <option value="SPECTATOR">Spectator</option>
                     </select>
                     <button 
                       onClick={() => removeMember(member.id)}
@@ -451,11 +459,16 @@ const OrgControlCenter = ({ orgId, initialData }: OrgControlCenterProps) => {
                             onChange={(e) => handleInviteChange(index, "role", e.target.value)}
                             className="w-full h-full px-4 bg-zinc-50 border border-zinc-100 rounded-2xl text-xs font-black uppercase tracking-widest text-zinc-500 outline-none cursor-pointer"
                             >
-                                <option value="Admin">Admin / Founder</option>
+                                 <option value="Admin">Admin</option>
+                                <option value="Advisor">Advisor</option>
                                 <option value="Co-founder">Co-founder</option>
-                                <option value="Member">General Member</option>
-                                <option value="Investor">Investor / Advisor</option>
-                                <option value="Viewer">Viewer Only</option>
+                                <option value="Consultant">Consultant</option>
+                                <option value="Designer">Designer</option>
+                                <option value="Developer">Developer</option>
+                                <option value="Founder">Founder</option>
+                                <option value="HR">HR</option>
+                                <option value="Marketer">Marketer</option>
+                                <option value="Spectator">Spectator</option>
                             </select>
                         </div>
                     </div>

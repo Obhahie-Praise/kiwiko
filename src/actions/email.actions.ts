@@ -83,7 +83,7 @@ export async function createOrganizationAction(formData: FormData): Promise<Acti
           return tx.organizationInvite.create({
             data: {
               email: invite.email,
-              role: invite.role as "ADMIN" | "MEMBER" | "VIEWER" | "OWNER", // Cast to match Prisma enum
+              role: invite.role as any, // Cast to match Prisma enum
               orgId: org.id,
               invitedById: userId,
               token,
@@ -129,21 +129,20 @@ export async function createOrganizationAction(formData: FormData): Promise<Acti
 
 // Helper to map UI roles to DB roles
 function mapRole(uiRole: string): string {
-    switch (uiRole) {
-        case "Admin":
-        case "Admin / Founder":
-        case "Co-founder":
-            return "ADMIN";
-        case "Investor":
-        case "Investor / Advisor":
-        case "Viewer":
-        case "Viewer Only":
-            return "VIEWER";
-        case "Member":
-        case "General Member":
-        default:
-            return "MEMBER";
-    }
+    const roles: Record<string, string> = {
+        "Admin": "ADMIN",
+        "Advisor": "ADVISOR",
+        "Co-founder": "CO_FOUNDER",
+        "Consultant": "CONSULTANT",
+        "Designer": "DESIGNER",
+        "Developer": "DEVELOPER",
+        "Founder": "FOUNDER",
+        "HR": "HR",
+        "Marketer": "MARKETER",
+        "Spectator": "SPECTATOR"
+    };
+
+    return roles[uiRole] || "DEVELOPER"; // Default to Developer if not specified
 }
 
 export async function inviteTeamMembersAction(orgId: string, invites: { email: string, role: string }[]): Promise<ActionResponse<boolean>> {
@@ -167,7 +166,13 @@ export async function inviteTeamMembersAction(orgId: string, invites: { email: s
         }
     });
 
-    if (!membership || (membership.role !== "OWNER" && membership.role !== "ADMIN")) {
+    if (!membership) {
+        return { success: false, error: "Membership not found" };
+    }
+
+    const isAdmin = ["OWNER", "ADMIN", "FOUNDER", "CO_FOUNDER"].includes(membership.role);
+
+    if (!isAdmin) {
         return { success: false, error: "Insufficient permissions to invite members" };
     }
     
@@ -185,7 +190,7 @@ export async function inviteTeamMembersAction(orgId: string, invites: { email: s
                 invites.map(async (invite) => {
                     if (!isValidEmail(invite.email)) return null;
                     
-                    const dbRole = mapRole(invite.role) as "ADMIN" | "MEMBER" | "VIEWER";
+                    const dbRole = mapRole(invite.role) as any;
                     const token = crypto.randomBytes(32).toString("hex");
                     
                     return tx.organizationInvite.create({
@@ -226,45 +231,89 @@ export async function inviteTeamMembersAction(orgId: string, invites: { email: s
     }
 }
 
-export async function createProjectAction(formData: FormData): Promise<ActionResponse<{ projectId: string }>> {
+export async function acceptInviteAction(token: string): Promise<ActionResponse<string>> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" };
+    return { success: false, error: "Unauthorized. Please sign in first." };
   }
 
-  const name = formData.get("name") as string;
-  const slug = formData.get("slug") as string;
-  const orgId = formData.get("orgId") as string;
-  const description = formData.get("description") as string;
-  const logoUrl = formData.get("logoUrl") as string || null;
-  const bannerUrl = formData.get("bannerUrl") as string || null;
-
-  if (!name || !slug || !orgId) {
-    return { success: false, error: "Name, slug, and organization are required" };
-  }
+  const userId = session.user.id;
 
   try {
-    const project = await prisma.project.create({
-      data: {
-        name,
-        slug,
-        orgId,
-        description,
-        logoUrl,
-        bannerUrl,
-      }
+    // 1. Try to find Organization Invite
+    const orgInvite = await prisma.organizationInvite.findUnique({
+      where: { token },
+      include: { organization: true }
     });
 
-    revalidatePath("/projects");
-    return { success: true, data: { projectId: project.id } };
-  } catch (error: any) {
-    console.error("Failed to create project:", error);
-    return { success: false, error: "Failed to create project" };
+    if (orgInvite) {
+      if (orgInvite.accepted) {
+        return { success: false, error: "Invite already accepted" };
+      }
+      if (orgInvite.expiresAt < new Date()) {
+        return { success: false, error: "Invite expired" };
+      }
+
+      await prisma.$transaction([
+        prisma.membership.create({
+          data: {
+            userId,
+            orgId: orgInvite.orgId,
+            role: orgInvite.role,
+          }
+        }),
+        prisma.organizationInvite.update({
+          where: { id: orgInvite.id },
+          data: { accepted: true }
+        })
+      ]);
+
+      revalidatePath(`/${orgInvite.organization.slug}`);
+      return { success: true, data: `/${orgInvite.organization.slug}` };
+    }
+
+    // 2. Try to find Project Invite
+    const projectInvite = await prisma.projectInvite.findUnique({
+      where: { token },
+      include: { project: { include: { organization: true } } }
+    });
+
+    if (projectInvite) {
+      if (projectInvite.accepted) {
+        return { success: false, error: "Invite already accepted" };
+      }
+      if (projectInvite.expiresAt < new Date()) {
+        return { success: false, error: "Invite expired" };
+      }
+
+      await (prisma as any).$transaction([
+        (prisma as any).projectMember.create({
+          data: {
+            userId,
+            projectId: projectInvite.projectId,
+            role: projectInvite.role,
+          }
+        }),
+        prisma.projectInvite.update({
+          where: { id: projectInvite.id },
+          data: { accepted: true }
+        })
+      ]);
+
+      revalidatePath(`/${projectInvite.project.organization.slug}/${projectInvite.project.slug}/home`);
+      return { success: true, data: `/${projectInvite.project.organization.slug}/${projectInvite.project.slug}/home` };
+    }
+
+    return { success: false, error: "Invalid invitation token" };
+  } catch (error) {
+    console.error("Failed to accept invite:", error);
+    return { success: false, error: "Failed to accept invite" };
   }
 }
+
 
 export async function updateOrganizationSettingsAction(orgId: string, formData: FormData): Promise<ActionResponse<boolean>> {
   const session = await auth.api.getSession({
@@ -276,16 +325,36 @@ export async function updateOrganizationSettingsAction(orgId: string, formData: 
   }
 
   const name = formData.get("name") as string;
+  const slug = formData.get("slug") as string;
   const description = formData.get("description") as string;
   const niche = formData.get("niche") as string;
   const logoUrl = formData.get("logoUrl") as string || null;
   const bannerUrl = formData.get("bannerUrl") as string || null;
 
   try {
+    const org = await prisma.organization.findUnique({
+      where: { id: orgId, ownerId: session.user.id }
+    });
+
+    if (!org) {
+      return { success: false, error: "Organization not found or you are not the owner" };
+    }
+
+    // Check slug uniqueness if changed
+    if (slug && slug !== org.slug) {
+      const existing = await prisma.organization.findUnique({
+        where: { slug }
+      });
+      if (existing) {
+        return { success: false, error: "Username/Slug is already taken." };
+      }
+    }
+
     const updated = await prisma.organization.update({
-      where: { id: orgId, ownerId: session.user.id },
+      where: { id: orgId },
       data: {
         name,
+        slug: slug || org.slug,
         description,
         niche,
         logoUrl,
@@ -293,9 +362,16 @@ export async function updateOrganizationSettingsAction(orgId: string, formData: 
       }
     });
 
-    revalidatePath(`/${updated.slug}`);
+    revalidatePath(`/${org.slug}`);
+    if (updated.slug !== org.slug) {
+        redirect(`/${updated.slug}`);
+    }
+    
     return { success: true, data: true };
   } catch (error: any) {
+    if (error.digest?.startsWith("NEXT_REDIRECT")) {
+        throw error;
+    }
     console.error("Failed to update organization:", error);
     return { success: false, error: "Failed to update organization" };
   }

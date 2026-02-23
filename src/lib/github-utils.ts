@@ -9,7 +9,7 @@ import prisma from "@/lib/prisma";
  */
 export async function getGithubAccessToken(userId: string): Promise<string> {
   // First check the Integration table (for users who linked GitHub later)
-  const integration = await prisma.integration.findFirst({
+  const connectedAccount = await prisma.connectedAccount.findFirst({
     where: {
       userId: userId,
       provider: "GITHUB",
@@ -19,8 +19,8 @@ export async function getGithubAccessToken(userId: string): Promise<string> {
     },
   });
 
-  if (integration && integration.accessToken) {
-    return integration.accessToken;
+  if (connectedAccount && connectedAccount.accessToken) {
+    return connectedAccount.accessToken;
   }
 
   // Fallback to the Account table (for users who signed up with GitHub)

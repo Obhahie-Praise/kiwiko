@@ -7,12 +7,12 @@ import { ActionResponse } from "./project.actions";
 /**
  * Refreshes the YouTube access token if expired.
  */
-export async function refreshYouTubeToken(integrationId: string): Promise<string> {
-  const integration = await prisma.integration.findUnique({
-    where: { id: integrationId },
+export async function refreshYouTubeToken(connectedAccountId: string): Promise<string> {
+  const connectedAccount = await prisma.connectedAccount.findUnique({
+    where: { id: connectedAccountId },
   });
 
-  if (!integration || !integration.refreshToken) {
+  if (!connectedAccount || !connectedAccount.refreshToken) {
     throw new Error("No refresh token available");
   }
 
@@ -22,15 +22,15 @@ export async function refreshYouTubeToken(integrationId: string): Promise<string
   );
 
   oauth2Client.setCredentials({
-    refresh_token: integration.refreshToken,
+    refresh_token: connectedAccount.refreshToken,
   });
 
   const { credentials } = await oauth2Client.refreshAccessToken();
   const accessToken = credentials.access_token!;
   const expiresAt = credentials.expiry_date ? new Date(credentials.expiry_date) : null;
 
-  await prisma.integration.update({
-    where: { id: integrationId },
+  await prisma.connectedAccount.update({
+    where: { id: connectedAccountId },
     data: {
       accessToken,
       expiresAt,
@@ -43,17 +43,17 @@ export async function refreshYouTubeToken(integrationId: string): Promise<string
 /**
  * Gets YouTube channel statistics (subscribers, views, etc.).
  */
-export async function getYouTubeChannelStats(integrationId: string): Promise<ActionResponse> {
+export async function getYouTubeChannelStats(connectedAccountId: string): Promise<ActionResponse> {
   try {
-    const integration = await prisma.integration.findUnique({
-      where: { id: integrationId },
+    const connectedAccount = await prisma.connectedAccount.findUnique({
+      where: { id: connectedAccountId },
     });
 
-    if (!integration) return { success: false, error: "Integration not found" };
+    if (!connectedAccount) return { success: false, error: "Integration not found" };
 
-    let accessToken = integration.accessToken;
-    if (integration.expiresAt && integration.expiresAt < new Date()) {
-      accessToken = await refreshYouTubeToken(integrationId);
+    let accessToken = connectedAccount.accessToken;
+    if (connectedAccount.expiresAt && connectedAccount.expiresAt < new Date()) {
+      accessToken = await refreshYouTubeToken(connectedAccountId);
     }
 
     const oauth2Client = new google.auth.OAuth2();
@@ -62,7 +62,7 @@ export async function getYouTubeChannelStats(integrationId: string): Promise<Act
     const youtube = google.youtube({ version: "v3", auth: oauth2Client });
     const response = await youtube.channels.list({
       part: ["statistics", "snippet"],
-      id: [integration.providerAccountId],
+      id: [connectedAccount.providerAccountId],
     });
 
     const channel = response.data.items?.[0];
@@ -87,17 +87,17 @@ export async function getYouTubeChannelStats(integrationId: string): Promise<Act
 /**
  * Gets the latest uploads for a channel.
  */
-export async function getLatestUploads(channelId: string, integrationId: string): Promise<ActionResponse> {
+export async function getLatestUploads(channelId: string, connectedAccountId: string): Promise<ActionResponse> {
   try {
-    const integration = await prisma.integration.findUnique({
-      where: { id: integrationId },
+    const connectedAccount = await prisma.connectedAccount.findUnique({
+      where: { id: connectedAccountId },
     });
 
-    if (!integration) return { success: false, error: "Integration not found" };
+    if (!connectedAccount) return { success: false, error: "Integration not found" };
 
-    let accessToken = integration.accessToken;
-    if (integration.expiresAt && integration.expiresAt < new Date()) {
-        accessToken = await refreshYouTubeToken(integrationId);
+    let accessToken = connectedAccount.accessToken;
+    if (connectedAccount.expiresAt && connectedAccount.expiresAt < new Date()) {
+        accessToken = await refreshYouTubeToken(connectedAccountId);
     }
 
     const oauth2Client = new google.auth.OAuth2();

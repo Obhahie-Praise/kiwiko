@@ -32,7 +32,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
     const [currentRevenue, setCurrentRevenue] = useState("");
     const [postMoneyValuation, setPostMoneyValuation] = useState("");
     
-    const [invites, setInvites] = useState<{ email: string }[]>([{ email: "" }]);
+    const [invites, setInvites] = useState<{ email: string; role: string }[]>([{ email: "", role: "Developer" }]);
     const [links, setLinks] = useState<{ url: string }[]>([{ url: "" }]);
     const [pitchDeckUrl, setPitchDeckUrl] = useState("");
     const [isPending, setIsPending] = useState(false);
@@ -49,6 +49,50 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
     const [isYoutubeConnected, setIsYoutubeConnected] = useState(false);
     const [youtubeChannel, setYoutubeChannel] = useState<any>(null);
     const [isConnectingYoutube, setIsConnectingYoutube] = useState(false);
+
+    // PERSISTENCE LOGIC
+    const PERSISTENCE_KEY = `new-project-form-${orgId}`;
+
+    // Load state from localStorage on mount
+    useEffect(() => {
+        const savedState = localStorage.getItem(PERSISTENCE_KEY);
+        if (savedState) {
+            try {
+                const parsed = JSON.parse(savedState);
+                if (parsed.name) setName(parsed.name);
+                if (parsed.tagline) setTagline(parsed.tagline);
+                if (parsed.stage) setStage(parsed.stage);
+                if (parsed.niche) setNiche(parsed.niche);
+                if (parsed.logoUrl) setLogoUrl(parsed.logoUrl);
+                if (parsed.bannerUrl) setBannerUrl(parsed.bannerUrl);
+                if (parsed.problem) setProblem(parsed.problem);
+                if (parsed.solution) setSolution(parsed.solution);
+                if (parsed.currentRevenue) setCurrentRevenue(parsed.currentRevenue);
+                if (parsed.postMoneyValuation) setPostMoneyValuation(parsed.postMoneyValuation);
+                if (parsed.pitchDeckUrl) setPitchDeckUrl(parsed.pitchDeckUrl);
+                if (parsed.invites) setInvites(parsed.invites);
+                if (parsed.links) setLinks(parsed.links);
+                if (parsed.selectedSignals) setSelectedSignals(parsed.selectedSignals);
+                if (parsed.selectedRepo) setSelectedRepo(parsed.selectedRepo);
+            } catch (e) {
+                console.error("Failed to parse saved form state", e);
+            }
+        }
+    }, [PERSISTENCE_KEY]);
+
+    // Save state to localStorage on any change
+    useEffect(() => {
+        const stateToSave = {
+            name, tagline, stage, niche, logoUrl, bannerUrl,
+            problem, solution, currentRevenue, postMoneyValuation,
+            invites, links, pitchDeckUrl, selectedRepo, selectedSignals
+        };
+        localStorage.setItem(PERSISTENCE_KEY, JSON.stringify(stateToSave));
+    }, [name, tagline, stage, niche, logoUrl, bannerUrl, problem, solution, currentRevenue, postMoneyValuation, invites, links, pitchDeckUrl, selectedRepo, selectedSignals, PERSISTENCE_KEY]);
+
+    const clearFormPersistence = () => {
+        localStorage.removeItem(PERSISTENCE_KEY);
+    };
 
     const fetchRepos = useCallback(async () => {
         setIsFetchingRepos(true);
@@ -85,20 +129,21 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
     );
     const filteredRepos = showAllRepos ? allFilteredRepos : allFilteredRepos.slice(0, 5);
 
-    const handleInviteChange = (index: number, value: string) => {
+    const handleInviteChange = (index: number, field: "email" | "role", value: string) => {
         const newInvites = [...invites];
-        newInvites[index].email = value;
+        // @ts-ignore
+        newInvites[index][field] = value;
         setInvites(newInvites);
 
-        if (index === invites.length - 1 && value.trim() !== "") {
-            setInvites([...newInvites, { email: "" }]);
+        if (field === "email" && index === invites.length - 1 && value.trim() !== "") {
+            setInvites([...newInvites, { email: "", role: "Developer" }]);
         }
     };
 
     const handleRemoveInvite = (index: number) => {
         const newInvites = [...invites];
         newInvites.splice(index, 1);
-        setInvites(newInvites.length > 0 ? newInvites : [{ email: "" }]);
+        setInvites(newInvites.length > 0 ? newInvites : [{ email: "", role: "Developer" }]);
     };
 
     const handleLinkChange = (index: number, value: string) => {
@@ -135,7 +180,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
 
         try {
             const slug = name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-            const validInvites = invites.map(i => i.email.trim()).filter(email => email !== "");
+            const validInvites = invites.filter(i => i.email.trim() !== "").map(i => ({ email: i.email.trim(), role: i.role }));
             const validLinks = links.map(l => l.url.trim()).filter(link => link !== "");
 
             const formData = new FormData();
@@ -163,6 +208,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
             const result = await createProjectAction(formData);
 
             if (result.success) {
+                clearFormPersistence();
                 router.push(`/${result.data.slug}`); 
             } else {
                 setError(result.error);
@@ -419,22 +465,40 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                     <div className="space-y-4">
                         <label className="block text-sm font-medium text-zinc-700">Invite Members</label>
                         {invites.map((invite, index) => (
-                             <div key={index} className="flex gap-3">
+                             <div key={index} className="flex flex-col sm:flex-row gap-3">
                                 <input
                                     type="email"
                                     value={invite.email}
-                                    onChange={(e) => handleInviteChange(index, e.target.value)}
+                                    onChange={(e) => handleInviteChange(index, "email", e.target.value)}
                                     placeholder="colleague@example.com"
                                     className="flex-1 px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-400"
                                 />
-                                {invites.length > 1 && (
-                                    <button 
-                                        onClick={() => handleRemoveInvite(index)}
-                                        className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                <div className="sm:w-48 flex gap-2">
+                                    <select
+                                        value={invite.role}
+                                        onChange={(e) => handleInviteChange(index, "role", e.target.value)}
+                                        className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs font-black uppercase tracking-widest text-zinc-500 outline-none cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-size-[24px_24px] bg-no-repeat bg-position-[right_8px_center]"
                                     >
-                                        <X size={18} />
-                                    </button>
-                                )}
+                                        <option value="Admin">Admin</option>
+                                        <option value="Advisor">Advisor</option>
+                                        <option value="Co-founder">Co-founder</option>
+                                        <option value="Consultant">Consultant</option>
+                                        <option value="Designer">Designer</option>
+                                        <option value="Developer">Developer</option>
+                                        <option value="Founder">Founder</option>
+                                        <option value="HR">HR</option>
+                                        <option value="Marketer">Marketer</option>
+                                        <option value="Spectator">Spectator</option>
+                                    </select>
+                                    {invites.length > 1 && (
+                                        <button 
+                                            onClick={() => handleRemoveInvite(index)}
+                                            className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                        >
+                                            <X size={18} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>
