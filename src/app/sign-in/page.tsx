@@ -23,11 +23,7 @@ const SignInPage = () => {
       
       const result = await signIn.social({ 
         provider,
-        callbackURL: (() => {
-          // Get the first non-personal organization
-          const firstOrg = organizations.find(org => org.type !== "Personal") || organizations[0];
-          return `/${firstOrg.slug}/projects`;
-        })()
+        callbackURL: "/sign-in/dispatch"
       });
       
     } catch (error) {

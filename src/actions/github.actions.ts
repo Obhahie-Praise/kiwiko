@@ -43,13 +43,22 @@ export async function getUserGithubRepos(): Promise<ActionResponse<GithubRepo[]>
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`GitHub API Error (${response.status}):`, errorText);
+      
       if (response.status === 401) return { success: false, error: "no linked github" };
-      const errorData = await response.json();
-      return { success: false, error: errorData.message || "Failed to fetch repositories" };
+      
+      let errorMessage = "Failed to fetch repositories";
+      try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.message || errorMessage;
+      } catch (e) {}
+      
+      return { success: false, error: errorMessage };
     }
 
     const repos: any[] = await response.json();
-    if (repos.length === 0) return { success: false, error: "there is no repo" };
+    if (repos.length === 0) return { success: true, data: [] };
 
     const firstBatch = repos.slice(0, 20);
     const remaining = repos.slice(20);

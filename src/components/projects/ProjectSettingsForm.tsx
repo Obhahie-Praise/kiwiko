@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import UploadDropzone from "@/components/ui/upload/UploadDropZone";
-import { Loader2, Plus, X, Save, Zap, Building2, ArrowLeft, AlertTriangle, Briefcase, Link as LinkIcon, Users, Github, Instagram, Linkedin, Twitter, Youtube, Check, Search, Sparkles, FileText } from "lucide-react";
+import { Loader2, Plus, X, Save, Zap, Building2, ArrowLeft, AlertTriangle, Briefcase, Link as LinkIcon, Users, Github, Instagram, Linkedin, Twitter, Youtube, Check, Search, Sparkles, FileText, Info, Lock, Facebook } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { updateProjectSettingsAction, inviteProjectMemberAction } from "@/actions/project.actions";
 import { getUserGithubRepos } from "@/actions/github.actions";
@@ -11,6 +11,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "../lightswind/tooltip";
 import { SignalType } from "@/generated/prisma";
+import { signIn } from "@/lib/auth-client";
 
 interface ProjectSettingsFormProps {
   project: any;
@@ -57,26 +58,44 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
   const [isFetchingRepos, setIsFetchingRepos] = useState(false);
   const [repoError, setRepoError] = useState<string | null>(null);
   const [showAllRepos, setShowAllRepos] = useState(false);
+  const [isYoutubeConnected, setIsYoutubeConnected] = useState(false);
+  const [youtubeChannel, setYoutubeChannel] = useState<any>(null);
+  const [isFetchingYoutube, setIsFetchingYoutube] = useState(false);
+  const [isConnectingYoutube, setIsConnectingYoutube] = useState(false);
+
+  const fetchRepos = useCallback(async () => {
+      setIsFetchingRepos(true);
+      setRepoError(null);
+      const res = await getUserGithubRepos();
+      if (res.success) {
+          setGithubRepos(res.data);
+      } else {
+          setRepoError(res.error);
+          if (res.error === "no linked github") {
+              setGithubRepos([]);
+          }
+      }
+      setIsFetchingRepos(false);
+  }, []);
 
   useEffect(() => {
-    const fetchRepos = async () => {
-        setIsFetchingRepos(true);
-        setRepoError(null);
-        const res = await getUserGithubRepos();
-        if (res.success) {
-            setGithubRepos(res.data);
-        } else {
-            setRepoError(res.error);
-            if (res.error === "no linked github") {
-                setGithubRepos([]);
-            }
-        }
-        setIsFetchingRepos(false);
+    const fetchIntegrations = async () => {
+         const { getUserIntegrationsAction } = await import("@/actions/project.actions");
+         const res = await getUserIntegrationsAction();
+         if (res.success) {
+             const youtube = res.data.find(i => i.provider === "YOUTUBE");
+             if (youtube) {
+                 setIsYoutubeConnected(true);
+                 setYoutubeChannel(youtube.metadata);
+             }
+         }
     };
+
     if (selectedSignals.includes("GITHUB")) {
         fetchRepos();
     }
-  }, [selectedSignals.includes("GITHUB")]);
+    fetchIntegrations();
+  }, []);
 
   const allFilteredRepos = githubRepos.filter(repo => 
     repo.full_name.toLowerCase().includes(repoSearch.toLowerCase())
@@ -316,7 +335,7 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-3 space-y-8">
+        <div className="lg:col-span-2 space-y-8">
           <div className="bg-white rounded-[2rem] border border-zinc-100 shadow-sm overflow-hidden p-8 space-y-8">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
@@ -326,7 +345,7 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
               <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-700 rounded-full border border-amber-100">
                 <AlertTriangle size={12} />
                 <span className="text-[10px] font-black uppercase tracking-wider">
-                  {2 - project.dataChangeCount} Updates Remaining
+                  {2 - (project.dataChangeCount || 0)} Updates Remaining
                 </span>
               </div>
             </div>
@@ -491,12 +510,11 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
             </div>
             
             {inviteSuccess && (
-              <div className="text-xs font-black uppercase tracking-widest text-emerald-600 animate-in fade-in slide-in-from-left-2">
+              <div className="text-xs font-black uppercase tracking-widest text-emerald-600 animate-in fade-in slide-in-from-left-2 mt-4">
                 {inviteSuccess}
               </div>
             )}
-
-            </div>
+          </div>
 
           <div className="bg-white rounded-[2rem] border border-zinc-100 shadow-sm overflow-hidden p-8 space-y-8">
             <h2 className="text-sm font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
@@ -505,201 +523,324 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
             </h2>
             
             <div className="space-y-6">
-                <div>
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Available Now</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {/* GitHub Signal */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (selectedSignals.includes("GITHUB")) {
-                                    setSelectedSignals(selectedSignals.filter(s => s !== "GITHUB"));
-                                } else {
-                                    setSelectedSignals([...selectedSignals, "GITHUB"]);
-                                }
-                                setHasChanges(true);
-                            }}
-                            className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left ${
-                                selectedSignals.includes("GITHUB")
-                                    ? "border-zinc-900 bg-zinc-900 text-white shadow-lg"
-                                    : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
-                            }`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedSignals.includes("GITHUB") ? "bg-white/10" : "bg-zinc-50"}`}>
-                                    <Github size={20} className={selectedSignals.includes("GITHUB") ? "text-white" : "text-zinc-400"} />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-bold">GitHub</p>
-                                    <p className={`text-[10px] ${selectedSignals.includes("GITHUB") ? "text-zinc-400" : "text-zinc-500"}`}>Sync code activity</p>
-                                </div>
-                            </div>
-                            {selectedSignals.includes("GITHUB") && <Check size={16} />}
-                        </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     {/* GitHub Signal */}
+                     <button
+                         type="button"
+                         onClick={() => {
+                             if (selectedSignals.includes("GITHUB")) {
+                                 setSelectedSignals(selectedSignals.filter(s => s !== "GITHUB"));
+                                 setSelectedRepo(null);
+                             } else {
+                                 setSelectedSignals([...selectedSignals, "GITHUB"]);
+                                 fetchRepos();
+                             }
+                             setHasChanges(true);
+                         }}
+                         className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left ${
+                             selectedSignals.includes("GITHUB")
+                                 ? "border-zinc-900 bg-zinc-900 text-white shadow-lg"
+                                 : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
+                         }`}
+                     >
+                         <div className="flex items-center gap-3">
+                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedSignals.includes("GITHUB") ? "bg-white/10" : "bg-zinc-50"}`}>
+                                 <Github size={20} className={selectedSignals.includes("GITHUB") ? "text-white" : "text-zinc-400"} />
+                             </div>
+                             <div>
+                                 <p className="text-sm font-bold">GitHub</p>
+                                 <p className={`text-[10px] ${selectedSignals.includes("GITHUB") ? "text-zinc-400" : "text-zinc-500"}`}>Sync code activity</p>
+                             </div>
+                         </div>
+                         {selectedSignals.includes("GITHUB") && <Check size={16} />}
+                     </button>
 
-                        {/* Manual Signal */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (selectedSignals.includes("MANUAL")) {
-                                    setSelectedSignals(selectedSignals.filter(s => s !== "MANUAL"));
-                                } else {
-                                    setSelectedSignals([...selectedSignals, "MANUAL"]);
-                                }
-                                setHasChanges(true);
-                            }}
-                            className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left ${
-                                selectedSignals.includes("MANUAL")
-                                    ? "border-zinc-900 bg-zinc-900 text-white shadow-lg"
-                                    : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
-                            }`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedSignals.includes("MANUAL") ? "bg-white/10" : "bg-zinc-50"}`}>
-                                    <FileText size={20} className={selectedSignals.includes("MANUAL") ? "text-white" : "text-zinc-400"} />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-bold">Manual Updates</p>
-                                    <p className={`text-[10px] ${selectedSignals.includes("MANUAL") ? "text-zinc-400" : "text-zinc-500"}`}>Post manual progress</p>
-                                </div>
-                            </div>
-                            {selectedSignals.includes("MANUAL") && <Check size={16} />}
-                        </button>
-                    </div>
+                      {/* YouTube Signal */}
+                     <button
+                         type="button"
+                         onClick={() => {
+                             if (selectedSignals.includes("YOUTUBE")) {
+                                 setSelectedSignals(selectedSignals.filter(s => s !== "YOUTUBE"));
+                             } else {
+                                 setSelectedSignals([...selectedSignals, "YOUTUBE"]);
+                             }
+                             setHasChanges(true);
+                         }}
+                         className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left ${
+                             selectedSignals.includes("YOUTUBE")
+                                 ? "border-zinc-900 bg-zinc-900 text-white shadow-lg"
+                                 : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
+                         }`}
+                     >
+                         <div className="flex items-center gap-3">
+                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedSignals.includes("YOUTUBE") ? "bg-white/10" : "bg-zinc-50"}`}>
+                                 <Youtube size={20} className={selectedSignals.includes("YOUTUBE") ? "text-white" : "text-zinc-400"} />
+                             </div>
+                             <div>
+                                 <p className="text-sm font-bold">YouTube</p>
+                                 <p className={`text-[10px] ${selectedSignals.includes("YOUTUBE") ? "text-zinc-400" : "text-zinc-500"}`}>Sync video updates</p>
+                             </div>
+                         </div>
+                         {selectedSignals.includes("YOUTUBE") && <Check size={16} />}
+                     </button>
+
+                     {/* Manual Signal */}
+                     <button
+                         type="button"
+                         onClick={() => {
+                             if (selectedSignals.includes("MANUAL")) {
+                                 setSelectedSignals(selectedSignals.filter(s => s !== "MANUAL"));
+                             } else {
+                                 setSelectedSignals([...selectedSignals, "MANUAL"]);
+                             }
+                             setHasChanges(true);
+                         }}
+                         className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left ${
+                             selectedSignals.includes("MANUAL")
+                                 ? "border-zinc-900 bg-zinc-900 text-white shadow-lg"
+                                 : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
+                         }`}
+                     >
+                         <div className="flex items-center gap-3">
+                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedSignals.includes("MANUAL") ? "bg-white/10" : "bg-zinc-50"}`}>
+                                 <FileText size={20} className={selectedSignals.includes("MANUAL") ? "text-white" : "text-zinc-400"} />
+                             </div>
+                             <div>
+                                 <p className="text-sm font-bold">Manual Updates</p>
+                                 <p className={`text-[10px] ${selectedSignals.includes("MANUAL") ? "text-zinc-400" : "text-zinc-500"}`}>Post manual progress</p>
+                             </div>
+                         </div>
+                         {selectedSignals.includes("MANUAL") && <Check size={16} />}
+                     </button>
+
+                     {/* Coming Soon Signals */}
+                     <Tooltip content="OAuth integration launching soon" side="top">
+                         <div className="relative flex items-center justify-between p-4 rounded-2xl border border-zinc-200 bg-white opacity-40 cursor-not-allowed grayscale">
+                             <div className="flex items-center gap-3">
+                                 <div className="w-10 h-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400"><Instagram size={20} /></div>
+                                 <div><p className="text-sm font-bold text-zinc-900">Instagram</p><p className="text-[10px] text-zinc-500">Sync social activity</p></div>
+                             </div>
+                             <span className="px-1.5 py-0.5 bg-zinc-100 text-zinc-500 text-[8px] rounded font-bold uppercase tracking-tighter">Soon</span>
+                         </div>
+                     </Tooltip>
+                     <Tooltip content="OAuth integration launching soon" side="top">
+                         <div className="relative flex items-center justify-between p-4 rounded-2xl border border-zinc-200 bg-white opacity-40 cursor-not-allowed grayscale">
+                             <div className="flex items-center gap-3">
+                                 <div className="w-10 h-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400"><Linkedin size={20} /></div>
+                                 <div><p className="text-sm font-bold text-zinc-900">LinkedIn</p><p className="text-[10px] text-zinc-500">Sync social activity</p></div>
+                             </div>
+                             <span className="px-1.5 py-0.5 bg-zinc-100 text-zinc-500 text-[8px] rounded font-bold uppercase tracking-tighter">Soon</span>
+                         </div>
+                     </Tooltip>
+                     <Tooltip content="OAuth integration launching soon" side="top">
+                         <div className="relative flex items-center justify-between p-4 rounded-2xl border border-zinc-200 bg-white opacity-40 cursor-not-allowed grayscale">
+                             <div className="flex items-center gap-3">
+                                 <div className="w-10 h-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400"><Twitter size={20} /></div>
+                                 <div><p className="text-sm font-bold text-zinc-900">Twitter/X</p><p className="text-[10px] text-zinc-500">Sync social activity</p></div>
+                             </div>
+                             <span className="px-1.5 py-0.5 bg-zinc-100 text-zinc-500 text-[8px] rounded font-bold uppercase tracking-tighter">Soon</span>
+                         </div>
+                     </Tooltip>
+                     <Tooltip content="OAuth integration launching soon" side="top">
+                         <div className="relative flex items-center justify-between p-4 rounded-2xl border border-zinc-200 bg-white opacity-40 cursor-not-allowed grayscale">
+                             <div className="flex items-center gap-3">
+                                 <div className="w-10 h-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400"><Facebook size={20} /></div>
+                                 <div><p className="text-sm font-bold text-zinc-900">Facebook</p><p className="text-[10px] text-zinc-500">Sync social activity</p></div>
+                             </div>
+                             <span className="px-1.5 py-0.5 bg-zinc-100 text-zinc-500 text-[8px] rounded font-bold uppercase tracking-tighter">Soon</span>
+                         </div>
+                     </Tooltip>
                 </div>
 
-                {/* GitHub Repo Selection (Conditional) */}
-                {selectedSignals.includes("GITHUB") && (
-                    <div className="mt-4 p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <div className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Select Repository</p>
-                                <p className="text-[9px] font-medium text-zinc-400">{allFilteredRepos.length} Repositories Found</p>
+                {/* YouTube Connection Call to Action */}
+                {selectedSignals.includes("YOUTUBE") && !isYoutubeConnected && (
+                    <div className="mt-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-amber-100 rounded-lg text-amber-600">
+                                <Info size={16} />
                             </div>
-                            {selectedRepo && (
-                                <div className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] rounded-full font-bold uppercase tracking-tight flex items-center gap-1">
-                                    <Check size={10} /> {selectedRepo}
-                                </div>
-                            )}
+                            <div>
+                                <p className="text-xs font-bold text-amber-900">YouTube Not Connected</p>
+                                <p className="text-[10px] text-amber-700">Connect your channel to sync latest uploads.</p>
+                            </div>
                         </div>
-
-                        <div className="relative">
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                            <input
-                                type="text"
-                                placeholder="Search your repositories..."
-                                value={repoSearch}
-                                onChange={(e) => setRepoSearch(e.target.value)}
-                                className="w-full pl-9 pr-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-400"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            {isFetchingRepos ? (
-                                <div className="py-6 flex flex-col items-center justify-center gap-2 text-zinc-400">
-                                    <Loader2 size={20} className="animate-spin" />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest">Fetching...</span>
-                                </div>
-                            ) : repoError === "no linked github" ? (
-                                <div className="p-4 rounded-xl border border-dashed border-zinc-200 bg-white text-center space-y-3">
-                                    <p className="text-xs text-zinc-500">Connect GitHub to see your repositories.</p>
-                                    <button 
-                                        type="button"
-                                        //@ts-ignore - signIn is handled via auth-client but we use standard login flow in settings if needed
-                                        onClick={() => window.location.href = '/api/auth/signin'}
-                                        className="px-4 py-2 bg-zinc-900 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-black transition-all"
-                                    >
-                                        Connect GitHub
-                                    </button>
-                                </div>
+                        <button 
+                            onClick={() => {
+                                setIsConnectingYoutube(true);
+                                router.push("/api/integrations/youtube/connect");
+                            }}
+                            disabled={isConnectingYoutube}
+                            className="px-4 py-2 bg-zinc-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isConnectingYoutube ? (
+                                <Loader2 size={14} className="animate-spin" />
                             ) : (
-                                <>
-                                    {filteredRepos.map((repo) => (
-                                        <button
-                                            key={repo.id}
-                                            type="button"
-                                            onClick={() => {
-                                                setSelectedRepo(selectedRepo === repo.full_name ? null : repo.full_name);
-                                                setHasChanges(true);
-                                            }}
-                                            className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all text-left ${
-                                                selectedRepo === repo.full_name
-                                                    ? "border-zinc-900 bg-zinc-900 text-white shadow-md scale-[1.01]"
-                                                    : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
-                                            }`}
-                                        >
-                                            <div className="flex flex-col gap-0.5">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-xs font-bold truncate">{repo.full_name}</span>
-                                                    {repo.private && <Lock size={10} className={selectedRepo === repo.full_name ? "text-zinc-500" : "text-zinc-400"} />}
-                                                    {repo.is_deployed && (
-                                                        <span className="px-1.5 py-0.5 bg-sky-100 text-sky-700 text-[8px] rounded font-bold uppercase tracking-wider flex items-center gap-0.5 ml-auto">
-                                                            <Zap size={8} /> Deployed
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className={`flex items-center gap-3 text-[10px] ${selectedRepo === repo.full_name ? "text-zinc-400" : "text-zinc-500"}`}>
-                                                    <span className="flex items-center gap-1">
-                                                        <Sparkles size={10} /> {repo.commit_count || 0} commits
-                                                    </span>
-                                                    <span className="flex items-center gap-1 font-mono bg-zinc-100 px-1 rounded text-[8px]">
-                                                        {repo.default_branch}
-                                                    </span>
-                                                    <span>{repo.stargazers_count} stars</span>
-                                                    <span>Updated {new Date(repo.pushed_at).toLocaleDateString()}</span>
-                                                </div>
-                                            </div>
-                                            {selectedRepo === repo.full_name && <Check size={12} />}
-                                        </button>
-                                    ))}
-                                    {!showAllRepos && allFilteredRepos.length > 5 && (
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowAllRepos(true)}
-                                            className="w-full py-2.5 text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-zinc-900 transition-colors border border-dashed border-zinc-200 rounded-xl hover:bg-zinc-50"
-                                        >
-                                            See All ({allFilteredRepos.length})
-                                        </button>
-                                    )}
-                                </>
+                                <Youtube size={14} />
                             )}
-                        </div>
+                            {isConnectingYoutube ? "Redirecting..." : "Connect YouTube"}
+                        </button>
                     </div>
                 )}
 
-                <div>
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Coming Soon</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {[
-                            { type: "INSTAGRAM", label: "Instagram", icon: <Instagram size={18} /> },
-                            { type: "LINKEDIN", label: "LinkedIn", icon: <Linkedin size={18} /> },
-                            { type: "TWITTER", label: "Twitter/X", icon: <Twitter size={18} /> },
-                            { type: "YOUTUBE", label: "YouTube", icon: <Youtube size={18} /> },
-                        ].map((signal) => (
-                            <Tooltip
-                                key={signal.type}
-                                content="OAuth integration launching soon"
-                                side="top"
+                {/* GitHub Integration Info */}
+                {selectedSignals.includes("GITHUB") && (
+                 <div className="pt-6 border-t border-dotted border-zinc-100">
+                     <div className="flex items-center gap-2 mb-4">
+                        <Github size={16} className="text-zinc-400" />
+                        <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest">GitHub Repository Sync</h3>
+                     </div>
+
+                     {repoError === "no linked github" ? (
+                        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <Info size={16} className="text-amber-600" />
+                                <p className="text-xs font-bold text-amber-900 truncate">Connect GitHub to sync code activity.</p>
+                            </div>
+                            <button
+                                onClick={() => signIn.social({ provider: "github", callbackURL: window.location.href })}
+                                className="px-4 py-2 bg-zinc-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center gap-2"
                             >
-                                <div className="relative group">
-                                    <div className="flex flex-col items-center justify-center p-4 rounded-2xl border border-zinc-200 bg-white opacity-40 cursor-not-allowed transition-all grayscale">
-                                        <div className="w-10 h-10 rounded-xl bg-zinc-50 flex items-center justify-center mb-2 text-zinc-400">
-                                            {signal.icon}
-                                        </div>
-                                        <p className="text-[10px] font-bold text-zinc-500">{signal.label}</p>
-                                        <div className="absolute top-2 right-2">
-                                            <span className="px-1.5 py-0.5 bg-zinc-100 text-zinc-500 text-[8px] rounded font-bold uppercase tracking-tighter">
-                                                Soon
-                                            </span>
-                                        </div>
+                                Connect GitHub
+                            </button>
+                        </div>
+                     ) : (
+                        <div className="space-y-4">
+                             <div className="relative">
+                                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Search your repositories..."
+                                    value={repoSearch}
+                                    onChange={(e) => setRepoSearch(e.target.value)}
+                                    className="w-full pl-9 pr-3 py-2 bg-zinc-50 border border-zinc-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-zinc-900 transition-all placeholder:text-zinc-300"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-2">
+                                {isFetchingRepos ? (
+                                    <div className="py-12 flex flex-col items-center justify-center gap-3 text-zinc-400">
+                                        <Loader2 size={24} className="animate-spin text-zinc-900" />
+                                        <span className="text-[10px] font-bold uppercase tracking-widest animate-pulse">Scanning Repositories...</span>
                                     </div>
-                                </div>
-                            </Tooltip>
-                        ))}
+                                ) : repoError && repoError !== "no linked github" ? (
+                                    <div className="py-8 flex flex-col items-center justify-center gap-4 text-center px-4">
+                                        <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-500">
+                                            <X size={20} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-xs font-bold text-zinc-900">Failed to sync</p>
+                                            <p className="text-[10px] text-zinc-500 leading-relaxed">{repoError}</p>
+                                        </div>
+                                        <button 
+                                            type="button"
+                                            onClick={() => fetchRepos()}
+                                            className="px-4 py-2 bg-zinc-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all border-none"
+                                        >
+                                            Retry Connection
+                                        </button>
+                                    </div>
+                                ) : githubRepos.length === 0 ? (
+                                    <div className="py-12 flex flex-col items-center justify-center gap-4 text-center px-4">
+                                        <div className="w-12 h-12 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300">
+                                            <Github size={20} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-xs font-bold text-zinc-900">No repositories found</p>
+                                            <p className="text-[10px] text-zinc-500">Ensure your GitHub account has active projects.</p>
+                                        </div>
+                                        <button 
+                                            type="button"
+                                            onClick={() => fetchRepos()}
+                                            className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest hover:text-zinc-900 flex items-center gap-1 transition-colors"
+                                        >
+                                            <Sparkles size={12} /> Refresh
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {filteredRepos.map((repo) => (
+                                            <button
+                                                key={repo.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedRepo(selectedRepo === repo.full_name ? null : repo.full_name);
+                                                    setHasChanges(true);
+                                                }}
+                                                className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all text-left ${
+                                                    selectedRepo === repo.full_name
+                                                        ? "border-zinc-900 bg-zinc-900 text-white shadow-md scale-[1.01]"
+                                                        : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
+                                                }`}
+                                            >
+                                                <div className="flex flex-col gap-0.5">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs font-bold truncate">{repo.full_name}</span>
+                                                        {repo.private && <Lock size={10} className={selectedRepo === repo.full_name ? "text-zinc-500" : "text-zinc-400"} />}
+                                                        {repo.is_deployed && (
+                                                            <span className="px-1.5 py-0.5 bg-sky-100 text-sky-700 text-[8px] rounded font-bold uppercase tracking-wider flex items-center gap-0.5 ml-auto">
+                                                                <Zap size={8} /> Deployed
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className={`flex items-center gap-3 text-[10px] ${selectedRepo === repo.full_name ? "text-zinc-400" : "text-zinc-500"}`}>
+                                                        <span className="flex items-center gap-1">
+                                                            <Sparkles size={10} /> {repo.commit_count || 0} commits
+                                                        </span>
+                                                        <span className="flex items-center gap-1 font-mono bg-zinc-100 px-1 rounded text-[8px]">
+                                                            {repo.default_branch}
+                                                        </span>
+                                                        <span>{repo.stargazers_count} stars</span>
+                                                        <span>Updated {new Date(repo.pushed_at).toLocaleDateString()}</span>
+                                                    </div>
+                                                </div>
+                                                {selectedRepo === repo.full_name && <Check size={12} />}
+                                            </button>
+                                        ))}
+                                        {!showAllRepos && allFilteredRepos.length > 5 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowAllRepos(true)}
+                                                className="w-full py-2.5 text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-zinc-900 transition-colors border border-dashed border-zinc-200 rounded-xl hover:bg-zinc-50"
+                                            >
+                                                See All ({allFilteredRepos.length})
+                                            </button>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                     )}
+                </div>
+                )}
+            </div>
+          </div>
+        </div>
+        
+        <div className="lg:col-span-1 space-y-8">
+            {/* Sidebar content could go here in the future - currently used for consistent layout spacing */}
+            <div className="p-6 bg-zinc-50 rounded-[2rem] border border-zinc-100">
+                <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-4">Integrations Status</h3>
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-zinc-100">
+                        <div className="flex items-center gap-2">
+                            <Github size={14} className="text-zinc-400" />
+                            <span className="text-xs font-bold text-zinc-600">GitHub</span>
+                        </div>
+                        <span className={cn("text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded", repoError === "no linked github" ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600")}>
+                            {repoError === "no linked github" ? "Disconnected" : "Active"}
+                        </span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-zinc-100">
+                        <div className="flex items-center gap-2">
+                            <Youtube size={14} className="text-zinc-400" />
+                            <span className="text-xs font-bold text-zinc-600">YouTube</span>
+                        </div>
+                        <span className={cn("text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded", isYoutubeConnected ? "bg-emerald-50 text-emerald-600" : "bg-zinc-100 text-zinc-400")}>
+                            {isYoutubeConnected ? "Active" : "Optional"}
+                        </span>
                     </div>
                 </div>
             </div>
-          </div>
         </div>
       </div>
     </div>
@@ -707,4 +848,3 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
 };
 
 export default ProjectSettingsForm;
-

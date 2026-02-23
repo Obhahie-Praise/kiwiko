@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import crypto from "node:crypto";
 import { sendTeamInviteEmail } from "@/app/api/send/send";
+import { getGithubAccessToken } from "@/lib/github-utils";
 
 export type ActionResponse<T = any> = 
   | { success: true; data: T }
@@ -60,24 +61,17 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
   }
 
   // If GITHUB selected -> validate GitHub integration exists
-  if (selectedSignals.includes("GITHUB")) {
-      const githubIntegration = await prisma.integration.findUnique({
-          where: {
-              userId_provider: {
-                  userId,
-                  provider: "github",
-              },
-          },
-      });
-
-      if (!githubIntegration) {
-          return { success: false, error: "Please connect your GitHub account first" };
-      }
-      
-      if (!githubRepoFullName) {
-          return { success: false, error: "GitHub signal selected but no repository provided" };
-      }
-  }
+    if (selectedSignals.includes("GITHUB")) {
+        try {
+            await getGithubAccessToken(userId);
+        } catch (e) {
+            return { success: false, error: "Please connect your GitHub account first" };
+        }
+        
+        if (!githubRepoFullName) {
+            return { success: false, error: "GitHub signal selected but no repository provided" };
+        }
+    }
 
   if (!name || !slug || !orgId) {
     return { success: false, error: "Name, slug, and organization ID are required" };
@@ -133,19 +127,32 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
         },
         });
 
-        // Create ProjectIntegrations for GITHUB and MANUAL
-        const integrationsToCreate = selectedSignals.filter(s => s === "GITHUB" || s === "MANUAL");
-        
-        await Promise.all(
-            integrationsToCreate.map(type => 
-                (tx as any).projectIntegration.create({
-                    data: {
-                        projectId: project.id,
-                        type,
-                    }
-                })
-            )
-        );
+        // Create ProjectIntegrations for all selected signals
+        for (const signalType of selectedSignals) {
+            let integrationId = null;
+            
+            if (signalType === "GITHUB") {
+                const integration = await tx.integration.findFirst({
+                    where: { userId, provider: "GITHUB" }
+                });
+                if (!integration) throw new Error("Please connect your GitHub account first");
+                integrationId = integration.id;
+            } else if (signalType === "YOUTUBE") {
+                const integration = await tx.integration.findFirst({
+                    where: { userId, provider: "YOUTUBE" }
+                });
+                if (!integration) throw new Error("Please connect your YouTube account first");
+                integrationId = integration.id;
+            }
+
+            await (tx as any).projectIntegration.create({
+                data: {
+                    projectId: project.id,
+                    signalType,
+                    integrationId,
+                }
+            });
+        }
 
         const createdInvites = await Promise.all(
             inviteEmails.map(async (email) => {
@@ -364,16 +371,9 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
 
     // GitHub validation
     if (selectedSignals.includes("GITHUB")) {
-        const githubIntegration = await prisma.integration.findUnique({
-            where: {
-                userId_provider: {
-                    userId: session.user.id,
-                    provider: "github",
-                },
-            },
-        });
-
-        if (!githubIntegration) {
+        try {
+            await getGithubAccessToken(session.user.id);
+        } catch (e) {
             return { success: false, error: "Please connect your GitHub account first" };
         }
     }
@@ -418,18 +418,32 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
                 where: { projectId }
             });
 
-            const integrationsToCreate = selectedSignals.filter(s => s === "GITHUB" || s === "MANUAL");
-            
-            await Promise.all(
-                integrationsToCreate.map(type => 
-                    (tx as any).projectIntegration.create({
-                        data: {
-                            projectId,
-                            type,
-                        }
-                    })
-                )
-            );
+            // Create ProjectIntegrations for all selected signals
+            for (const signalType of selectedSignals) {
+                let integrationId = null;
+                
+                if (signalType === "GITHUB") {
+                    const integration = await tx.integration.findFirst({
+                        where: { userId: session.user.id, provider: "GITHUB" }
+                    });
+                    if (!integration) throw new Error("Please connect your GitHub account first");
+                    integrationId = integration.id;
+                } else if (signalType === "YOUTUBE") {
+                    const integration = await tx.integration.findFirst({
+                        where: { userId: session.user.id, provider: "YOUTUBE" }
+                    });
+                    if (!integration) throw new Error("Please connect your YouTube account first");
+                    integrationId = integration.id;
+                }
+
+                await (tx as any).projectIntegration.create({
+                    data: {
+                        projectId,
+                        signalType,
+                        integrationId,
+                    }
+                });
+            }
         });
 
         revalidatePath(`/${project.organization.slug}/projects`);
@@ -536,7 +550,7 @@ export async function getUserContextAction(): Promise<ActionResponse<{ organizat
                 }
             },
             orderBy: {
-                name: 'asc'
+                createdAt: 'asc'
             }
         });
 
@@ -636,6 +650,24 @@ export async function getDiscoverProjectsAction(): Promise<ActionResponse<any[]>
     } catch (error) {
         console.error("Failed to fetch discover projects:", error);
         return { success: false, error: "Failed to fetch discover projects" };
+    }
+}
+
+export async function getUserIntegrationsAction(): Promise<ActionResponse<any[]>> {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+
+    try {
+        const integrations = await prisma.integration.findMany({
+            where: { userId: session.user.id }
+        });
+        return { success: true, data: integrations };
+    } catch (error) {
+        console.error("Failed to fetch integrations:", error);
+        return { success: false, error: "Failed to fetch integrations" };
     }
 }
 

@@ -24,10 +24,15 @@ const Navbar = () => {
           {["About", "Activity", "Features", "Testimonials", "Resources"].map((item) => (
             <Link 
               key={item}
-              className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-900 transition-colors" 
+              className="relative text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-900 transition-colors" 
               href={item === "Resources" ? "/resources" : `#${item.toLowerCase()}`}
             >
               {item}
+              {item === "Resources" && (
+                <span className="absolute -top-3 -right-6 px-1.5 py-0.5 bg-zinc-100 text-zinc-400 text-[8px] rounded font-bold uppercase tracking-tighter">
+                  Soon
+                </span>
+              )}
             </Link>
           ))}
         </nav>

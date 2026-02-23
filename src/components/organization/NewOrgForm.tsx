@@ -321,11 +321,17 @@ const NewOrgForm = () => {
                 <p className="text-xs font-medium text-zinc-500">Member Ops</p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <button className="text-[11px] px-2 py-1 bg-white border border-zinc-200 rounded-md hover:bg-zinc-50 text-zinc-600 transition-colors shadow-sm">
+                <button className="relative text-[11px] px-2 py-1 bg-white border border-zinc-200 rounded-md hover:bg-zinc-50 text-zinc-600 transition-colors shadow-sm opacity-60 cursor-not-allowed">
                   Import from CSV
+                  <span className="absolute -top-2 -right-2 px-1 py-0.5 bg-zinc-100 text-zinc-400 text-[6px] rounded font-bold uppercase tracking-tighter">
+                    Soon
+                  </span>
                 </button>
-                <button className="text-[11px] px-2 py-1 bg-white border border-zinc-200 rounded-md hover:bg-zinc-50 text-zinc-600 transition-colors shadow-sm">
+                <button className="relative text-[11px] px-2 py-1 bg-white border border-zinc-200 rounded-md hover:bg-zinc-50 text-zinc-600 transition-colors shadow-sm opacity-60 cursor-not-allowed">
                   Sync from Slack
+                  <span className="absolute -top-2 -right-2 px-1 py-0.5 bg-zinc-100 text-zinc-400 text-[6px] rounded font-bold uppercase tracking-tighter">
+                    Soon
+                  </span>
                 </button>
               </div>
             </div>

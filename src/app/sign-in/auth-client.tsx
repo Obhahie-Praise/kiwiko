@@ -27,10 +27,8 @@ const AuthClient = () => {
       return;
     }
 
-    // Successful sign-in – redirect to first organization's projects page
-    // Get the first non-personal organization
-    const firstOrg = organizations.find(org => org.type !== "Personal") || organizations[0];
-    router.push(`/${firstOrg.slug}/projects`);
+    // Successful sign-in – redirect to dispatch for dynamic organization routing
+    router.push("/sign-in/dispatch");
     setIsAuthenticating(false);
   };
   return (
