@@ -188,8 +188,8 @@ import {
 
 export const sidebarNav = [
   {
-    label: "Home",
-    href: "/home",
+    label: "Overview",
+    href: "/overview",
     icon: Home,
     description: "Your startup dashboard",
   },

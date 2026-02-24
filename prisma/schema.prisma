@@ -199,10 +199,11 @@ model Project {
   githubCommitCount30d Int?
   githubLastCommitAt   DateTime?
 
-  githubRepoFullName String? // "owner/repo"
-  githubRepoId       String?
-  githubConnectedBy  String? // userId who linked
-  githubLastSyncedAt DateTime?
+  githubRepoFullName   String? // "owner/repo"
+  githubRepoId         String?
+  githubConnectedBy    String? // userId who linked
+  githubLastSyncedAt   DateTime?
+  githubCommitsPerWeek Float?
 
   createdById String
   creator     User   @relation("ProjectCreator", fields: [createdById], references: [id])
@@ -214,9 +215,10 @@ model Project {
 
   signals ProjectSignal[]
 
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
   projectViews ProjectView[]
+  commits      ProjectCommit[]
 
   @@unique([orgId, slug])
   @@index([orgId])
@@ -346,8 +348,27 @@ model ProjectView {
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  // One view per signed-in user per project
-  @@unique([projectId, userId])
+  // Every view is recorded
+  // @@unique([projectId, userId])
   @@index([projectId])
   @@map("project_views")
+}
+
+model ProjectCommit {
+  id           String   @id @default(cuid())
+  projectId    String   @map("project_id")
+  sha          String
+  message      String
+  authorName   String   @map("author_name")
+  authorEmail  String?  @map("author_email")
+  authorAvatar String?  @map("author_avatar")
+  url          String
+  committedAt  DateTime @map("committed_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, sha])
+  @@index([projectId])
+  @@map("project_commits")
 }

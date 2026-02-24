@@ -24,7 +24,10 @@ export default async function OnboardingSetupLayout({
 
     if (memberships.length > 0) {
       // User has already completed onboarding and has an organization
+      console.log("OnboardingSetupLayout: User has memberships, redirecting to dispatch");
       redirect("/sign-in/dispatch");
+    } else {
+        console.log("OnboardingSetupLayout: No memberships found, staying on onboarding");
     }
   }
 

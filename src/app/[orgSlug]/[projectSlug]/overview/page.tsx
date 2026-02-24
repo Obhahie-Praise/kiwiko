@@ -9,12 +9,18 @@ import {
 } from "@/constants";
 import { getSession } from "@/constants/getSession";
 import prisma from "@/lib/prisma";
-import { Activity, Check, EllipsisVertical, Users } from "lucide-react";
+import { Activity, Check, EllipsisVertical, Users, Eye, GitCommit, CircleDot } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { getProjectHomeDataAction } from "@/actions/project.actions";
+import { openai } from "@/lib/openai";
 
-const HomePage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
+const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
+  /* const response = await openai.responses.create({
+    model: "gpt-4.1",
+    input: "testng out the api. it would be really cool if this works"
+  }) */
+  //console.log(response)
   const { orgSlug, projectSlug } = await params;
   const session = await getSession();
   
@@ -32,56 +38,100 @@ const HomePage = async ({ params }: { params: { orgSlug: string, projectSlug: st
   const { project, organization, membership } = contextRes.data;
   const userId = session.user.id;
 
-  const displayMetrics = metrics.map((item) => {
-    if (item.label === "Profile Views") {
-      return { ...item, value: "0" }; // TODO: Fetch from MetricSnapshot
+  const { getOverviewMetrics } = await import("@/lib/data-fetchers");
+  const overviewData = await getOverviewMetrics(project.id, userId);
+
+  const displayMetrics = [
+    {
+      id: "views",
+      label: "Profile Views",
+      value: overviewData?.viewCount?.toString() || "0",
+      change: "+0%",
+      positive: true,
+      icon: Eye,
+    },
+    {
+      id: "commits",
+      label: "Git Commits / Week",
+      value: overviewData?.commitsPerWeek?.toString() || "0",
+      change: "+0%",
+      positive: true,
+      icon: GitCommit,
+    },
+    {
+      id: "issues",
+      label: "Open Issues",
+      value: project.githubOpenIssues?.toString() || "0",
+      change: "0",
+      positive: false,
+      icon: CircleDot,
     }
-    return item;
-  });
+  ];
+
+  // If YouTube is connected, add it as a metric
+  if (overviewData?.youtubeMetric) {
+    displayMetrics.push({
+        id: "youtube",
+        label: "YouTube Engagement",
+        value: overviewData.youtubeMetric.value || "0",
+        change: overviewData.youtubeMetric.videoTitle ? `Last: ${overviewData.youtubeMetric.videoTitle.substring(0, 15)}...` : "Live",
+        positive: true,
+        icon: Activity, // Fallback icon
+    });
+  } else {
+    // Fallback metric if YouTube is not connected
+    displayMetrics.push({
+        id: "members",
+        label: "Team Members",
+        value: project.members?.length?.toString() || "1",
+        change: "Active",
+        positive: true,
+        icon: Users,
+    });
+  }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-zinc-50">
       <ProjectInnerNav />
-      <main className="bg-zinc-50 flex-1">
-        <div className="grid grid-cols-17 gap-6 p-5 w-full auto-rows-min">
-          <div className="grid grid-cols-4 gap-3 col-span-17">
+      <main className="flex-1 overflow-y-auto">
+        <div className="grid grid-cols-12 gap-6 p-6 w-full auto-rows-min">
+          <div className="grid grid-cols-4 gap-4 col-span-12">
             {displayMetrics.map((item) => (
               <div
                 key={item.id}
-                className="bg-zinc-900 rounded-2xl p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden"
+                className="bg-white border border-zinc-200 rounded-2xl p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
                 {/* Top row: label + icon */}
                 <div className="flex items-start justify-between">
-                  <p className="text-[11px] text-zinc-400 font-medium">{item.label}</p>
-                  <div className="p-1.5 bg-zinc-800 rounded-lg">
+                  <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-wider">{item.label}</p>
+                  <div className="p-1.5 bg-zinc-50 rounded-lg border border-zinc-100">
                     <item.icon className="w-3.5 h-3.5 text-zinc-400" strokeWidth={1.5} />
                   </div>
                 </div>
 
                 {/* Bottom row: value + change pill */}
                 <div className="flex items-end justify-between mt-4">
-                  <p className="text-2xl font-black text-white tracking-tight">{item.value}</p>
+                  <p className="text-2xl font-black text-zinc-900 tracking-tight">{item.value}</p>
                   <div className="flex items-center gap-1.5 text-right">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                       (item as any).positive
-                        ? "bg-emerald-500/20 text-emerald-400"
-                        : "bg-red-500/20 text-red-400"
+                        ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                        : "bg-red-50 text-red-600 border border-red-100"
                     }`}>
                       {item.change}
                     </span>
-                    <span className="text-[10px] text-zinc-500 whitespace-nowrap">vs last month</span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-12 col-span-17 gap-6">
+          <div className="grid grid-cols-12 col-span-12 gap-6">
             {activityMetrics.map((item) => (
               <ActivityMetricCard key={item.id} item={item} />
             ))}
           </div>
 
-          <div className="border border-zinc-200 rounded-2xl col-span-5 p-4 h-full">
+          <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl col-span-4 p-5 h-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-zinc-900">Team</h3>
               <button className="text-xs text-zinc-500 hover:text-zinc-900 transition">
@@ -155,7 +205,7 @@ const HomePage = async ({ params }: { params: { orgSlug: string, projectSlug: st
             </div>
           </div>
 
-          <div className="border-2 border-zinc-200 rounded-2xl col-span-12 h-fit p-3">
+          <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl col-span-8 h-fit p-5">
             <div className="w-full flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-zinc-300 text-zinc-700 rounded-lg group-hover:bg-black group-hover:text-zinc-100 transition">
@@ -209,7 +259,7 @@ const HomePage = async ({ params }: { params: { orgSlug: string, projectSlug: st
               </div>
             </div>
           </div>
-          <div className="col-span-5 h-fit border border-zinc-300 rounded-t-2xl rounded-b-[2.5rem] p-3">
+          <div className="col-span-4 h-fit bg-white border border-zinc-200 shadow-sm rounded-3xl p-5">
             <h4 className="flex items-center justify-between my-2">
               <p className="text-xl font-medium">Onboarding</p>
               <p className="text-3xl font-light">18%</p>
@@ -283,4 +333,4 @@ const HomePage = async ({ params }: { params: { orgSlug: string, projectSlug: st
   );
 };
 
-export default HomePage;
+export default OverviewPage;

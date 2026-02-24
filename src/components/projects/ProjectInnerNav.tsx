@@ -73,14 +73,14 @@ const ProjectInnerNav = () => {
     setIsOrgMenuOpen(false);
     router.push(
       newOrg.projects.length > 0
-        ? `/${newOrg.slug}/${newOrg.projects[0].slug}/home`
+        ? `/${newOrg.slug}/${newOrg.projects[0].slug}/overview`
         : `/${newOrg.slug}/projects`
     );
   };
 
   const handleSwitchProject = (newProjectSlug: string) => {
     setIsProjectMenuOpen(false);
-    router.push(`/${orgSlug}/${newProjectSlug}/home`);
+    router.push(`/${orgSlug}/${newProjectSlug}/overview`);
   };
 
   return (

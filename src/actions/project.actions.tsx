@@ -716,7 +716,7 @@ export async function getDiscoverProjectsAction(): Promise<ActionResponse<any[]>
             traction: p.currentRevenue ? `${p.currentRevenue} rev` : "Stealth",
             image: p.bannerUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2832&auto=format&fit=crop",
             logo: p.logoUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2832&auto=format&fit=crop",
-            profileLink: `/${p.organization.slug}/${p.slug}`,
+            profileLink: `/${p.slug}`,
             lastUpdate: "New on Kiwiko",
             tags: [p.niche || "Startup"],
             isLive: true
@@ -749,7 +749,39 @@ export async function getUserIntegrationsAction(): Promise<ActionResponse<any[]>
 
 export async function trackProjectViewAction(projectId: string): Promise<ActionResponse<boolean>> {
     try {
-        // TODO: Implement page views against MetricSnapshot or a new analytics table
+        const session = await auth.api.getSession({
+            headers: await headers(),
+        });
+        
+        const ip = (await headers()).get("x-forwarded-for") || "unknown";
+        const userId = session?.user?.id;
+
+        if (userId) {
+            // One view per signed-in user per project
+            await prisma.projectView.upsert({
+                where: {
+                    projectId_userId: {
+                        projectId,
+                        userId
+                    }
+                },
+                update: {}, // Don't increment if already viewed by this user
+                create: {
+                    projectId,
+                    userId,
+                    ipAddress: ip
+                }
+            });
+        } else {
+            // Anonymous view - just create a record (could rate limit by IP later)
+            await prisma.projectView.create({
+                data: {
+                    projectId,
+                    ipAddress: ip
+                }
+            });
+        }
+
         return { success: true, data: true };
     } catch (error) {
         console.error("Failed to track project view:", error);

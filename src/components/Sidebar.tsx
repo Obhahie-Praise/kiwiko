@@ -115,8 +115,8 @@ const Sidebar = () => {
                     : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800"
                 }`}
               >
-                <div className={`transition-colors shrink-0 ${isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-600"}`}>
-                  <item.icon className="w-4 h-4" strokeWidth={1.5} />
+                <div className={`transition-colors shrink-0 ${isActive ? "text-white" : "text-zinc-500 group-hover:text-zinc-600"}`}>
+                  <item.icon className="w-4.5 h-4.5" strokeWidth={1.5} />
                 </div>
                 {!isCollapsed && (
                   <span className="font-medium text-sm">{item.label}</span>

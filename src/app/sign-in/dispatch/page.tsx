@@ -16,37 +16,25 @@ export default async function SignInDispatchPage() {
     }
 
     const userId = session.user.id;
+    console.log("SignInDispatchPage: Checking memberships for user", userId);
+    
+    // Fetch organizations where the user is a member
+    const memberships = await prisma.membership.findMany({
+        where: { userId: userId },
+        include: { organization: { select: { slug: true } } },
+        orderBy: { joinedAt: 'asc' }
+    });
 
-    try {
-        // Fetch organizations where the user is a member
-        const memberships = await prisma.membership.findMany({
-            where: {
-                userId: userId
-            },
-            include: {
-                organization: {
-                    select: {
-                        slug: true
-                    }
-                }
-            },
-            orderBy: {
-                joinedAt: 'asc'
-            }
-        });
+    console.log(`SignInDispatchPage: Found ${memberships.length} memberships`);
 
-        if (memberships.length === 0) {
-            // User exists but has no organizations (new user or deleted orgs)
-            return redirect("/onboarding/setup?page=1");
-        }
-
-        // Redirect to the first organization's projects page
-        const firstOrg = memberships[0].organization;
-        return redirect(`/${firstOrg.slug}/projects`);
-
-    } catch (error) {
-        console.error("SignInDispatchPage: Failed to fetch memberships:", error);
-        // On error, fallback to setup as a safe harbor if they are logged in
+    if (memberships.length === 0) {
+        // User exists but has no organizations (new user or deleted orgs)
+        console.log("SignInDispatchPage: No memberships found, redirecting to onboarding/setup");
         return redirect("/onboarding/setup?page=1");
     }
+
+    // Redirect to the first organization's projects page
+    const firstOrg = memberships[0].organization;
+    console.log(`SignInDispatchPage: Redirecting to organization: ${firstOrg.slug}`);
+    return redirect(`/${firstOrg.slug}/projects`);
 }

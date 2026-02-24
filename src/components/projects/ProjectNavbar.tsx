@@ -61,7 +61,7 @@ const ProjectNavbar = () => {
   const handleSwitchOrg = (newOrg: any) => {
     setIsOrgMenuOpen(false);
     if (newOrg.projects.length > 0) {
-      router.push(`/${newOrg.slug}/${newOrg.projects[0].slug}/home`);
+      router.push(`/${newOrg.slug}/${newOrg.projects[0].slug}/overview`);
     } else {
       router.push(`/${newOrg.slug}/projects`);
     }
@@ -69,7 +69,7 @@ const ProjectNavbar = () => {
 
   const handleSwitchProject = (newProjectSlug: string) => {
     setIsProjectMenuOpen(false);
-    router.push(`/${orgSlug}/${newProjectSlug}/home`);
+    router.push(`/${orgSlug}/${newProjectSlug}/overview`);
   };
 
   // Mock Notifications
@@ -83,7 +83,7 @@ const ProjectNavbar = () => {
     <nav className="h-14 bg-white border-b border-zinc-200 flex items-center justify-between px-4 sticky top-0 z-[100] w-full shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
       <div className="flex items-center gap-4 h-full">
         {/* Logo */}
-        <Link href={`/${orgSlug}/${projectSlug}/home`} className="flex items-center gap-2 hover:opacity-80 transition-opacity pr-2">
+        <Link href={`/${orgSlug}/${projectSlug}/overview`} className="flex items-center gap-2 hover:opacity-80 transition-opacity pr-2">
           <Image src="/neutral-logo.svg" width={28} height={28} alt="Kiwiko" className="rounded-md shadow-sm" />
           <span className="font-black text-lg tracking-tight text-zinc-900 hidden sm:inline-block">kiwiko</span>
         </Link>

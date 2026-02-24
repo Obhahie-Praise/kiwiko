@@ -32,7 +32,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
   const orgSlug = params?.orgSlug as string;
 
   const handleRowClick = (projectSlug: string) => {
-    router.push(`/${orgSlug}/${projectSlug}/home`);
+    router.push(`/${orgSlug}/${projectSlug}/overview`);
   };
 
   // Filter projects based on search query
@@ -73,7 +73,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
           <div className="col-span-1">Stage</div>
           <div className="col-span-1">Valuation</div>
           <div className="col-span-2">Status</div>
-          <div className="col-span-1 text-nowrap">Last Updated</div>
+          <div className="col-span-1 text-nowrap">Last Active</div>
           <div className="col-span-1 text-right">Action</div>
         </div>
 

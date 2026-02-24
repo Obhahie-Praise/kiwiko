@@ -11,6 +11,7 @@ import {
   UserPlus,
   Tag,
   Briefcase,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import UploadDropzone from "../ui/upload/UploadDropZone";
@@ -230,48 +231,28 @@ const NewOrgForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-3">
+              <label htmlFor="niche" className="block text-sm font-medium text-zinc-700 mb-1.5">
                 Organization Niche / Industry
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {["SaaS", "FinTech", "HealthTech", "AI/ML", "E-commerce", "CleanTech"].map((n) => (
-                  <div
-                    key={n}
-                    onClick={() => setNiche(n)}
-                    className={`cursor-pointer rounded-lg border p-3 flex flex-col gap-1 transition-all ${
-                      niche === n
-                        ? "bg-zinc-900 border-zinc-900 shadow-md"
-                        : "bg-white border-zinc-200 hover:border-zinc-300"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`text-xs font-semibold uppercase tracking-wider ${niche === n ? "text-white" : "text-zinc-400"}`}
-                      >
-                        {n}
-                      </span>
-                      {niche === n && <Check size={14} className="text-white" />}
-                    </div>
-                  </div>
-                ))}
+              <div className="relative">
+                <Tag size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <select
+                  id="niche"
+                  value={niche}
+                  onChange={(e) => setNiche(e.target.value)}
+                  className="w-full pl-10 pr-10 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 focus:border-zinc-400 transition-all appearance-none cursor-pointer"
+                >
+                  <option value="">Select a niche...</option>
+                  {[
+                    "SaaS", "Fintech", "AI/ML", "E-commerce", "EdTech", 
+                    "HealthTech", "PropTech", "Gaming", "Crypto/Web3", "AdTech", 
+                    "Cybersecurity", "Logistics", "Sustainability", "Biotechnology", "Manufacturing"
+                  ].map((n) => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
               </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="niche"
-                className="block text-sm font-medium text-zinc-700 mb-1.5"
-              >
-                Custom Niche (if not above)
-              </label>
-              <input
-                type="text"
-                id="niche"
-                value={niche}
-                onChange={(e) => setNiche(e.target.value)}
-                placeholder="e.g. DeepTech, BioTech, etc."
-                className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-400"
-              />
             </div>
           </div>
         </div>

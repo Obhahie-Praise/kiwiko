@@ -63,7 +63,7 @@ export const submitStartupOnboarding = async (
 
       // 3. Create or get default Organization
       const orgName = "Personal Organisation";
-      const orgSlug = orgName.toLowerCase().replace(/\s+/g, "-");
+      const orgSlug = `${orgName.toLowerCase().replace(/\s+/g, "-")}-${Math.random().toString(36).substring(2, 6)}`;
 
       const org = await tx.organization.upsert({
         where: { slug: orgSlug },

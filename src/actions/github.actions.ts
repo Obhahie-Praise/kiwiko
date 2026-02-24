@@ -187,6 +187,7 @@ export async function syncProjectGithubMetrics(projectId: string): Promise<Actio
     );
 
     let commitCount30d = 0;
+    let latestCommits: any[] = [];
     if (commitsRes.ok) {
        const link = commitsRes.headers.get("Link");
        if (link) {
@@ -195,6 +196,17 @@ export async function syncProjectGithubMetrics(projectId: string): Promise<Actio
        } else {
          const c = await commitsRes.json();
          commitCount30d = Array.isArray(c) ? c.length : 0;
+       }
+
+       // Fetch actual commit data to persist
+       const detailRes = await fetch(
+         `https://api.github.com/repos/${project.githubRepoFullName}/commits?per_page=20`,
+         {
+           headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github.v3+json" }
+         }
+       );
+       if (detailRes.ok) {
+         latestCommits = await detailRes.json();
        }
     }
 
@@ -218,7 +230,34 @@ export async function syncProjectGithubMetrics(projectId: string): Promise<Actio
           openIssues: repoData.open_issues_count,
           commitCount30d: commitCount30d,
         }
-      })
+      }),
+      // Upsert commits
+      ...latestCommits.map((c: any) => prisma.projectCommit.upsert({
+        where: {
+          projectId_sha: {
+            projectId,
+            sha: c.sha
+          }
+        },
+        update: {
+          message: c.commit.message,
+          authorName: c.commit.author.name,
+          authorEmail: c.commit.author.email,
+          authorAvatar: c.author?.avatar_url,
+          url: c.html_url,
+          committedAt: new Date(c.commit.author.date),
+        },
+        create: {
+          projectId,
+          sha: c.sha,
+          message: c.commit.message,
+          authorName: c.commit.author.name,
+          authorEmail: c.commit.author.email,
+          authorAvatar: c.author?.avatar_url,
+          url: c.html_url,
+          committedAt: new Date(c.commit.author.date),
+        }
+      }))
     ]);
 
     return { success: true, data: true };
@@ -310,20 +349,69 @@ export async function getProjectGithubBranches(repoFullName: string, connectedBy
 
 export async function getProjectGithubCommits(
   repoFullName: string, 
-  connectedByUserId: string, 
+  connectedByUserId?: string, 
   branch?: string
 ): Promise<ActionResponse<any[]>> {
   try {
-    const accessToken = await getGithubAccessToken(connectedByUserId);
+    if (!connectedByUserId) {
+      return fetchFromDB(repoFullName);
+    }
+
+    const accessToken = await getGithubAccessToken(connectedByUserId).catch(() => null);
+    
+    if (!accessToken) {
+        return fetchFromDB(repoFullName);
+    }
+
     const url = `https://api.github.com/repos/${repoFullName}/commits?per_page=20${branch ? `&sha=${branch}` : ""}`;
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github.v3+json" },
       next: { revalidate: 600 }
     });
 
-    if (!response.ok) throw new Error("Commit fetch failed");
+    if (!response.ok) {
+        return fetchFromDB(repoFullName);
+    }
+    
     return { success: true, data: await response.json() };
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return fetchFromDB(repoFullName);
+  }
+}
+
+async function fetchFromDB(repoFullName: string): Promise<ActionResponse<any[]>> {
+  try {
+    const project = await prisma.project.findFirst({
+        where: { githubRepoFullName: repoFullName },
+        select: { id: true }
+    });
+    
+    if (!project) return { success: false, error: "Project not found" };
+
+    const commits = await prisma.projectCommit.findMany({
+        where: { projectId: project.id },
+        orderBy: { committedAt: "desc" },
+        take: 20
+    });
+
+    const mappedCommits = commits.map(c => ({
+        sha: c.sha,
+        commit: {
+          message: c.message,
+          author: {
+            name: c.authorName,
+            email: c.authorEmail,
+            date: c.committedAt.toISOString()
+          }
+        },
+        author: {
+          avatar_url: c.authorAvatar
+        },
+        html_url: c.url
+    }));
+
+    return { success: true, data: mappedCommits };
+  } catch (e) {
+    return { success: false, error: "Failed to fetch commits from database" };
   }
 }
