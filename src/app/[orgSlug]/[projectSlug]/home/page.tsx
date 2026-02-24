@@ -1,7 +1,6 @@
 import ActivityMetricCard from "@/components/ActivityMetricProps";
 import ExecutionsHeatmap from "@/components/ExecutionsHeatmap";
-import HomeNavProfileBtn from "@/components/HomeNavProfileBtn";
-import NotificationsMenu from "@/components/NotificationsMenu";
+import ProjectInnerNav from "@/components/projects/ProjectInnerNav";
 import {
   activityMetrics,
   completeOnboarding,
@@ -10,7 +9,7 @@ import {
 } from "@/constants";
 import { getSession } from "@/constants/getSession";
 import prisma from "@/lib/prisma";
-import { Activity, Bolt, Check, EllipsisVertical, Search } from "lucide-react";
+import { Activity, Check, EllipsisVertical, Users } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { getProjectHomeDataAction } from "@/actions/project.actions";
@@ -33,40 +32,10 @@ const HomePage = async ({ params }: { params: { orgSlug: string, projectSlug: st
   const { project, organization, membership } = contextRes.data;
   const userId = session.user.id;
 
-  const truncateEmail =
-    String(session?.user.email).length > 15
-      ? String(session?.user.email).slice(0, 15).padEnd(22, " . . . ")
-      : String(session?.user.email);
-
   return (
-    <div className="overflow-x-hidden">
-      <nav className="flex items-center justify-between px-3 py-0.5">
-        <form
-          action={""}
-          className="py-1.5 px-3 focus:outline-2 focus:outline-zinc-300 rounded-lg flex items-center gap-2"
-        >
-          <Search width={15} height={15} className="text-zinc-500" />
-          <input
-            type="text"
-            className="focus:outline-none placeholder:text-zinc-500 placeholder:text-sm text-sm text-zinc-700"
-            placeholder="Search something..."
-          />
-        </form>
-        <div className="flex items-center gap-4">
-          <NotificationsMenu />
-          <div className="relative p-1.5 bg-zinc-200 text-zinc-700 rounded-full">
-            <Bolt width={15} height={15} className="" />
-          </div>
-          <div className="h-7 w-px bg-zinc-300" />
-          <HomeNavProfileBtn
-            session={session}
-            truncateEmail={truncateEmail}
-            project={project}
-            userRole={membership?.role || session.user.role || "Member"}
-          />
-        </div>
-      </nav>
-      <main className="border-t-2 border-l-2 border-zinc-300 rounded-tl-2xl min-h-screen relative">
+    <div className="flex flex-col min-h-screen">
+      <ProjectInnerNav />
+      <main className="border-l border-zinc-100 flex-1">
         <div className="grid grid-cols-17 gap-6 p-5 w-full auto-rows-min">
           <div className="grid grid-cols-4 gap-4 col-span-17">
             {metrics.map((item) => (

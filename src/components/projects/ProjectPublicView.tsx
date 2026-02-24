@@ -74,10 +74,10 @@ const ProjectPublicView = ({
 
         <Link 
           href={`/${orgSlug}/mail`}
-          className="flex items-center gap-2 px-5 py-2 bg-zinc-900 text-white rounded-full text-xs font-bold hover:shadow-xl hover:-translate-y-0.5 transition-all shadow-zinc-200 group active:scale-95"
+          className="flex items-center gap-2 p-3 md:px-5 md:py-2 bg-zinc-900 text-white rounded-full text-xs font-bold hover:shadow-xl hover:-translate-y-0.5 transition-all shadow-zinc-200 group active:scale-95"
         >
           <Mail size={14} className="group-hover:rotate-12 transition-transform" />
-          <span>Connect with Founders</span>
+          <span className="hidden md:inline" >Connect with Founders</span>
         </Link>
       </header>
 

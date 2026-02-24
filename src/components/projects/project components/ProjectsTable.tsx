@@ -69,7 +69,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
         {/* Updated Grid Header: 12 columns -> adjusted spans or use more columns */}
         <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b text-xs font-medium text-zinc-500 bg-zinc-50/50">
           <div className="col-span-4 pl-2">Project Name</div>
-          <div className="col-span-2">Domain</div>
+          <div className="col-span-2">Profile</div>
           <div className="col-span-1">Stage</div>
           <div className="col-span-1">Valuation</div>
           <div className="col-span-2">Status</div>

@@ -209,7 +209,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
 
             if (result.success) {
                 clearFormPersistence();
-                router.push(`/${result.data.slug}`); 
+                router.push(`/${orgSlug}/projects`); 
             } else {
                 setError(result.error);
             }

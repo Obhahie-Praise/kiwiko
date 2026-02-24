@@ -204,14 +204,12 @@ export const sidebarNav = [
     href: "/funding",
     icon: Banknote,
     description: "Track funding rounds and signals",
-    badge: "Soon",
   },
   {
     label: "Inbox",
     href: "/inbox",
     icon: Inbox,
     description: "View email reach outs from investors",
-    badge: "Soon",
   },
   {
     label: "Notifications",
@@ -231,7 +229,6 @@ export const sidebarNav = [
     href: "/resources",
     icon: BookOpen,
     description: "Guides, tools, and frameworks",
-    badge: "Soon",
   },
   {
     label: "Profile",
