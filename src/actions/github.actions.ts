@@ -210,6 +210,8 @@ export async function syncProjectGithubMetrics(projectId: string): Promise<Actio
        }
     }
 
+    const commitsPerWeek = Math.round((commitCount30d / 30) * 7 * 10) / 10;
+
     await prisma.$transaction([
       prisma.project.update({
         where: { id: projectId },
@@ -218,6 +220,7 @@ export async function syncProjectGithubMetrics(projectId: string): Promise<Actio
           githubForks: repoData.forks_count,
           githubOpenIssues: repoData.open_issues_count,
           githubCommitCount30d: commitCount30d,
+          githubCommitsPerWeek: commitsPerWeek,
           githubLastCommitAt: repoData.pushed_at ? new Date(repoData.pushed_at) : null,
           githubLastSyncedAt: new Date(),
         },

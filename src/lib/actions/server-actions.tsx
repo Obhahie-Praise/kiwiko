@@ -5,6 +5,7 @@ import { auth } from "../auth";
 import prisma from "../prisma";
 import { redirect } from "next/navigation";
 import React, { SetStateAction } from "react";
+import { customAlphabet } from "nanoid";
 
 export interface StartupOnboarding {
   consent: boolean;
@@ -63,7 +64,8 @@ export const submitStartupOnboarding = async (
 
       // 3. Create or get default Organization
       const orgName = "Personal Organisation";
-      const orgSlug = `${orgName.toLowerCase().replace(/\s+/g, "-")}-${Math.random().toString(36).substring(2, 6)}`;
+      const nanoid = customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*", 8);
+      const orgSlug = `${orgName.toLowerCase().replace(/\s+/g, "-")}-${nanoid()}`;
 
       const org = await tx.organization.upsert({
         where: { slug: orgSlug },

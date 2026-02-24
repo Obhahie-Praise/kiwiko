@@ -66,8 +66,8 @@ const Sidebar = () => {
       <div className={`flex items-center gap-2.5 px-3 py-4 border-b border-zinc-100 ${isCollapsed ? "justify-center" : ""}`}>
         <Image
           src="/neutral-logo.svg"
-          width={24}
-          height={24}
+          width={28}
+          height={28}
           alt="Kiwiko"
           className="rounded-md shrink-0"
         />

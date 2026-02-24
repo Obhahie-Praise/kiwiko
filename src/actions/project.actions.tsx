@@ -756,35 +756,99 @@ export async function trackProjectViewAction(projectId: string): Promise<ActionR
         const ip = (await headers()).get("x-forwarded-for") || "unknown";
         const userId = session?.user?.id;
 
-        if (userId) {
-            // One view per signed-in user per project
-            await prisma.projectView.upsert({
-                where: {
-                    projectId_userId: {
-                        projectId,
-                        userId
-                    }
-                },
-                update: {}, // Don't increment if already viewed by this user
-                create: {
-                    projectId,
-                    userId,
-                    ipAddress: ip
-                }
-            });
-        } else {
-            // Anonymous view - just create a record (could rate limit by IP later)
-            await prisma.projectView.create({
-                data: {
-                    projectId,
-                    ipAddress: ip
-                }
-            });
-        }
+        // Record every visit as requested
+        await prisma.projectView.create({
+            data: {
+                projectId,
+                userId: userId || null,
+                ipAddress: ip
+            }
+        });
 
         return { success: true, data: true };
     } catch (error) {
         console.error("Failed to track project view:", error);
         return { success: false, error: "Failed to track project view" };
+    }
+}
+
+export async function getProjectViewAnalyticsAction(
+    projectId: string,
+    range: "weekly" | "monthly" | "quarterly" | "yearly"
+): Promise<ActionResponse<any[]>> {
+    try {
+        const now = new Date();
+        let startDate = new Date();
+        let format: "day" | "week" | "month" = "day";
+
+        if (range === "weekly") {
+            startDate.setDate(now.getDate() - 7);
+            format = "day";
+        } else if (range === "monthly") {
+            startDate.setDate(now.getDate() - 30);
+            format = "day";
+        } else if (range === "quarterly") {
+            startDate.setMonth(now.getMonth() - 3);
+            format = "week";
+        } else if (range === "yearly") {
+            startDate.setFullYear(now.getFullYear() - 1);
+            format = "month";
+        }
+
+        const views = await prisma.projectView.findMany({
+            where: {
+                projectId,
+                createdAt: { gte: startDate }
+            },
+            orderBy: { createdAt: "asc" }
+        });
+
+        // Aggregate by format
+        const aggregated: Record<string, number> = {};
+        
+        // Initialize zeros for all buckets in range
+        const current = new Date(startDate);
+        while (current <= now) {
+            let key = "";
+            if (format === "day") {
+                key = current.toISOString().split("T")[0];
+                current.setDate(current.getDate() + 1);
+            } else if (format === "week") {
+                // Get week number or date of Monday? Let's use Date of the start of the week
+                const d = new Date(current);
+                d.setDate(d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1)); // Monday
+                key = d.toISOString().split("T")[0];
+                current.setDate(current.getDate() + 7);
+            } else if (format === "month") {
+                key = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
+                current.setMonth(current.getMonth() + 1);
+            }
+            aggregated[key] = 0;
+        }
+
+        // Fill data
+        views.forEach(v => {
+            let key = "";
+            const d = new Date(v.createdAt);
+            if (format === "day") {
+                key = d.toISOString().split("T")[0];
+            } else if (format === "week") {
+                d.setDate(d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1));
+                key = d.toISOString().split("T")[0];
+            } else if (format === "month") {
+                key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            }
+            if (aggregated[key] !== undefined) aggregated[key]++;
+        });
+
+        const data = Object.entries(aggregated).map(([label, value]) => ({
+            label,
+            value
+        }));
+
+        return { success: true, data };
+    } catch (error: any) {
+        console.error("Failed to fetch analytics:", error);
+        return { success: false, error: "Failed to fetch analytics" };
     }
 }

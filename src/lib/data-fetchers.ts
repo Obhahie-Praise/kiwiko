@@ -23,14 +23,20 @@ export async function getOverviewMetrics(projectId: string, userId: string) {
     });
 
     // 2. GitHub Commits (per week)
-    let commitsPerWeek = 0;
-    if (project.githubRepoFullName && project.githubConnectedBy) {
+    let commitsPerWeek = project.githubCommitsPerWeek || 0;
+    
+    // Fallback if not stored yet but we have the 30d count
+    if (commitsPerWeek === 0 && project.githubCommitCount30d) {
+        commitsPerWeek = Math.round((project.githubCommitCount30d / 30) * 7 * 10) / 10;
+    }
+
+    // Try to get fresh data only if explicitly needed or as a background refresh?
+    // For now, let's keep the getProjectRepoDetails call as a fallback if everything else is 0
+    if (commitsPerWeek === 0 && project.githubRepoFullName && project.githubConnectedBy) {
         const githubRes = await getProjectRepoDetails(project.githubRepoFullName, project.githubConnectedBy);
         if (githubRes.success) {
             commitsPerWeek = githubRes.data.commits_per_week || 0;
         }
-    } else if (project.githubCommitCount30d) {
-        commitsPerWeek = Math.round((project.githubCommitCount30d / 30) * 7 * 10) / 10;
     }
 
     // 3. YouTube Engagement (Latest upload views)

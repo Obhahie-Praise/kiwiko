@@ -14,6 +14,7 @@ import { redirect } from "next/navigation";
 
 import { getProjectHomeDataAction } from "@/actions/project.actions";
 import { openai } from "@/lib/openai";
+import AnalyticsChart from "@/components/projects/AnalyticsChart";
 
 const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
   /* const response = await openai.responses.create({
@@ -103,7 +104,7 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
               >
                 {/* Top row: label + icon */}
                 <div className="flex items-start justify-between">
-                  <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-wider">{item.label}</p>
+                  <p className="text-[14px] text-zinc-500 font-medium tracking-wider">{item.label}</p>
                   <div className="p-1.5 bg-zinc-50 rounded-lg border border-zinc-100">
                     <item.icon className="w-3.5 h-3.5 text-zinc-400" strokeWidth={1.5} />
                   </div>
@@ -125,10 +126,9 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-12 col-span-12 gap-6">
-            {activityMetrics.map((item) => (
-              <ActivityMetricCard key={item.id} item={item} />
-            ))}
+
+          <div className="col-span-12">
+            <AnalyticsChart projectId={project.id} />
           </div>
 
           <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl col-span-4 p-5 h-full">
