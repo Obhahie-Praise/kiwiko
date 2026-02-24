@@ -1,17 +1,33 @@
-"use client"
-import ProgressLine from "@/components/ProgressLine";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import React from "react";
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import SetupProgress from "@/components/setup-pages/SetupProgress";
 
-const layout = ({
+export default async function OnboardingSetupLayout({
   children,
 }: {
   children: React.ReactNode;
-}) => {
-  const currentPage = useSearchParams().get("page")
-  
+}) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  if (session?.user?.id) {
+    const memberships = await prisma.membership.findMany({
+      where: { userId: session.user.id },
+      take: 1
+    });
+
+    if (memberships.length > 0) {
+      // User has already completed onboarding and has an organization
+      redirect("/sign-in/dispatch");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Institutional Background Elements */}
@@ -30,22 +46,9 @@ const layout = ({
         {children}
       </div>
 
-      {/* Progress Tracking Layer */}
-      <div
-        className={`fixed z-50 transition-all duration-700 ${
-          currentPage === '1'
-            ? "top-5 left-1/2 -translate-x-1/2" 
-            : "top-5 right-12"
-        }`}
-      >
-        <div className="bg-white/80 backdrop-blur-xl p-4 rounded-[1rem] border border-zinc-200/50 shadow-2xl shadow-zinc-100 flex flex-col items-center gap-2">
-           <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Protocol Progress</span>
-           <ProgressLine />
-        </div>
-      </div>
+      {/* Progress Tracking Layer (Client Component) */}
+      <SetupProgress />
     </div>
   );
-};
-
-export default layout;
+}
 

@@ -400,36 +400,40 @@ export const notifications = [
   },
 ];
 
-import { TrendingUp, Wallet, Flame, Hourglass } from "lucide-react";
+import { Wallet, Flame, GitCommit, CircleDot } from "lucide-react";
 
 export const metrics = [
   {
     id: 1,
-    label: "Monthly Revenue",
-    value: "$1,200",
-    change: "+12%",
-    icon: TrendingUp,
-  },
-  {
-    id: 2,
     label: "Total Funding",
     value: "$15k",
-    change: "Pre-seed",
+    change: "+0%",
+    positive: true,
     icon: Wallet,
   },
   {
+    id: 2,
+    label: "GitHub Commits",
+    value: "128",
+    change: "+23%",
+    positive: true,
+    icon: GitCommit,
+  },
+  {
     id: 3,
-    label: "Monthly Burn",
-    value: "$800",
-    change: "-5%",
-    icon: Flame,
+    label: "Profile Views",
+    value: "0",
+    change: "+0%",
+    positive: true,
+    icon: Eye,
   },
   {
     id: 4,
-    label: "Runway",
-    value: "18 months",
-    change: "Stable",
-    icon: Hourglass,
+    label: "Open Issues",
+    value: "7",
+    change: "-3",
+    positive: false,
+    icon: CircleDot,
   },
 ];
 

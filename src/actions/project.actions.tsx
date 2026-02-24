@@ -747,3 +747,12 @@ export async function getUserIntegrationsAction(): Promise<ActionResponse<any[]>
     }
 }
 
+export async function trackProjectViewAction(projectId: string): Promise<ActionResponse<boolean>> {
+    try {
+        // TODO: Implement page views against MetricSnapshot or a new analytics table
+        return { success: true, data: true };
+    } catch (error) {
+        console.error("Failed to track project view:", error);
+        return { success: false, error: "Failed to track project view" };
+    }
+}

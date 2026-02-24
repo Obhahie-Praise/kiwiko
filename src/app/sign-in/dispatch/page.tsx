@@ -37,7 +37,7 @@ export default async function SignInDispatchPage() {
 
         if (memberships.length === 0) {
             // User exists but has no organizations (new user or deleted orgs)
-            return redirect("/onboarding");
+            return redirect("/onboarding/setup?page=1");
         }
 
         // Redirect to the first organization's projects page
@@ -46,7 +46,7 @@ export default async function SignInDispatchPage() {
 
     } catch (error) {
         console.error("SignInDispatchPage: Failed to fetch memberships:", error);
-        // On error, fallback to onboarding as a safe harbor
-        return redirect("/onboarding");
+        // On error, fallback to setup as a safe harbor if they are logged in
+        return redirect("/onboarding/setup?page=1");
     }
 }

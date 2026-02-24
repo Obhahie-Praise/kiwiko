@@ -214,8 +214,9 @@ model Project {
 
   signals ProjectSignal[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  projectViews ProjectView[]
 
   @@unique([orgId, slug])
   @@index([orgId])
@@ -334,4 +335,19 @@ enum SignalType {
   GITHUB
   YOUTUBE
   MANUAL
+}
+
+model ProjectView {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  userId    String?  @map("user_id")
+  ipAddress String?  @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // One view per signed-in user per project
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@map("project_views")
 }

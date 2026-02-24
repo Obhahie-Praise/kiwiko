@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { 
   ArrowUpRight, 
   GitCommit, 
@@ -24,7 +24,7 @@ import GithubRepoStats from "@/components/projects/GithubRepoStats";
 import GithubCommitList from "@/components/projects/GithubCommitList";
 import { Github as GithubIcon, Youtube } from "lucide-react";
 import { format } from "date-fns";
-
+import { trackProjectViewAction } from "@/actions/project.actions";
 interface ProjectPublicViewProps {
     project: any; 
     organization: any;
@@ -42,6 +42,12 @@ const ProjectPublicView = ({
   initialCommits,
   branches
 }: ProjectPublicViewProps) => {
+
+  useEffect(() => {
+    if (project?.id) {
+      trackProjectViewAction(project.id).catch(err => console.error("Failed to track view:", err));
+    }
+  }, [project?.id]);
 
   const activity = [
     { id: 1, type: "commit", text: "Refactored core engine for concurrency", meta: "v2.1.0", time: "2h ago", icon: Terminal },

@@ -32,27 +32,45 @@ const HomePage = async ({ params }: { params: { orgSlug: string, projectSlug: st
   const { project, organization, membership } = contextRes.data;
   const userId = session.user.id;
 
+  const displayMetrics = metrics.map((item) => {
+    if (item.label === "Profile Views") {
+      return { ...item, value: "0" }; // TODO: Fetch from MetricSnapshot
+    }
+    return item;
+  });
+
   return (
     <div className="flex flex-col min-h-screen">
       <ProjectInnerNav />
-      <main className="border-l border-zinc-100 flex-1">
+      <main className="bg-zinc-50 flex-1">
         <div className="grid grid-cols-17 gap-6 p-5 w-full auto-rows-min">
-          <div className="grid grid-cols-4 gap-4 col-span-17">
-            {metrics.map((item) => (
+          <div className="grid grid-cols-4 gap-3 col-span-17">
+            {displayMetrics.map((item) => (
               <div
                 key={item.id}
-                className="border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between"
+                className="bg-zinc-900 rounded-2xl p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden"
               >
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-zinc-500">{item.label}</p>
-                  <item.icon className="w-4 h-4 text-zinc-500" />
+                {/* Top row: label + icon */}
+                <div className="flex items-start justify-between">
+                  <p className="text-[11px] text-zinc-400 font-medium">{item.label}</p>
+                  <div className="p-1.5 bg-zinc-800 rounded-lg">
+                    <item.icon className="w-3.5 h-3.5 text-zinc-400" strokeWidth={1.5} />
+                  </div>
                 </div>
 
-                <div className="mt-4">
-                  <p className="text-2xl font-semibold text-zinc-900">
-                    {item.value}
-                  </p>
-                  <p className="text-xs text-zinc-500 mt-1">{item.change}</p>
+                {/* Bottom row: value + change pill */}
+                <div className="flex items-end justify-between mt-4">
+                  <p className="text-2xl font-black text-white tracking-tight">{item.value}</p>
+                  <div className="flex items-center gap-1.5 text-right">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      (item as any).positive
+                        ? "bg-emerald-500/20 text-emerald-400"
+                        : "bg-red-500/20 text-red-400"
+                    }`}>
+                      {item.change}
+                    </span>
+                    <span className="text-[10px] text-zinc-500 whitespace-nowrap">vs last month</span>
+                  </div>
                 </div>
               </div>
             ))}
