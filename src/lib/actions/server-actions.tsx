@@ -64,7 +64,7 @@ export const submitStartupOnboarding = async (
 
       // 3. Create or get default Organization
       const orgName = "Personal Organisation";
-      const nanoid = customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*", 8);
+      const nanoid = customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 8);
       const orgSlug = `${orgName.toLowerCase().replace(/\s+/g, "-")}-${nanoid()}`;
 
       const org = await tx.organization.upsert({

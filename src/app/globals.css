@@ -110,6 +110,10 @@ body {
   @apply bg-red-500 text-white w-full py-2 rounded-lg text-sm;
 }
 
+.hero-font {
+  font-family: var(--font-league_spartan-sans);
+}
+
 
 @theme inline {
   --color-background: var(--background);

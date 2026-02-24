@@ -12,11 +12,11 @@ const Navbar = () => {
            <Image 
               src="/neutral-logo.svg" 
               alt="Kiwiko Logo" 
-              width={25} 
-              height={25} 
+              width={28} 
+              height={28} 
               className="group-hover:rotate-12 transition-transform duration-500" 
            />
-           <p className="text-lg font-black italic tracking-tighter uppercase">Kiwiko</p>
+           <p className="text-xl font-bold italic tracking-tighter">Kiwiko</p>
         </Link>
 
         {/* Navigation */}
@@ -24,15 +24,15 @@ const Navbar = () => {
           {["About", "Activity", "Features", "Testimonials", "Resources"].map((item) => (
             <Link 
               key={item}
-              className="relative text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-900 transition-colors" 
+              className="relative text-sm font-semibold tracking-widest text-zinc-900 hover:text-zinc-500 transition-colors" 
               href={item === "Resources" ? "/resources" : `#${item.toLowerCase()}`}
             >
               {item}
-              {item === "Resources" && (
+              {/* {item === "Resources" && (
                 <span className="absolute -top-3 -right-6 px-1.5 py-0.5 bg-zinc-100 text-zinc-400 text-[8px] rounded font-bold uppercase tracking-tighter">
                   Soon
                 </span>
-              )}
+              )} */}
             </Link>
           ))}
         </nav>
@@ -41,16 +41,16 @@ const Navbar = () => {
         <div className="flex items-center gap-4">
           <Link 
             href="/sign-in" 
-            className="text-[10px] font-black uppercase tracking-widest text-zinc-900 px-4 py-2 hover:bg-zinc-100 rounded-xl transition-colors"
+            className="text-sm font-bold tracking-widest text-zinc-900 px-4 py-2 hover:bg-zinc-100 rounded-xl transition-colors"
           >
             Login
           </Link>
           <Link 
             href="/onboarding" 
-            className="bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-black transition-all flex items-center gap-2 shadow-lg shadow-zinc-200"
+            className="bg-zinc-900 text-white text-sm font-bold tracking-widest px-6 py-2.5 rounded-xl hover:bg-black transition-all flex items-center gap-2 shadow-lg shadow-zinc-200"
           >
             Get Started
-            <ChevronRight size={14} />
+            {/* <ChevronRight size={14} /> */}
           </Link>
         </div>
       </div>
