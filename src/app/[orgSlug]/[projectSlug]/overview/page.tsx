@@ -15,13 +15,13 @@ import { redirect } from "next/navigation";
 import { getProjectHomeDataAction } from "@/actions/project.actions";
 import { openai } from "@/lib/openai";
 import AnalyticsChart from "@/components/projects/AnalyticsChart";
+import { groq } from "@/lib/groqai";
 
 const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
-  /* const response = await openai.responses.create({
-    model: "gpt-4.1",
-    input: "testng out the api. it would be really cool if this works"
-  }) */
-  //console.log(response)
+  const response = await groq.chat.completions.create({
+    
+  })
+  console.log(response)
   const { orgSlug, projectSlug } = await params;
   const session = await getSession();
   

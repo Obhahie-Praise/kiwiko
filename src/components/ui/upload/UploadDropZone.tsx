@@ -39,6 +39,7 @@ export default function UniversalUploadDropzone({
   const inputRef = useRef<HTMLInputElement>(null);
   const [filePreview, setFilePreview] = useState<{ url: string; type: string; name?: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // Initialize with initialImage if provided
   useEffect(() => {
@@ -58,10 +59,13 @@ export default function UniversalUploadDropzone({
             type: prev?.type || "image/png",
             name: res[0].name 
         }));
+        setUploadError(null);
       }
     },
     onUploadError: (error: Error) => {
       console.error(`[UploadThing Error - ${endpoint}]:`, error);
+      setFilePreview(null);
+      setUploadError(error.message || "Upload failed. Image might be too large.");
       onUploadError?.(error);
     },
   });
@@ -86,6 +90,7 @@ const handleFileAction = useCallback(
     if (!files || files.length === 0) return;
 
     const file = files[0];
+    setUploadError(null);
 
     // preview
     if (showPreview) {
@@ -184,6 +189,11 @@ const handleFileAction = useCallback(
                 <p className="text-[11px] text-zinc-400 mt-1 font-medium">
                   {config.maxSize} max &bull; {config.accepted.join(", ")}
                 </p>
+                {uploadError && (
+                  <p className="text-[11px] font-semibold text-red-500 mt-2 bg-red-50 px-2 py-1 rounded-md">
+                    {uploadError}
+                  </p>
+                )}
               </div>
             </>
           )}

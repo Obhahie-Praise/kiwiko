@@ -25,7 +25,7 @@ const Hero = () => {
         </Link>
 
         {/* Headline */}
-        <h1 className="hero-font text-5xl md:text-[5.5rem] font-bold tracking- text-zinc-900 leading-none animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+        <h1 className="hero-font text-5xl md:text-[5.5rem] font-semibold tracking-[-0.02em] text-zinc-900 leading-none animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
           Discover <span className="text-zinc-400">Real Data</span> <br /> 
           <span className="bg-linear-to-r from-zinc-900 via-zinc-600 to-zinc-900 bg-clip-text text-transparent">from Real Startups</span>
         </h1>

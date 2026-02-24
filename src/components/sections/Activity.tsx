@@ -16,13 +16,13 @@ const Activity = async () => {
     <section id="activity" className="w-full py-20">
       {/* Header */}
       <div className="flex flex-col items-center text-center mb-12 px-6">
-        <div className="px-3 py-1 text-[10px] font-black uppercase tracking-[0.09em] bg-black text-white rounded-full border border-zinc-200 mb-4 italic">
-          startups
+        <div className="px-3 py-1 text-xs font-bold tracking-[0.09em] bg-black text-white rounded-full border border-zinc-200 mb-4">
+          Startups
         </div>
-        <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-zinc-900 mb-4 uppercase italic">
+        <h2 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase text-zinc-900 mb-4 hero-font">
           A lot is going down.
         </h2>
-        <p className="text-zinc-500 font-semibold max-w-lg text-lg">
+        <p className="text-zinc-500 font-semibold max-w-lg">
           Track the high-momentum ventures shipping critical infrastructure in real-time.
         </p>
       </div>
@@ -98,7 +98,7 @@ const Activity = async () => {
         <div className="flex justify-center mt-20">
           <Link
             href="/discover"
-            className="group flex items-center gap-3 px-8 py-4 bg-zinc-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.15em] shadow-2xl shadow-zinc-300 hover:bg-black transition-all active:scale-95"
+            className="group flex items-center gap-3 px-8 py-4 bg-zinc-900 text-white rounded-2xl text-xs font-bold tracking-[0.15em] shadow-2xl shadow-zinc-300 hover:bg-black transition-all active:scale-95"
           >
             See more
             <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />

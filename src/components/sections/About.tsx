@@ -41,13 +41,13 @@ const FounderCard = ({
         
         <div className="flex-1 space-y-4 pt-2">
           <div className="space-y-1">
-            <span className="text-sm font-black uppercase tracking-[0.2em] text-zinc-400 group-hover:text-zinc-900 transition-colors italic">
+            <span className="text-sm font-semibold text-zinc-500 group-hover:text-zinc-900 transition-colors">
               {role}
             </span>
-            <h3 className="text-3xl font-black text-zinc-900 uppercase italic tracking-tighter leading-none">{name}</h3>
+            <h3 className="text-3xl font-bold text-zinc-900 hero-font tracking-tighter leading-none">{name}</h3>
           </div>
           
-          <p className="text-zinc-500 font-semibold max-w-[400px] leading-relaxed italic">
+          <p className="text-zinc-600 font-semibold max-w-[400px] leading-relaxed italic">
             "{motive}"
           </p>
 
@@ -74,13 +74,13 @@ const About = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
         {/* Standard Centered Header */}
         <div className="flex flex-col items-center text-center mb-20 px-6">
-          <div className="px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] bg-zinc-900 text-white rounded-full mb-6 italic shadow-lg shadow-zinc-200">
+          <div className="px-4 py-1.5 text-xs font-bold tracking-[0.2em] bg-zinc-900 text-white rounded-full mb-6 shadow-lg shadow-zinc-200">
             About
           </div>
-          <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-zinc-900 mb-6 uppercase italic">
+          <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-zinc-900 mb-6 uppercase hero-font">
             The minds behind 
           </h2>
-          <p className="text-zinc-500 font-semibold max-w-xl text-lg leading-relaxed">
+          <p className="text-zinc-500 font-semibold max-w-xl leading-relaxed">
             Kiwiko was born from a singular vision: to bring radical transparency and high-momentum connectivity to the venture ecosystem.
           </p>
         </div>

@@ -16,7 +16,7 @@ const Navbar = () => {
               height={28} 
               className="group-hover:rotate-12 transition-transform duration-500" 
            />
-           <p className="text-xl font-bold italic tracking-tighter">Kiwiko</p>
+           <p className="text-2xl font-bold tracking-tighter hero-font">Kiwiko</p>
         </Link>
 
         {/* Navigation */}
