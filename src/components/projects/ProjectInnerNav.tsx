@@ -84,18 +84,18 @@ const ProjectInnerNav = () => {
   };
 
   return (
-    <nav className="flex items-center justify-between h-11 px-3 border-b border-zinc-100 bg-white sticky top-0 z-50">
+    <nav className="flex items-center justify-between h-11 px-3 py-6 border-b border-zinc-200 bg-white sticky top-0 z-50">
       {/* Left: collapse toggle + breadcrumb */}
       <div className="flex items-center gap-2">
         {/* Sidebar collapse toggle */}
         <button
           onClick={toggleSidebar}
-          className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
+          className="p-1.5 rounded-lg text-zinc-600 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
           title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {isSidebarCollapsed
-            ? <PanelLeftOpen size={16} strokeWidth={1.5} />
-            : <PanelLeftClose size={16} strokeWidth={1.5} />}
+            ? <PanelLeftOpen size={20} strokeWidth={1.5} />
+            : <PanelLeftClose size={20} strokeWidth={1.5} />}
         </button>
 
         <div className="h-4 w-px bg-zinc-200" />
@@ -208,11 +208,11 @@ const ProjectInnerNav = () => {
 
       {/* Right: search + actions */}
       <div className="flex items-center gap-1">
-        <form className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-50 border border-zinc-100 hover:border-zinc-200 transition-colors">
-          <Search size={13} strokeWidth={1.5} className="text-zinc-400" />
+        <form className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-50 border border-zinc-100 hover:border-zinc-200 transition-colors">
+          <Search size={16} strokeWidth={1.5} className="text-zinc-600" />
           <input
             type="text"
-            className="bg-transparent focus:outline-none text-xs text-zinc-600 placeholder:text-zinc-400 w-32"
+            className="bg-transparent focus:outline-none text-sm text-zinc-600 placeholder:text-zinc-500 w-32"
             placeholder="Search..."
           />
         </form>
@@ -221,7 +221,7 @@ const ProjectInnerNav = () => {
 
         <Link
           href={`/${orgSlug}/${projectSlug}`}
-          className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-50 transition-colors"
+          className="p-1.5 rounded-lg text-zinc-600 hover:text-zinc-700 hover:bg-zinc-50 transition-colors"
           title="Settings"
         >
           <Settings size={15} strokeWidth={1.5} />

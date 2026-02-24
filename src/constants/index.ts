@@ -184,13 +184,14 @@ import {
   UsersRound,
   CircleDollarSign,
   UserRoundPen,
+  LayoutDashboard,
 } from "lucide-react";
 
 export const sidebarNav = [
   {
     label: "Overview",
     href: "/overview",
-    icon: Home,
+    icon: LayoutDashboard,
     description: "Your startup dashboard",
   },
   {

@@ -18,10 +18,16 @@ import AnalyticsChart from "@/components/projects/AnalyticsChart";
 import { groq } from "@/lib/groqai";
 
 const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
-  const response = await groq.chat.completions.create({
-    
+  /* const response = await groq.chat.completions.create({
+    model: "llama-3.1-8b-instant",
+    messages: [
+      {
+        role: "user",
+        content: "Hello, how are you?",
+      },
+    ],
   })
-  console.log(response)
+  console.log(response) */
   const { orgSlug, projectSlug } = await params;
   const session = await getSession();
   
@@ -92,10 +98,10 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-50">
+    <div className="flex flex-col h-full bg-zinc-50 hero-font">
       <ProjectInnerNav />
-      <main className="flex-1 overflow-y-auto">
-        <div className="grid grid-cols-12 gap-6 p-6 w-full auto-rows-min">
+      <main className="flex-1">
+        <div className="grid grid-cols-12 gap-6 p-6 w-full auto-rows-min max-w-7xl mx-auto">
           <div className="grid grid-cols-4 gap-4 col-span-12">
             {displayMetrics.map((item) => (
               <div
@@ -104,15 +110,15 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
               >
                 {/* Top row: label + icon */}
                 <div className="flex items-start justify-between">
-                  <p className="text-[14px] text-zinc-500 font-medium tracking-wider">{item.label}</p>
-                  <div className="p-1.5 bg-zinc-50 rounded-lg border border-zinc-100">
-                    <item.icon className="w-3.5 h-3.5 text-zinc-400" strokeWidth={1.5} />
+                  <p className="text-sm text-zinc-600 font-medium tracking-wider hero-font">{item.label}</p>
+                  <div className="p-1.5 bg-zinc-100 rounded-lg border border-zinc-100">
+                    <item.icon className="w-3.5 h-3.5 text-zinc-500" strokeWidth={1.5} />
                   </div>
                 </div>
 
                 {/* Bottom row: value + change pill */}
                 <div className="flex items-end justify-between mt-4">
-                  <p className="text-2xl font-black text-zinc-900 tracking-tight">{item.value}</p>
+                  <p className="text-2xl font-bold hero-font text-zinc-900 tracking-tight">{item.value}</p>
                   <div className="flex items-center gap-1.5 text-right">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                       (item as any).positive

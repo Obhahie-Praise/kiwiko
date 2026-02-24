@@ -60,7 +60,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`${isCollapsed ? "w-[52px]" : "w-56"} border-r border-zinc-100 h-screen transition-all duration-200 flex flex-col bg-white shrink-0`}
+      className={`${isCollapsed ? "w-[54px]" : "w-56"} border-r border-zinc-200 h-screen transition-all duration-200 flex flex-col bg-white shrink-0`}
     >
       {/* Logo */}
       <div className={`flex items-center gap-2.5 px-3 py-4 border-b border-zinc-100 ${isCollapsed ? "justify-center" : ""}`}>

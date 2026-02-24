@@ -35,8 +35,8 @@ const NavProfileDropdown = ({ session, orgSlug }: NavProfileDropdownProps) => {
           className="w-8 h-8 rounded-full border border-zinc-200 shadow-sm transition-transform group-hover:scale-105" 
           alt="Avatar" 
         />
-        <div className="flex flex-col items-start hidden md:flex">
-          <span className="text-xs font-black text-zinc-900 leading-none mb-0.5">{user?.name || "Member"}</span>
+        <div className="flex flex-col items-start md:flex">
+          <span className="text- font-semibold hero-font text-zinc-900 leading-none mb-0.5">{user?.name || "Member"}</span>
         </div>
       </button>
 

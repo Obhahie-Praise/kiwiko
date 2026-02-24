@@ -17,7 +17,7 @@ const NotificationsMenu = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`p-1.5 rounded-lg relative transition-colors ${
-          isOpen ? "bg-zinc-100 text-zinc-900" : "text-zinc-400 hover:bg-zinc-50 hover:text-zinc-700"
+          isOpen ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-700"
         }`}
       >
         <Bell size={15} strokeWidth={1.5} />
@@ -30,7 +30,7 @@ const NotificationsMenu = () => {
         <div className="z-[100] w-72 bg-white border border-zinc-200 rounded-xl shadow-lg overflow-hidden absolute right-0 top-9 animate-in fade-in zoom-in-95 duration-150 origin-top-right">
           {/* Header */}
           <div className="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-700">Notifications</span>
+            <span className="font-semibold text-zinc-700">Notifications</span>
             {unreadCount > 0 && (
               <span className="text-[10px] font-bold bg-zinc-900 text-white px-1.5 py-0.5 rounded-full">
                 {unreadCount}
@@ -51,10 +51,10 @@ const NotificationsMenu = () => {
                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
                 )}
                 <div className={`flex-1 min-w-0 ${n.seen ? "pl-[18px]" : ""}`}>
-                  <p className={`text-xs leading-snug truncate ${n.seen ? "text-zinc-500" : "font-semibold text-zinc-800"}`}>
+                  <p className={`text-sm leading-snug truncate ${n.seen ? "text-zinc-500" : "font-semibold text-zinc-800"}`}>
                     {n.title}
                   </p>
-                  <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-1">{n.createdAt}</p>
+                  <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1">{n.createdAt}</p>
                 </div>
               </li>
             ))}
@@ -62,7 +62,7 @@ const NotificationsMenu = () => {
 
           {/* Footer */}
           <div className="px-4 py-2 border-t border-zinc-100">
-            <button className="text-[11px] text-zinc-400 hover:text-zinc-700 transition-colors">
+            <button className="text-sm text-zinc-400 hover:text-zinc-700 transition-colors">
               Mark all as read
             </button>
           </div>
