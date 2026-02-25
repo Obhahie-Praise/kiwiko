@@ -4,24 +4,25 @@ import React from "react";
 import { GravityStarsBackground } from "../animate-ui/components/backgrounds/gravity-stars";
 import StatsSemiCircle from "../StatsSemiCircle";
 import FloatingCards from "../FloatingCards";
+import Image from "next/image";
 
 const Hero = () => {
   return (
-    <div className="pt-30 pb-40 text-center relative overflow-hidden">
+    <div className="pt-10 pb-40 text-center relative overflow-hidden">
       {/* Background Layer */}
-      <div className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none overflow-hidden">
+      {/* <div className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none overflow-hidden">
         <GravityStarsBackground starsSize={2} starsCount={100} color="#000" />
-      </div>
+      </div> */}
 
       {/* Decorative Accents */}
-      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-zinc-100 rounded-full blur-[140px] -z-20 opacity-40 animate-pulse" />
+      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full blur-[140px] -z-20 opacity-40 animate-pulse" />
 
       {/* Hero Content */}
-      <div className="max-w-[2000px] mx-auto px-6 space-y-8">
+      <div className="space-y-2">
         {/* Badge */}
         <Link
           href="#"
-          className="-mb-10 inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-zinc-200 rounded-full shadow-xl shadow-zinc-100/50 animate-in fade-in slide-in-from-bottom-4 duration-1000"
+          className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-zinc-200 rounded-full shadow-xl shadow-zinc-100/50 animate-in fade-in slide-in-from-bottom-4 duration-1000"
         >
           <span className="">
             <svg
@@ -40,16 +41,16 @@ const Hero = () => {
         </Link>
 
         {/* Headline */}
-        <h1 className="hero-font text-5xl md:text-[5rem] font- tracking-[-0.02em] text-zinc-900 leading-none animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-          Discover <span className="text-zinc-400">Real Data</span> <br />
-          <span className="bg-linear-to-r from-zinc-900 via-zinc-600 to-zinc-900 bg-clip-text text-transparent">
-            from Real Startups
+        <h1 className="hero-font text-5xl md:text-[5rem] tracking-[-0.02em] text-zinc-900 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+          Discover <span className="text-orange-400">Real Data</span> from <br />
+          <span className="bg-linear-to-r from-orange-600 via-orange-400 to-orange-600 bg-clip-text text-transparent">
+            Real Startups
           </span>
         </h1>
 
         {/* Sub-headline */}
         <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-300">
-          <p className="text-lg font-medium text-zinc-500 leading-relaxed">
+          <p className="text-lg font-medium text-zinc-500 leading-7">
             Kiwiko connects founders with investors through verifiable proof of
             work. Real-time execution. Hard metrics. Shared reality.
           </p>
@@ -65,20 +66,22 @@ const Hero = () => {
             </Link>
             <Link
               href="/discover"
-              className="relative overflow-hidden flex items-center gap-2 text-zinc-900 bg-zinc-200 rounded-xl py-3 px-6 font-medium hover:bg-zinc-50 transition-all active:scale-95 shadow-sm"
+              className="relative overflow-hidden flex items-center gap-2 text-zinc-900 bg-white rounded-xl py-3 px-6 font-medium hover:bg-zinc-50 transition-all active:scale-95 shadow-sm"
             >
               Get Started
-              <div className=" w-50 h-7 bg-orange-500/70 blur-lg rounded-[100%] absolute -bottom-4 left-1/2 -translate-x-1/2" />
+              <div className=" w-40 h-7 bg-orange-500/70 blur-lg rounded-[100%] absolute -bottom-4 left-1/2 -translate-x-1/2" />
             </Link>
           </div>
         </div>
 
         {/* Metrics/Stats Layer */}
-        <div className="pt-20 -mt-20 mb-40">
+        <div className="pt-20 -mt-52 mb-40">
           <StatsSemiCircle />
-          {/* <div className="mt-12">
-            <FloatingCards />
-          </div> */}
+          <div className="flex justify-center mt-60">
+            <div className="rounded-2xl p-0.5 bg-linear-to-b from-zinc-200 to-zinc-50">
+              <Image src={"/dashboard-snapshot-light-mode.png"} width={1200} height={1200} alt="hero img" className="rounded-2xl" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

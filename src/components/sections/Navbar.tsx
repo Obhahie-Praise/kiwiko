@@ -18,7 +18,7 @@ const Navbar = () => {
 
   return (
     <div className={`sticky top-0 left-0 w-full z-50 transition-all duration-300 ${
-      scrolled ? "py-2" : "py-6"
+      scrolled ? "py-2" : "py-2"
     }`}>
       <div className={`max-w-[1400px] mx-auto transition-all duration-300 ${
         scrolled 
