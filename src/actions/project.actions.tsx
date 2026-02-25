@@ -777,26 +777,25 @@ export async function getProjectViewAnalyticsAction(
     range: "weekly" | "monthly" | "quarterly" | "yearly"
 ): Promise<ActionResponse<any[]>> {
     try {
+        const project = await prisma.project.findUnique({
+            where: { id: projectId },
+            select: { createdAt: true }
+        });
+
+        if (!project) return { success: false, error: "Project not found" };
+
         const now = new Date();
+        const creationDate = project.createdAt;
         let startDate = new Date();
-        let format: "week" | "month" | "quarter" | "year" = "week";
 
         if (range === "weekly") {
-            // User wants 52 weeks
-            startDate.setFullYear(now.getFullYear() - 1);
-            format = "week";
+            startDate = creationDate;
         } else if (range === "monthly") {
-            // User wants 12 months
             startDate.setFullYear(now.getFullYear() - 1);
-            format = "month";
         } else if (range === "quarterly") {
-            // User wants 4 quarters
             startDate.setFullYear(now.getFullYear() - 1);
-            format = "quarter";
         } else if (range === "yearly") {
-            // User wants 4 years
             startDate.setFullYear(now.getFullYear() - 4);
-            format = "year";
         }
 
         const views = await prisma.projectView.findMany({
@@ -809,9 +808,37 @@ export async function getProjectViewAnalyticsAction(
 
         const aggregated: Record<string, number> = {};
         
+        const getWeekNumber = (d: Date) => {
+            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            const dayNum = date.getUTCDay() || 7;
+            date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+            const weekNo = Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+            return weekNo;
+        };
+
         // Initialize buckets
         if (range === "weekly") {
-            for (let i = 1; i <= 52; i++) aggregated[`Week ${i}`] = 0;
+            const startWeek = getWeekNumber(creationDate);
+            const currentWeek = getWeekNumber(now);
+            const currentYear = now.getFullYear();
+            const creationYear = creationDate.getFullYear();
+
+            if (currentYear === creationYear) {
+                for (let i = startWeek; i <= 52; i++) {
+                    aggregated[`Week ${i}`] = 0;
+                }
+            } else {
+                // If it spans years, we might need a more complex label, 
+                // but the user's specific request "start from the week the account was created" 
+                // and "align with week of the year" suggests within a year or relative to years.
+                // For now, let's assume current year or show all weeks from start until now.
+                // If it's multi-year, just show the last 52 weeks but aligned? 
+                // The user said "if the account was created on the week 7, then week 7 should start the charts x axis".
+                // Let's do a simple range of weeks.
+                for (let i = startWeek; i <= 52; i++) aggregated[`Week ${i}`] = 0;
+                for (let i = 1; i <= currentWeek; i++) aggregated[`Week ${i}`] = 0;
+            }
         } else if (range === "monthly") {
             const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             months.forEach(m => aggregated[m] = 0);
@@ -819,6 +846,7 @@ export async function getProjectViewAnalyticsAction(
             for (let i = 1; i <= 4; i++) aggregated[`Q${i}`] = 0;
         } else if (range === "yearly") {
             for (let i = 1; i <= 4; i++) aggregated[`Year ${i}`] = 0;
+            aggregated[`Year 4+`] = 0;
         }
 
         // Fill buckets
@@ -827,11 +855,7 @@ export async function getProjectViewAnalyticsAction(
             let key = "";
             
             if (range === "weekly") {
-                // Approximate week index in the last 52 weeks
-                const diffTime = Math.abs(now.getTime() - d.getTime());
-                const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
-                const weekNum = 52 - diffWeeks;
-                if (weekNum >= 1 && weekNum <= 52) key = `Week ${weekNum}`;
+                key = `Week ${getWeekNumber(d)}`;
             } else if (range === "monthly") {
                 key = d.toLocaleString('default', { month: 'short' });
             } else if (range === "quarterly") {
@@ -842,16 +866,10 @@ export async function getProjectViewAnalyticsAction(
                 const yearNum = 4 - diffYears;
                 if (yearNum >= 1 && yearNum <= 3) key = `Year ${yearNum}`;
                 else if (yearNum >= 4) key = `Year 4+`;
-                if (yearNum === 4) aggregated[`Year 4+`] = (aggregated[`Year 4+`] || 0);
             }
 
             if (key && aggregated[key] !== undefined) aggregated[key]++;
         });
-
-        // Ensure "Year 4+" exists if we are in yearly mode
-        if (range === "yearly" && aggregated["Year 4"] !== undefined) {
-             // rename Year 4 to Year 4+ for UI consistency if needed, but we already handled it above partly
-        }
 
         const data = Object.entries(aggregated).map(([label, value]) => ({
             label,

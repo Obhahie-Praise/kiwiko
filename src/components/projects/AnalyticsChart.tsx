@@ -90,7 +90,7 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
         ) : null}
 
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+          <BarChart data={data} margin={{ top: 0, right: 0, left: -35, bottom: 0 }} barGap={0}>
             <CartesianGrid vertical={false} stroke="#f4f4f5" strokeDasharray="3 3" />
             <XAxis
               dataKey="label"
@@ -98,6 +98,8 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
               tickLine={false}
               tick={{ fill: "#a1a1aa", fontSize: 11, fontWeight: 500 }}
               dy={10}
+              padding={{ left: 0, right: 0 }}
+              minTickGap={0}
             />
             <YAxis
               axisLine={false}
