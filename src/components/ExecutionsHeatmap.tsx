@@ -24,7 +24,7 @@ const ExecutionsHeatmap = () => {
   ];
 
   return (
-    <div className="col-span-12 border border-zinc-200 rounded-2xl p-4 space-y-5">
+    <div className="w-full border border-zinc-200 rounded-2xl p-4 space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-zinc-500">

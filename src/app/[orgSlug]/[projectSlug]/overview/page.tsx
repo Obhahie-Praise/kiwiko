@@ -16,6 +16,7 @@ import { getProjectHomeDataAction } from "@/actions/project.actions";
 import { openai } from "@/lib/openai";
 import AnalyticsChart from "@/components/projects/AnalyticsChart";
 import SocialAnalyticsChart from "@/components/projects/SocialAnalyticsChart";
+import RecentActivityTable from "@/components/projects/RecentActivityTable";
 import { groq } from "@/lib/groqai";
 
 const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
@@ -212,60 +213,10 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
             </div>
           </div>
 
-          <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl col-span-8 h-fit p-5">
-            <div className="w-full flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-zinc-300 text-zinc-700 rounded-lg group-hover:bg-black group-hover:text-zinc-100 transition">
-                  <Activity width={15} height={15} />
-                </div>
-                <h3 className="font-semibold text-lg">Recent Activity</h3>
-              </div>
-              <div className="p-2 rounded-md hover:bg-zinc-200">
-                <EllipsisVertical
-                  width={15}
-                  height={15}
-                  className="text-black"
-                />
-              </div>
-            </div>
-            <div className="">
-              <div className="">
-                {recentActivities.map((item, index) => {
-                  return (
-                    <div
-                      key={item.id}
-                      className="grid grid-cols-[2fr_1fr_1fr] px-5 py-3 border-b last:border-b-0 border-zinc-200 hover:bg-zinc-300 transition rounded-2xl mt-4"
-                    >
-                      {/* Activity */}
-                      <div className="flex items-start gap-3">
-                        <div className="mt-0.5">
-                          <item.icon className="w-4 h-4 text-zinc-700" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-zinc-900">
-                            {item.title}
-                          </p>
-                          <p className="text-xs text-zinc-500">
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Source */}
-                      <div className="text-sm text-zinc-700 flex items-center">
-                        {item.source}
-                      </div>
-
-                      {/* Time */}
-                      <div className="text-xs text-zinc-500 flex items-center">
-                        {item.timestamp}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+          <div className="col-span-8">
+            <RecentActivityTable orgSlug={orgSlug} projectSlug={projectSlug} />
           </div>
+
           <div className="col-span-4 h-fit bg-white border border-zinc-200 shadow-sm rounded-3xl p-5">
             <h4 className="flex items-center justify-between my-2">
               <p className="text-xl font-medium">Onboarding</p>
@@ -333,7 +284,10 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
               </div>
             </div>
           </div>
-          <ExecutionsHeatmap />
+          
+          <div className="col-span-8">
+            <ExecutionsHeatmap />
+          </div>
         </div>
       </div>
     </div>
