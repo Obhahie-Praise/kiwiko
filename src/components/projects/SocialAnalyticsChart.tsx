@@ -16,41 +16,52 @@ interface SocialAnalyticsChartProps {
   projectId?: string;
 }
 
-type TimeRange = "Monthly" | "Quarterly" | "Annually";
+type TimeRange = "Weekly" | "Monthly" | "Quarterly" | "Annually";
 type Platform = "All" | "X" | "Facebook" | "YouTube";
-type MetricType = "Overall Engagement" | "Uploads (Likes)" | "Uploads (Comments)" | "Uploads (Subs/Followers)";
+type MetricType = "Views" | "Uploads (Likes)" | "Uploads (Comments)" | "Uploads (Subs/Followers)";
 
 // Mock data generator for smooth area charts
 const generateMockData = (range: TimeRange, metric: MetricType, platform: Platform) => {
   const data = [];
-  const points = range === "Monthly" ? 30 : range === "Quarterly" ? 12 : 12; // Days for monthly, weeks for quarterly, months for annually
   
-  let baseValue = metric === "Overall Engagement" ? 150 : metric === "Uploads (Likes)" ? 50 : 20;
-  if (platform !== "All") baseValue = Math.floor(baseValue / 3);
+  let points = 12;
+  let labels: string[] = [];
 
-  const labels = 
-    range === "Monthly" ? Array.from({length: 30}, (_, i) => `Day ${i+1}`) :
-    range === "Quarterly" ? ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12"] :
-    ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  if (range === "Weekly") {
+    points = 52;
+    labels = Array.from({ length: 52 }, (_, i) => `Week ${i + 1}`);
+  } else if (range === "Monthly") {
+    points = 12;
+    labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  } else if (range === "Quarterly") {
+    points = 4;
+    labels = ["Q1", "Q2", "Q3", "Q4"];
+  } else if (range === "Annually") {
+    points = 4;
+    labels = ["Year 1", "Year 2", "Year 3", "Year 4+"];
+  }
+  
+  let baseValue = metric === "Views" ? 15000 : metric === "Uploads (Likes)" ? 500 : 200;
 
   for (let i = 0; i < points; i++) {
-    // Generate two smoothed lines for the area chart (Primary and Secondary to match the image)
-    const primaryVariation = Math.sin(i * 0.5) * 30 + Math.random() * 20;
-    const secondaryVariation = Math.cos(i * 0.5) * 15 + Math.random() * 10;
+    const xVariation = Math.sin(i * 0.5) * (baseValue / 10) + Math.random() * (baseValue / 20);
+    const fbVariation = Math.cos(i * 0.5) * (baseValue / 20) + Math.random() * (baseValue / 40);
+    const ytVariation = Math.sin(i * 1.2) * (baseValue / 15) + Math.random() * (baseValue / 30);
     
     data.push({
       label: labels[i],
-      Primary: Math.max(0, Math.floor(baseValue + primaryVariation + (i * 2))),
-      Secondary: Math.max(0, Math.floor((baseValue / 2) + secondaryVariation + i)),
+      X: platform === "All" || platform === "X" ? Math.max(0, Math.floor(baseValue + xVariation + (i * 100))) : 0,
+      Facebook: platform === "All" || platform === "Facebook" ? Math.max(0, Math.floor((baseValue / 1.5) + fbVariation + (i * 50))) : 0,
+      YouTube: platform === "All" || platform === "YouTube" ? Math.max(0, Math.floor((baseValue / 1.2) + ytVariation + (i * 80))) : 0,
     });
   }
   return data;
 };
 
 const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
-  const [range, setRange] = useState<TimeRange>("Annually");
+  const [range, setRange] = useState<TimeRange>("Monthly");
   const [platform, setPlatform] = useState<Platform>("All");
-  const [metric, setMetric] = useState<MetricType>("Overall Engagement");
+  const [metric, setMetric] = useState<MetricType>("Views");
 
   const data = useMemo(() => generateMockData(range, metric, platform), [range, metric, platform]);
 
@@ -83,7 +94,7 @@ const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
         <div>
           <h3 className="text-xl font-semibold text-zinc-900 hero-font tracking-tight">Social Media Statistics</h3>
           <p className="text-sm text-zinc-500 font-medium mt-1">
-            Target you've set for each {range === "Annually" ? "month" : range === "Quarterly" ? "week" : "day"}
+            All time stats for each {range === "Annually" ? "month" : range === "Quarterly" ? "week" : "day"}
           </p>
           
           {/* Filters */}
@@ -111,7 +122,7 @@ const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
                   onChange={(e) => setMetric(e.target.value as MetricType)}
                   className="bg-transparent text-xs font-semibold text-zinc-700 outline-none cursor-pointer pr-2 appearance-none"
                 >
-                  <option value="Overall Engagement">Overall Engagement</option>
+                  <option value="Views">Views</option>
                   <option value="Uploads (Likes)">Uploads (Likes)</option>
                   <option value="Uploads (Comments)">Uploads (Comments)</option>
                   <option value="Uploads (Subs/Followers)">Uploads (Subs/Followers)</option>
@@ -123,7 +134,7 @@ const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
         {/* Right side controls */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center bg-zinc-50 p-1 rounded-xl border border-zinc-200 shadow-sm">
-            {(["Monthly", "Quarterly", "Annually"] as TimeRange[]).map((r) => (
+            {(["Weekly", "Monthly", "Quarterly", "Annually"] as TimeRange[]).map((r) => (
               <button
                 key={r}
                 onClick={() => setRange(r)}
@@ -140,7 +151,12 @@ const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
           
           <button className="flex items-center gap-2 px-3 py-1.5 border border-zinc-200 hover:bg-zinc-50 rounded-xl text-xs font-semibold text-zinc-700 shadow-sm transition-colors">
             <Calendar size={14} className="text-zinc-500" />
-            <span>{range === "Annually" ? "Jan 1 to Dec 31" : range === "Quarterly" ? "Last 3 Months" : "Last 30 Days"}</span>
+            <span>
+              {range === "Weekly" ? "All Time (52 Weeks)" : 
+               range === "Monthly" ? "All Time (12 Months)" : 
+               range === "Quarterly" ? "All Time (4 Quarters)" : 
+               "All Time (4+ Years)"}
+            </span>
           </button>
         </div>
       </div>
@@ -150,13 +166,17 @@ const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
             <defs>
-              <linearGradient id="colorPrimary" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
+              <linearGradient id="colorX" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#000000" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#000000" stopOpacity={0} />
               </linearGradient>
-              <linearGradient id="colorSecondary" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#818cf8" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#818cf8" stopOpacity={0} />
+              <linearGradient id="colorFacebook" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#1877F2" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#1877F2" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="colorYouTube" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#FF0000" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#FF0000" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} stroke="#f4f4f5" />
@@ -173,24 +193,39 @@ const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
               tick={{ fill: "#71717a", fontSize: 11, fontWeight: 500 }}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#e4e4e7', strokeWidth: 1, strokeDasharray: '3 3', fill: 'transparent' }} />
-            <Area
-              type="monotone"
-              dataKey="Primary"
-              stroke="#4f46e5"
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#colorPrimary)"
-              activeDot={{ r: 6, fill: "#4f46e5", stroke: "#fff", strokeWidth: 2 }}
-            />
-            <Area
-              type="monotone"
-              dataKey="Secondary"
-              stroke="#8b5cf6"
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#colorSecondary)"
-              activeDot={{ r: 6, fill: "#8b5cf6", stroke: "#fff", strokeWidth: 2 }}
-            />
+            {(platform === "All" || platform === "X") && (
+              <Area
+                type="monotone"
+                dataKey="X"
+                stroke="#000000"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#colorX)"
+                activeDot={{ r: 6, fill: "#000000", stroke: "#fff", strokeWidth: 2 }}
+              />
+            )}
+            {(platform === "All" || platform === "Facebook") && (
+              <Area
+                type="monotone"
+                dataKey="Facebook"
+                stroke="#1877F2"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#colorFacebook)"
+                activeDot={{ r: 6, fill: "#1877F2", stroke: "#fff", strokeWidth: 2 }}
+              />
+            )}
+            {(platform === "All" || platform === "YouTube") && (
+               <Area
+                type="monotone"
+                dataKey="YouTube"
+                stroke="#FF0000"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#colorYouTube)"
+                activeDot={{ r: 6, fill: "#FF0000", stroke: "#fff", strokeWidth: 2 }}
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       </div>

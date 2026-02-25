@@ -1,6 +1,5 @@
 import ActivityMetricCard from "@/components/ActivityMetricProps";
 import ExecutionsHeatmap from "@/components/ExecutionsHeatmap";
-import ProjectInnerNav from "@/components/projects/ProjectInnerNav";
 import {
   activityMetrics,
   completeOnboarding,
@@ -100,9 +99,8 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
   }
 
   return (
-    <div className="flex flex-col">
-      <ProjectInnerNav />
-      <main className="flex-1">
+    <div className="flex flex-col h-full bg-zinc-50">
+      <div className="flex-1">
         <div className="grid grid-cols-12 gap-6 p-6 w-full auto-rows-min max-w-7xl mx-auto">
           <div className="grid grid-cols-4 gap-4 col-span-12">
             {displayMetrics.map((item) => (
@@ -337,7 +335,7 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
           </div>
           <ExecutionsHeatmap />
         </div>
-      </main>
+      </div>
     </div>
   );
 };

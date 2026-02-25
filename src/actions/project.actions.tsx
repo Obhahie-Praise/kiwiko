@@ -779,20 +779,24 @@ export async function getProjectViewAnalyticsAction(
     try {
         const now = new Date();
         let startDate = new Date();
-        let format: "day" | "week" | "month" = "day";
+        let format: "week" | "month" | "quarter" | "year" = "week";
 
         if (range === "weekly") {
-            startDate.setDate(now.getDate() - 7);
-            format = "day";
-        } else if (range === "monthly") {
-            startDate.setDate(now.getDate() - 30);
-            format = "day";
-        } else if (range === "quarterly") {
-            startDate.setMonth(now.getMonth() - 3);
+            // User wants 52 weeks
+            startDate.setFullYear(now.getFullYear() - 1);
             format = "week";
-        } else if (range === "yearly") {
+        } else if (range === "monthly") {
+            // User wants 12 months
             startDate.setFullYear(now.getFullYear() - 1);
             format = "month";
+        } else if (range === "quarterly") {
+            // User wants 4 quarters
+            startDate.setFullYear(now.getFullYear() - 1);
+            format = "quarter";
+        } else if (range === "yearly") {
+            // User wants 4 years
+            startDate.setFullYear(now.getFullYear() - 4);
+            format = "year";
         }
 
         const views = await prisma.projectView.findMany({
@@ -803,43 +807,51 @@ export async function getProjectViewAnalyticsAction(
             orderBy: { createdAt: "asc" }
         });
 
-        // Aggregate by format
         const aggregated: Record<string, number> = {};
         
-        // Initialize zeros for all buckets in range
-        const current = new Date(startDate);
-        while (current <= now) {
-            let key = "";
-            if (format === "day") {
-                key = current.toISOString().split("T")[0];
-                current.setDate(current.getDate() + 1);
-            } else if (format === "week") {
-                // Get week number or date of Monday? Let's use Date of the start of the week
-                const d = new Date(current);
-                d.setDate(d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1)); // Monday
-                key = d.toISOString().split("T")[0];
-                current.setDate(current.getDate() + 7);
-            } else if (format === "month") {
-                key = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
-                current.setMonth(current.getMonth() + 1);
-            }
-            aggregated[key] = 0;
+        // Initialize buckets
+        if (range === "weekly") {
+            for (let i = 1; i <= 52; i++) aggregated[`Week ${i}`] = 0;
+        } else if (range === "monthly") {
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            months.forEach(m => aggregated[m] = 0);
+        } else if (range === "quarterly") {
+            for (let i = 1; i <= 4; i++) aggregated[`Q${i}`] = 0;
+        } else if (range === "yearly") {
+            for (let i = 1; i <= 4; i++) aggregated[`Year ${i}`] = 0;
         }
 
-        // Fill data
+        // Fill buckets
         views.forEach(v => {
-            let key = "";
             const d = new Date(v.createdAt);
-            if (format === "day") {
-                key = d.toISOString().split("T")[0];
-            } else if (format === "week") {
-                d.setDate(d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1));
-                key = d.toISOString().split("T")[0];
-            } else if (format === "month") {
-                key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            let key = "";
+            
+            if (range === "weekly") {
+                // Approximate week index in the last 52 weeks
+                const diffTime = Math.abs(now.getTime() - d.getTime());
+                const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+                const weekNum = 52 - diffWeeks;
+                if (weekNum >= 1 && weekNum <= 52) key = `Week ${weekNum}`;
+            } else if (range === "monthly") {
+                key = d.toLocaleString('default', { month: 'short' });
+            } else if (range === "quarterly") {
+                const q = Math.floor((d.getMonth() + 3) / 3);
+                key = `Q${q}`;
+            } else if (range === "yearly") {
+                const diffYears = now.getFullYear() - d.getFullYear();
+                const yearNum = 4 - diffYears;
+                if (yearNum >= 1 && yearNum <= 3) key = `Year ${yearNum}`;
+                else if (yearNum >= 4) key = `Year 4+`;
+                if (yearNum === 4) aggregated[`Year 4+`] = (aggregated[`Year 4+`] || 0);
             }
-            if (aggregated[key] !== undefined) aggregated[key]++;
+
+            if (key && aggregated[key] !== undefined) aggregated[key]++;
         });
+
+        // Ensure "Year 4+" exists if we are in yearly mode
+        if (range === "yearly" && aggregated["Year 4"] !== undefined) {
+             // rename Year 4 to Year 4+ for UI consistency if needed, but we already handled it above partly
+        }
 
         const data = Object.entries(aggregated).map(([label, value]) => ({
             label,

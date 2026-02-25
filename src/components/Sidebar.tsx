@@ -119,7 +119,7 @@ const Sidebar = () => {
                   <item.icon className="w-4.5 h-4.5" strokeWidth={1.5} />
                 </div>
                 {!isCollapsed && (
-                  <span className="font-medium text-sm">{item.label}</span>
+                  <span className="font-medium">{item.label}</span>
                 )}
                 {item.badge && !isCollapsed && (
                   <span className="ml-auto text-[10px] px-1.5 py-0.5 flex items-center justify-center text-white font-bold rounded-full bg-red-500">
@@ -158,11 +158,11 @@ const Sidebar = () => {
           {!isCollapsed && (
             <>
               <div className="flex-1 min-w-0 text-left">
-                <p className="text-xs font-semibold text-zinc-800 truncate leading-tight">{user?.name || "User"}</p>
-                <p className="text-[10px] text-zinc-400 truncate leading-tight">{user?.email}</p>
+                <p className="font-semibold text-zinc-800 truncate leading-tight">{user?.name || "User"}</p>
+                <p className="text-xs text-zinc-400 truncate leading-tight">{user?.email}</p>
               </div>
               <ChevronUp
-                size={13}
+                size={16}
                 strokeWidth={1.5}
                 className={`text-zinc-400 shrink-0 transition-transform duration-150 ${isProfileOpen ? "" : "rotate-180"}`}
               />

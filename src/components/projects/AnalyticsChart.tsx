@@ -57,7 +57,7 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
         <div>
           <h3 className="text-xl font-semibold text-zinc-900 hero-font tracking-tight">Profile Analytics</h3>
           <p className="text-sm text-zinc-500 font-medium">
-            Visitor analytics of last {range === "weekly" ? "7 days" : range === "monthly" ? "30 days" : range === "quarterly" ? "3 months" : "year"}
+            Visitor analytics {range === "weekly" ? "(Last 52 Weeks)" : range === "monthly" ? "(12 Months)" : range === "quarterly" ? "(4 Quarters)" : "(Last 4+ Years)"}
           </p>
         </div>
 
@@ -98,17 +98,6 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
               tickLine={false}
               tick={{ fill: "#a1a1aa", fontSize: 11, fontWeight: 500 }}
               dy={10}
-              tickFormatter={(val) => {
-                  if (range === "yearly") {
-                      const [year, month] = val.split("-");
-                      const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleString('default', { month: 'short' });
-                      return monthName;
-                  }
-                  if (range === "quarterly" || range === "monthly") {
-                      return val.split("-")[2] || val; // Just show day or part of it
-                  }
-                  return val;
-              }}
             />
             <YAxis
               axisLine={false}
@@ -120,7 +109,7 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
               dataKey="value"
               fill="#4f46e5"
               radius={[4, 4, 0, 0]}
-              barSize={range === "weekly" ? 40 : range === "monthly" ? 12 : range === "quarterly" ? 24 : 32}
+              barSize={range === "weekly" ? 4 : range === "monthly" ? 20 : range === "quarterly" ? 60 : 60}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={data.length > 20 ? "#4f46e5" : "#4f46e5"} />
