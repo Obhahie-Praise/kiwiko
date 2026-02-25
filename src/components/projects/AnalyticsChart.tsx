@@ -52,10 +52,10 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
   };
 
   return (
-    <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-6 w-full">
+    <div className="bg-white border-[0.5px] border-zinc-200 shadow-sm rounded-2xl p-6 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h3 className="text-xl font-semibold text-zinc-900 hero-font tracking-tight">Analytics</h3>
+          <h3 className="text-xl font-semibold text-zinc-900 hero-font tracking-tight">Profile Analytics</h3>
           <p className="text-sm text-zinc-500 font-medium">
             Visitor analytics of last {range === "weekly" ? "7 days" : range === "monthly" ? "30 days" : range === "quarterly" ? "3 months" : "year"}
           </p>

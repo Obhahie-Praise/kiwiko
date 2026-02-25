@@ -104,7 +104,7 @@ const ProjectInnerNav = () => {
         <div className="relative" ref={orgMenuRef}>
           <button
             onClick={() => setIsOrgMenuOpen(!isOrgMenuOpen)}
-            className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-zinc-50 transition-colors text-zinc-500 text-xs font-medium"
+            className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-zinc-50 transition-colors text-zinc-500 text-sm font-medium"
           >
             <Building2 size={13} strokeWidth={1.5} className="text-zinc-400" />
             <span className="max-w-[100px] truncate">{currentOrg?.name || orgSlug}</span>
@@ -151,7 +151,7 @@ const ProjectInnerNav = () => {
         <div className="relative" ref={projectMenuRef}>
           <button
             onClick={() => setIsProjectMenuOpen(!isProjectMenuOpen)}
-            className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-zinc-50 transition-colors text-zinc-800 text-xs font-semibold"
+            className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-zinc-50 transition-colors text-zinc-800 text-sm font-semibold"
           >
             <div className="w-4 h-4 rounded bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0">
               {currentProject?.logoUrl ? (

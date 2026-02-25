@@ -11,10 +11,12 @@ import { getSession } from "@/constants/getSession";
 import prisma from "@/lib/prisma";
 import { Activity, Check, EllipsisVertical, Users, Eye, GitCommit, CircleDot } from "lucide-react";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { getProjectHomeDataAction } from "@/actions/project.actions";
 import { openai } from "@/lib/openai";
 import AnalyticsChart from "@/components/projects/AnalyticsChart";
+import SocialAnalyticsChart from "@/components/projects/SocialAnalyticsChart";
 import { groq } from "@/lib/groqai";
 
 const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
@@ -66,12 +68,12 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
       icon: GitCommit,
     },
     {
-      id: "issues",
-      label: "Open Issues",
-      value: project.githubOpenIssues?.toString() || "0",
-      change: "0",
-      positive: false,
-      icon: CircleDot,
+      id: "social-views",
+      label: "Social Views (Month)",
+      value: "45.2K", // Mock data replacing open issues
+      change: "+12.5%",
+      positive: true,
+      icon: Eye, // Using Eye icon to represent views
     }
   ];
 
@@ -98,7 +100,7 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
   }
 
   return (
-    <div className="flex flex-col h-full bg-zinc-50 hero-font">
+    <div className="flex flex-col">
       <ProjectInnerNav />
       <main className="flex-1">
         <div className="grid grid-cols-12 gap-6 p-6 w-full auto-rows-min max-w-7xl mx-auto">
@@ -106,7 +108,7 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
             {displayMetrics.map((item) => (
               <div
                 key={item.id}
-                className="bg-white border border-zinc-200 rounded-2xl p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                className="bg-white border-[0.5px] border-zinc-200 rounded-2xl p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
                 {/* Top row: label + icon */}
                 <div className="flex items-start justify-between">
@@ -137,12 +139,16 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
             <AnalyticsChart projectId={project.id} />
           </div>
 
+          <div className="col-span-12">
+            <SocialAnalyticsChart projectId={project.id} />
+          </div>
+
           <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl col-span-4 p-5 h-full">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-zinc-900">Team</h3>
-              <button className="text-xs text-zinc-500 hover:text-zinc-900 transition">
+              <h3 className="text-xl font-semibold text-zinc-900">Team</h3>
+              <Link href={`/${orgSlug}/${projectSlug}/teams`} className="text-sm text-zinc-500 hover:text-zinc-900 transition">
                 Manage
-              </button>
+              </Link>
             </div>
 
             <div className="flex-col flex justify-between h-[90%]">
@@ -157,10 +163,10 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
                         alt={m.user.name || "User"}
                       />
                       <div>
-                        <p className="text-sm font-medium text-zinc-900">
+                        <p className="font-medium text-zinc-900">
                           {m.userId === userId ? "You" : (m.user.name || m.user.email)}
                         </p>
-                        <p className="text-xs text-zinc-500 capitalize">{m.role.toLowerCase()}</p>
+                        <p className="text-sm text-zinc-500 capitalize">{m.role.toLowerCase()}</p>
                       </div>
                     </div>
                     {m.userId === userId && <span className="text-xs text-zinc-500">100%</span>}
@@ -175,11 +181,11 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
                         <Users size={16} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-zinc-900">
+                        <p className="font-medium text-zinc-900">
                           {invite.email.split('@')[0]}
                         </p>
                         <div className="flex items-center gap-2">
-                          <p className="text-[10px] text-zinc-500 capitalize">{invite.role.toLowerCase()}</p>
+                          <p className="text-sm text-zinc-500 capitalize">{invite.role.toLowerCase()}</p>
                           <span className="px-1 py-0.5 bg-zinc-100 text-[8px] font-bold uppercase rounded">Invited</span>
                         </div>
                       </div>
@@ -188,23 +194,20 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
                 ))}
 
                 {/* Empty member (future-facing) */}
-                <div className="flex items-center justify-between opacity-70">
+                <Link href={`/${orgSlug}/${projectSlug}/teams`} className="flex items-center justify-between opacity-90 hover:opacity-100 transition-opacity">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full border border-dashed border-zinc-300 flex items-center justify-center text-zinc-400">
+                    <div className="w-9 h-9 rounded-full border border-dashed border-zinc-300 flex items-center justify-center text-black text-zinc-400">
                       +
                     </div>
                     <div>
-                      <p className="text-sm text-zinc-700">Add teammate</p>
-                      <p className="text-xs text-zinc-400">
-                        Engineering / Growth
-                      </p>
+                      <p className="text-black">Add teammate</p>
                     </div>
                   </div>
                   <span className="text-xs text-zinc-400">—</span>
-                </div>
+                </Link>
               </div>
 
-              <div className="pt-4 border-t border-zinc-200 flex justify-between text-xs text-zinc-500">
+              <div className="pt-4 border-t border-zinc-200 flex justify-between text-zinc-500">
                 <span>Team size</span>
                 <span className="text-zinc-900 font-medium">{(project.members?.length || 0) + (project.invites?.filter((i: any) => !i.accepted).length || 0)}</span>
               </div>
