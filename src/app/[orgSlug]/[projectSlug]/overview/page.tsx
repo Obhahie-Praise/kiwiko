@@ -1,24 +1,13 @@
-import ActivityMetricCard from "@/components/ActivityMetricProps";
-import ExecutionsHeatmap from "@/components/ExecutionsHeatmap";
-import {
-  activityMetrics,
-  completeOnboarding,
-  metrics,
-  recentActivities,
-} from "@/constants";
 import { getSession } from "@/constants/getSession";
-import prisma from "@/lib/prisma";
-import { Activity, Check, EllipsisVertical, Users, Eye, GitCommit, CircleDot } from "lucide-react";
+import { Users, Eye, GitCommit, Check } from "lucide-react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-
 import { getProjectHomeDataAction } from "@/actions/project.actions";
-import { openai } from "@/lib/openai";
 import AnalyticsChart from "@/components/projects/AnalyticsChart";
 import SocialAnalyticsChart from "@/components/projects/SocialAnalyticsChart";
 import RecentActivityTable from "@/components/projects/RecentActivityTable";
 import KiwikoAdvancedAnalytics from "@/components/projects/KiwikoAdvancedAnalytics";
-import { groq } from "@/lib/groqai";
+import ProjectCalendar from "@/components/projects/ProjectCalendar";
 
 const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
   /* const response = await groq.chat.completions.create({
@@ -210,76 +199,8 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
             </div>
           )}
 
-          <div className="col-span-4 h-fit bg-white border border-zinc-200 shadow-sm rounded-3xl p-5">
-            <h4 className="flex items-center justify-between my-2">
-              <p className="text-xl font-medium">Onboarding</p>
-              <p className="text-3xl font-light">18%</p>
-            </h4>
-            <div className="w-full flex items-center justify-between font-light">
-              <p className="text-zinc-400">Completed</p>
-              <p className="text-black">Unfinshed</p>
-            </div>
-            <div className="flex items-center gap-0.5 h-5 w-full mt-4">
-              <div className="bg-linear-to-r to-zinc-600 from-zinc-400 h-12 w-25 rounded-xl flex text-sm items-center px-4 text-black justify-start font-light">
-                18%
-              </div>
-              <div className="bg-linear-to-r from-zinc-600 to-zinc-800 h-12 flex-1  rounded-xl flex text-sm items-center px-4 text-zinc-400 justify-end font-light">
-                82%
-              </div>
-            </div>
-            <div className="w-full bg-linear-to-b from-zinc-900 to-zinc-700 rounded-[2.5rem] mt-10 p-5">
-              <h3 className="text-neutral-100 flex items-center justify-between mt-3 mb-5">
-                <p className="text-xl">Onboarding Task</p>
-                <p className="text-3xl font-thin">2/8</p>
-              </h3>
-              <div className="">
-                <ul className="space-y-4">
-                  {completeOnboarding.map((item) => {
-                    return (
-                      <li
-                        className="flex items-center justify-between p-2 hover:bg-zinc-800 rounded-xl cursor-pointer transition-all"
-                        key={item.id}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`w-15 h-15 flex items-center justify-center rounded-full ${item.isCompleted ? "bg-neutral-600 text-neutral-200" : "bg-zinc-200 text-zinc-600"}`}
-                          >
-                            <item.icon width={25} height={25} />
-                          </div>
-                          <div className="">
-                            <h5
-                              className={`text-lg ${item.isCompleted ? "text-neutral-500 line-through" : "text-neutral-200"}`}
-                            >
-                              {item.name}
-                            </h5>
-                            <p className="text-neutral-400 text-xs mr-6">
-                              {item.description}
-                            </p>
-                          </div>
-                        </div>
-                        <div
-                          className={`h-5 w-5 flex items-center justify-center rounded-full ${item.isCompleted ? "bg-white text-black" : "bg-neutral-500 text-white"}`}
-                        >
-                          {item.isCompleted ? (
-                            <Check
-                              width={15}
-                              height={15}
-                              className={`${item.isCompleted ? "text-black" : "text-white"}`}
-                            />
-                          ) : (
-                            ""
-                          )}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            </div>
-          </div>
-          
-          <div className="col-span-8">
-            <ExecutionsHeatmap />
+          <div className="col-span-12">
+            <ProjectCalendar />
           </div>
         </div>
       </div>
