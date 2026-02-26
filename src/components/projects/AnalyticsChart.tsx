@@ -40,7 +40,7 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-zinc-200 shadow-xl rounded-xl">
+        <div className="bg-white p-3 border-[0.2px] border-zinc-200 rounded-xl">
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1">
             {range === "weekly" ? "Date" : range === "monthly" ? "Date" : range === "quarterly" ? "Week Starting" : "Month"}
           </p>
@@ -52,7 +52,7 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
   };
 
   return (
-    <div className="bg-white border-[0.5px] border-zinc-200 shadow-sm rounded-2xl p-6 w-full">
+    <div className="bg-white border-[0.2px] border-zinc-200 shadow-sm rounded-2xl p-6 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h3 className="text-xl font-semibold text-zinc-900 hero-font tracking-tight">Profile Analytics</h3>

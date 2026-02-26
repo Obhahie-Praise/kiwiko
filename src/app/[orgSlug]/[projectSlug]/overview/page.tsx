@@ -17,6 +17,7 @@ import { openai } from "@/lib/openai";
 import AnalyticsChart from "@/components/projects/AnalyticsChart";
 import SocialAnalyticsChart from "@/components/projects/SocialAnalyticsChart";
 import RecentActivityTable from "@/components/projects/RecentActivityTable";
+import KiwikoAdvancedAnalytics from "@/components/projects/KiwikoAdvancedAnalytics";
 import { groq } from "@/lib/groqai";
 
 const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
@@ -55,7 +56,7 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
       id: "views",
       label: "Profile Views",
       value: overviewData?.viewCount?.toString() || "0",
-      change: "+0%",
+      change: "+2.5%",
       positive: true,
       icon: Eye,
     },
@@ -70,34 +71,20 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
     {
       id: "social-views",
       label: "Social Views (Month)",
-      value: "45.2K", // Mock data replacing open issues
+      value: "45.2K",
       change: "+12.5%",
       positive: true,
-      icon: Eye, // Using Eye icon to represent views
+      icon: Eye,
+    },
+    {
+      id: "active-users-7d",
+      label: "Active Users (7d)",
+      value: overviewData?.kiwiko?.activeUsers7d?.toString() || "0",
+      change: "Last 7 days",
+      positive: true,
+      icon: Users,
     }
   ];
-
-  // If YouTube is connected, add it as a metric
-  if (overviewData?.youtubeMetric) {
-    displayMetrics.push({
-        id: "youtube",
-        label: "YouTube Engagement",
-        value: overviewData.youtubeMetric.value || "0",
-        change: overviewData.youtubeMetric.videoTitle ? `Last: ${overviewData.youtubeMetric.videoTitle.substring(0, 15)}...` : "Live",
-        positive: true,
-        icon: Activity, // Fallback icon
-    });
-  } else {
-    // Fallback metric if YouTube is not connected
-    displayMetrics.push({
-        id: "members",
-        label: "Team Members",
-        value: project.members?.length?.toString() || "1",
-        change: "Active",
-        positive: true,
-        icon: Users,
-    });
-  }
 
   return (
     <div className="flex flex-col h-full bg-zinc-50">
@@ -107,7 +94,7 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
             {displayMetrics.map((item) => (
               <div
                 key={item.id}
-                className="bg-white border-[0.5px] border-zinc-200 rounded-2xl p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                className="bg-white border-[0.1px] border-zinc-200 rounded-2xl p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden shadow-none hover:shadow-md transition-shadow"
               >
                 {/* Top row: label + icon */}
                 <div className="flex items-start justify-between">
@@ -121,7 +108,7 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
                 <div className="flex items-end justify-between mt-4">
                   <p className="text-2xl font-bold hero-font text-zinc-900 tracking-tight">{item.value}</p>
                   <div className="flex items-center gap-1.5 text-right">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    <span className={`text-[10px]  px-2 py-0.5 rounded-full ${
                       (item as any).positive
                         ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
                         : "bg-red-50 text-red-600 border border-red-100"
@@ -142,7 +129,7 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
             <SocialAnalyticsChart projectId={project.id} />
           </div>
 
-          <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl col-span-4 p-5 h-full">
+          <div className="bg-white border-[0.2px] border-zinc-200 rounded-2xl col-span-4 p-5 h-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold text-zinc-900">Team</h3>
               <Link href={`/${orgSlug}/${projectSlug}/teams`} className="text-sm text-zinc-500 hover:text-zinc-900 transition">
@@ -162,7 +149,7 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
                         alt={m.user.name || "User"}
                       />
                       <div>
-                        <p className="font-medium text-zinc-900">
+                        <p className="font-light text-zinc-900">
                           {m.userId === userId ? "You" : (m.user.name || m.user.email)}
                         </p>
                         <p className="text-sm text-zinc-500 capitalize">{m.role.toLowerCase()}</p>
@@ -180,12 +167,12 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
                         <Users size={16} />
                       </div>
                       <div>
-                        <p className="font-medium text-zinc-900">
+                        <p className="font-medium text-zinc-900 capitalize">
                           {invite.email.split('@')[0]}
                         </p>
                         <div className="flex items-center gap-2">
-                          <p className="text-sm text-zinc-500 capitalize">{invite.role.toLowerCase()}</p>
-                          <span className="px-1 py-0.5 bg-zinc-100 text-[8px] font-bold uppercase rounded">Invited</span>
+                          <p className="text-sm font-light text-zinc-500 capitalize">{invite.role.toLowerCase()}</p>
+                          <span className="px-1 py-0.5 bg-zinc-100 text-[10px] font-medium rounded">Invited</span>
                         </div>
                       </div>
                     </div>
@@ -216,6 +203,12 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
           <div className="col-span-8">
             <RecentActivityTable orgSlug={orgSlug} projectSlug={projectSlug} />
           </div>
+
+          {overviewData?.kiwiko && (
+            <div className="col-span-12">
+              <KiwikoAdvancedAnalytics data={overviewData.kiwiko} />
+            </div>
+          )}
 
           <div className="col-span-4 h-fit bg-white border border-zinc-200 shadow-sm rounded-3xl p-5">
             <h4 className="flex items-center justify-between my-2">

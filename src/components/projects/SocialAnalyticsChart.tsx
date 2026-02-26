@@ -68,7 +68,7 @@ const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-zinc-200 shadow-xl rounded-xl min-w-[120px]">
+        <div className="bg-white p-3 border-[0.2px] border-zinc-200 rounded-xl min-w-[120px]">
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2">
             {label}
           </p>
@@ -88,7 +88,7 @@ const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
   };
 
   return (
-    <div className="bg-white border-[0.5px] border-zinc-200 shadow-sm rounded-2xl p-6 w-full">
+    <div className="bg-white border-[0.2px] border-zinc-200 shadow-sm rounded-2xl p-6 w-full">
       {/* Header Section */}
       <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-4 mb-8">
         <div>

@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, League_Spartan } from "next/font/google";
 import "./globals.css";
 import { ReactLenis } from "../utils/lenis";
+import Script from "next/script";
+
+<Script
+  src="http://localhost:3000/api/tracker.js"
+  data-project="pk_7a78c55694cfb3564b3742dbeda39ba34f130b27ec16fc28"
+  strategy="afterInteractive"
+/>
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

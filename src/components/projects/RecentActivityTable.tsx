@@ -124,7 +124,7 @@ export default function RecentActivityTable({
   };
 
   return (
-    <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-6 h-full">
+    <div className="bg-white border-[0.2px] border-zinc-200 rounded-2xl p-6 h-full">
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-xl font-semibold text-zinc-900 hero-font">Recent Activity</h3>
         <div className="flex items-center gap-3">

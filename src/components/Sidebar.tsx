@@ -73,9 +73,9 @@ const Sidebar = () => {
         />
         {!isCollapsed && (
           <div>
-            <span className="font-black text-base tracking-tight text-zinc-900 leading-none">kiwiko</span>
+            <span className="font-black text-base tracking-tight text-zinc-900 leading-none">Kiwiko</span>
             {(user as any)?.role && (
-              <p className="text-[10px] text-zinc-400 capitalize leading-tight mt-0.5">{(user as any).role.toLowerCase()}</p>
+              <p className="text-xs text-zinc-500 capitalize leading-tight mt-px">{(user as any).role.toLowerCase()}</p>
             )}
           </div>
         )}
@@ -109,7 +109,7 @@ const Sidebar = () => {
                 href={linkHref}
                 key={item.label}
                 title={isCollapsed ? item.label : undefined}
-                className={`relative flex items-center ${isCollapsed ? "justify-center px-2 py-2.5" : "px-3 py-2"} gap-2.5 rounded-lg transition-all text-sm group ${
+                className={`relative flex items-center ${isCollapsed ? "justify-center px-2 py-2.5" : "px-3 py-2"} gap-2.5 rounded-lg transition-all group ${
                   isActive
                     ? "bg-zinc-900 text-white"
                     : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800"
@@ -119,7 +119,7 @@ const Sidebar = () => {
                   <item.icon className="w-4.5 h-4.5" strokeWidth={1.5} />
                 </div>
                 {!isCollapsed && (
-                  <span className="font-medium">{item.label}</span>
+                  <span className="">{item.label}</span>
                 )}
                 {item.badge && !isCollapsed && (
                   <span className="ml-auto text-[10px] px-1.5 py-0.5 flex items-center justify-center text-white font-bold rounded-full bg-red-500">
@@ -158,8 +158,8 @@ const Sidebar = () => {
           {!isCollapsed && (
             <>
               <div className="flex-1 min-w-0 text-left">
-                <p className="font-semibold text-zinc-800 truncate leading-tight">{user?.name || "User"}</p>
-                <p className="text-xs text-zinc-400 truncate leading-tight">{user?.email}</p>
+                <p className="font-medium text-zinc-800 truncate leading-tight">{user?.name || "User"}</p>
+                <p className="text-xs font-light text-zinc-400 truncate leading-tight">{user?.email}</p>
               </div>
               <ChevronUp
                 size={16}

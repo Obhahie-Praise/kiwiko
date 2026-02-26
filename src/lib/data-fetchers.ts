@@ -63,10 +63,38 @@ export async function getOverviewMetrics(projectId: string, userId: string) {
         }
     }
 
+    // 4. Kiwiko Analytics
+    const { 
+        getActiveUsers, 
+        getSessions, 
+        getUsersOnline, 
+        getAllTimeUsers, 
+        getChurnRate 
+    } = await import("./analytics-utils");
+
+    const activeUsers = await getActiveUsers(projectId);
+    const activeUsers7d = await getActiveUsers(projectId, 168);
+    const activeUsers30d = await getActiveUsers(projectId, 720);
+    const sessions = await getSessions(projectId);
+    const usersOnline = await getUsersOnline(projectId);
+    const allTimeUsers = await getAllTimeUsers(projectId);
+    const churnRate = await getChurnRate(projectId);
+    const activeUsersByHour = await import("./analytics-utils").then(m => m.getActiveUsersByHour(projectId));
+
     return {
       viewCount,
       commitsPerWeek,
       youtubeMetric,
+      kiwiko: {
+        activeUsers,
+        activeUsers7d,
+        activeUsers30d,
+        sessions,
+        usersOnline,
+        allTimeUsers,
+        churnRate,
+        activeUsersByHour
+      },
       githubConnected: !!project.githubRepoFullName
     };
   } catch (error) {

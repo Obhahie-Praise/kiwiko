@@ -11,6 +11,7 @@ import { getLinkIcon } from "@/lib/url-utils";
 import { signIn } from "@/lib/auth-client";
 import { Tooltip } from "../../lightswind/tooltip";
 import { SignalType } from "@/generated/prisma";
+import { ConnectProjectModal } from "../../modals/ConnectProjectModal";
 
 interface NewProjectFormProps {
     orgId: string;
@@ -49,6 +50,11 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
     const [isYoutubeConnected, setIsYoutubeConnected] = useState(false);
     const [youtubeChannel, setYoutubeChannel] = useState<any>(null);
     const [isConnectingYoutube, setIsConnectingYoutube] = useState(false);
+
+    // Analytics Modal State
+    const [showConnectModal, setShowConnectModal] = useState(false);
+    const [generatedKeys, setGeneratedKeys] = useState<{ publicKey: string, secretKey: string } | null>(null);
+    const [createdProjectSlug, setCreatedProjectSlug] = useState<string | null>(null);
 
     // PERSISTENCE LOGIC
     const PERSISTENCE_KEY = `new-project-form-${orgId}`;
@@ -209,7 +215,12 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
 
             if (result.success) {
                 clearFormPersistence();
-                router.push(`/${orgSlug}/projects`); 
+                setGeneratedKeys({ 
+                    publicKey: (result.data as any).publicKey, 
+                    secretKey: (result.data as any).secretKey 
+                });
+                setCreatedProjectSlug((result.data as any).slug);
+                setShowConnectModal(true);
             } else {
                 setError(result.error);
             }
@@ -224,6 +235,17 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
 
     return (
         <div className="w-full max-w-3xl mx-auto space-y-8">
+            <ConnectProjectModal 
+                open={showConnectModal} 
+                onOpenChange={(open) => {
+                    setShowConnectModal(open);
+                    if (!open && createdProjectSlug) {
+                        router.push(`/${orgSlug}/${createdProjectSlug}/overview`);
+                    }
+                }}
+                publicKey={generatedKeys?.publicKey || ""}
+                secretKey={generatedKeys?.secretKey || ""}
+            />
             <div className="mb-8">
                 <Link 
                     href={`/${orgSlug}/projects`} 
@@ -839,6 +861,51 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                             </div>
                         )}
                     </div>
+                </div>
+
+                {/* Section: Integrate Kiwiko */}
+                <div className={`p-6 border-t border-zinc-100 transition-all duration-500 ${generatedKeys ? 'bg-zinc-900' : 'bg-zinc-50/30'}`}>
+                    <h2 className={`text-sm font-semibold uppercase tracking-wider mb-4 flex items-center gap-2 ${generatedKeys ? 'text-white' : 'text-zinc-400'}`}>
+                        <Zap size={16} className={generatedKeys ? "text-amber-400 fill-amber-400" : "text-zinc-300"} />
+                        Integrate Kiwiko
+                    </h2>
+
+                    {!generatedKeys ? (
+                        <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-dashed border-zinc-200">
+                            <Info size={16} className="text-zinc-300 shrink-0" />
+                            <p className="text-xs font-medium text-zinc-400">Create the project first to enable integration</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="p-3 bg-white/10 rounded-xl">
+                                    <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Status</p>
+                                    <p className="text-sm font-bold text-emerald-400">Ready to Connect</p>
+                                </div>
+                                <div className="p-3 bg-white/10 rounded-xl">
+                                    <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Keys</p>
+                                    <p className="text-sm font-bold text-white">Generated ✓</p>
+                                </div>
+                            </div>
+                            <p className="text-xs text-white/60 leading-relaxed">
+                                Your project keys are ready. Click Connect to view the integration snippet and add it to your website.
+                            </p>
+                        </div>
+                    )}
+
+                    <button
+                        type="button"
+                        onClick={() => generatedKeys && setShowConnectModal(true)}
+                        disabled={!generatedKeys}
+                        className={`mt-4 w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                            generatedKeys
+                                ? 'bg-white text-zinc-900 hover:bg-zinc-100 shadow-xl'
+                                : 'bg-zinc-200 text-zinc-400 cursor-not-allowed opacity-40'
+                        }`}
+                    >
+                        <Zap size={16} className={generatedKeys ? "text-amber-500" : ""} />
+                        {generatedKeys ? "Connect — View Integration Guide" : "Awaiting Project Creation"}
+                    </button>
                 </div>
             </div>
 

@@ -215,11 +215,15 @@ model Project {
 
   signals ProjectSignal[]
 
+  publicKey String? @unique
+  secretKey String? @unique
+
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   projectViews    ProjectView[]
   commits         ProjectCommit[]
   projectMessages ProjectMessage[]
+  events          Event[]
 
   @@unique([orgId, slug])
   @@index([orgId])
@@ -387,4 +391,23 @@ model ProjectMessage {
 
   @@index([projectId])
   @@map("project_messages")
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  userId    String?  @map("user_id")
+  sessionId String?  @map("session_id")
+  eventName String   @map("event_name")
+  url       String?
+  metadata  Json?
+  timestamp DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([sessionId])
+  @@index([timestamp])
+  @@map("events")
 }

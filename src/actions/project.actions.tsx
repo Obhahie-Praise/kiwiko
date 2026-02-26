@@ -121,6 +121,9 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
       console.error("Failed to parse invites:", e);
   }
 
+  const publicKey = `pk_${crypto.randomBytes(24).toString("hex")}`;
+  const secretKey = `sk_${crypto.randomBytes(32).toString("hex")}`;
+
   try {
     const result = await (prisma as any).$transaction(async (tx: any) => {
         const project = await tx.project.create({
@@ -143,6 +146,8 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
             links,
             githubRepoFullName,
             githubConnectedBy: githubRepoFullName ? userId : null,
+            publicKey,
+            secretKey,
         },
         });
 
@@ -280,7 +285,9 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
         data: { 
             projectId: result.project.id, 
             slug: result.project.slug,
-            invites: result.createdInvites 
+            invites: result.createdInvites,
+            publicKey,
+            secretKey
         } 
     };
   } catch (error: any) {
