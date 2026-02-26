@@ -126,7 +126,7 @@ export default function RecentActivityTable({
   return (
     <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-6 h-full">
       <div className="flex items-center justify-between mb-8">
-        <h3 className="text-xl font-bold text-zinc-900 hero-font">Recent Activity</h3>
+        <h3 className="text-xl font-semibold text-zinc-900 hero-font">Recent Activity</h3>
         <div className="flex items-center gap-3">
           <div className="relative">
             <button 
@@ -168,9 +168,9 @@ export default function RecentActivityTable({
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-zinc-100 pb-4">
-              <th className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 pb-4">Activity</th>
-              <th className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 pb-4">Category</th>
-              <th className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 pb-4 text-right">Time</th>
+              <th className="text-xs tracking-wider font-medium text-zinc-600 pb-4">Category</th>
+              <th className="text-xs tracking-wider font-medium text-zinc-600 pb-4">Activity</th>
+              <th className="text-xs tracking-wider font-medium text-zinc-600 pb-4 text-right">Time</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-50">
@@ -182,20 +182,20 @@ export default function RecentActivityTable({
                       <div className="p-2 bg-zinc-100 rounded-xl group-hover:bg-white transition-colors">
                         <item.icon className="w-5 h-5 text-zinc-600" />
                       </div>
-                      <p className="text-sm font-semibold text-zinc-900 hero-font">
+                      <p className="text-[15px] text-zinc-900 hero-font">
                         {item.title}
                       </p>
                     </div>
                   </td>
                   <td className="py-4">
                     <div className="flex items-center gap-2">
-                       <span className="text-sm font-medium text-zinc-600">{item.category}</span>
+                       <span className="text-sm text-zinc-600">{item.category}</span>
                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${getStatusColor(item.status)}`}>
                          {item.status}
                        </span>
                     </div>
                   </td>
-                  <td className="py-4 text-right text-xs font-medium text-zinc-500 whitespace-nowrap">
+                  <td className="py-4 text-right text-xs text-zinc-500 whitespace-nowrap">
                     {item.timestamp}
                   </td>
                 </tr>
