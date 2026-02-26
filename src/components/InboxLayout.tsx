@@ -119,6 +119,36 @@ const mockEmails: EmailItem[] = [
     body: "Hello,\n\nWe noticed a new login from a recognized device. Lorem ipsum dolor sit amet.",
     date: "Feb, 25", isStarred: false, isImportant: false, label: "Personal"
   },
+  {
+    id: "11", folder: "Inbox", sender: "LinkedIn", email: "updates@linkedin.com", avatar: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=100&auto=format&fit=crop",
+    subject: "You appeared in 12 searches this week", preview: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda dolor dolore esse...",
+    body: "Hi Praise,\n\nYou appeared in 12 searches this week. Keep up the good work on your profile.",
+    date: "Feb, 15", isStarred: false, isImportant: false
+  },
+  {
+    id: "12", folder: "Inbox", sender: "Netflix", email: "info@mailer.netflix.com", avatar: "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?q=80&w=100&auto=format&fit=crop",
+    subject: "New arrivals tailored for you", preview: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda dolor dolore esse...",
+    body: "Hello,\n\nCheck out the new movies and TV shows arriving this week.",
+    date: "Feb, 10", isStarred: false, isImportant: false, label: "Blank"
+  },
+  {
+    id: "13", folder: "Inbox", sender: "Spotify", email: "no-reply@spotify.com", avatar: "https://images.unsplash.com/photo-1614680376573-047b19b7f525?q=80&w=100&auto=format&fit=crop",
+    subject: "Your Weekly Discover is ready", preview: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda dolor dolore esse...",
+    body: "Hi,\n\nWe made a playlist just for you containing 30 new tracks.",
+    date: "Feb, 08", isStarred: false, isImportant: false
+  },
+  {
+    id: "14", folder: "Inbox", sender: "Amazon", email: "shipment-tracking@amazon.com", avatar: "https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?q=80&w=100&auto=format&fit=crop",
+    subject: "Your package has been delivered", preview: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda dolor dolore esse...",
+    body: "Hello,\n\nYour recent Amazon order has been successfully delivered.",
+    date: "Feb, 01", isStarred: false, isImportant: false, label: "Invoices"
+  },
+  {
+    id: "15", folder: "Inbox", sender: "Vercel", email: "support@vercel.com", avatar: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=100&auto=format&fit=crop",
+    subject: "Deployment successful for kiwiko-app", preview: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda dolor dolore esse...",
+    body: "Hi Praise,\n\nYour deployment to Production was successful. You can view the build logs online.",
+    date: "Jan, 28", isStarred: false, isImportant: false, label: "Work"
+  },
 
   // SENT (5)
   ...Array.from({length: 5}).map((_, i) => ({
@@ -143,24 +173,30 @@ const mockEmails: EmailItem[] = [
 ];
 
 export default function InboxLayout() {
+  const [emails, setEmails] = useState<EmailItem[]>(mockEmails);
   const [activeFolder, setActiveFolder] = useState<Folder>("Inbox");
   const [activeFilter, setActiveFilter] = useState<FilterType>(null);
   const [activeLabel, setActiveLabel]   = useState<Label | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
+  
+  // New States for Validation Array & Pagination
+  const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Derive counts
   const folderCounts = {
-    Inbox: mockEmails.filter(m => m.folder === "Inbox").length,
-    Sent: mockEmails.filter(m => m.folder === "Sent").length,
-    Drafts: mockEmails.filter(m => m.folder === "Drafts").length,
-    Trash: mockEmails.filter(m => m.folder === "Trash").length,
+    Inbox: emails.filter(m => m.folder === "Inbox").length,
+    Sent: emails.filter(m => m.folder === "Sent").length,
+    Drafts: emails.filter(m => m.folder === "Drafts").length,
+    Trash: emails.filter(m => m.folder === "Trash").length,
   };
 
-  // 1. Filter emails based on the current selection state
-  const displayedEmails = useMemo(() => {
-    let list = mockEmails;
+  // 1. Filter emails based on the current selection state (ALL items in filter)
+  const filteredEmails = useMemo(() => {
+    let list = emails;
 
     if (activeFilter === "Starred") {
       list = list.filter(m => m.isStarred);
@@ -182,11 +218,18 @@ export default function InboxLayout() {
     }
 
     return list;
-  }, [activeFolder, activeFilter, activeLabel, searchQuery]);
+  }, [emails, activeFolder, activeFilter, activeLabel, searchQuery]);
+  
+  // 2. Pagination derivation
+  const totalPages = Math.ceil(filteredEmails.length / ITEMS_PER_PAGE);
+  const displayedEmails = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredEmails.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredEmails, currentPage]);
 
   // Derive active email for detail view
-  const activeEmailIndex = displayedEmails.findIndex(m => m.id === selectedEmailId);
-  const activeEmail = activeEmailIndex >= 0 ? displayedEmails[activeEmailIndex] : null;
+  const activeEmailIndex = filteredEmails.findIndex(m => m.id === selectedEmailId);
+  const activeEmail = activeEmailIndex >= 0 ? filteredEmails[activeEmailIndex] : null;
 
   // Handlers for selection
   const handleSelectFolder = (folder: Folder) => {
@@ -194,36 +237,77 @@ export default function InboxLayout() {
     setActiveFilter(null);
     setActiveLabel(null);
     setSelectedEmailId(null);
+    setSelectedEmails(new Set());
+    setCurrentPage(1);
   };
 
   const handleSelectFilter = (filter: FilterType) => {
     setActiveFilter(filter);
     setActiveLabel(null);
     setSelectedEmailId(null);
+    setSelectedEmails(new Set());
+    setCurrentPage(1);
   };
 
   const handleSelectLabel = (label: Label) => {
     setActiveLabel(label);
     setActiveFilter(null);
     setSelectedEmailId(null);
+    setSelectedEmails(new Set());
+    setCurrentPage(1);
+  };
+
+  // Handlers for Checkbox Selection
+  const isAllSelected = filteredEmails.length > 0 && selectedEmails.size === filteredEmails.length;
+  const isSomeSelected = selectedEmails.size > 0 && selectedEmails.size < filteredEmails.length;
+
+  const handleToggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedEmails(new Set());
+    } else {
+      setSelectedEmails(new Set(filteredEmails.map(e => e.id)));
+    }
+  };
+
+  const handleToggleEmailSelect = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const newSet = new Set(selectedEmails);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelectedEmails(newSet);
+  };
+
+  // Handler for Starring
+  const handleToggleStar = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setEmails(prev => prev.map(em => em.id === id ? { ...em, isStarred: !em.isStarred } : em));
   };
 
   // Pagination inside Detail View
   const handleNextEmail = () => {
-    if (activeEmailIndex < displayedEmails.length - 1) {
-      setSelectedEmailId(displayedEmails[activeEmailIndex + 1].id);
+    if (activeEmailIndex < filteredEmails.length - 1) {
+      setSelectedEmailId(filteredEmails[activeEmailIndex + 1].id);
     }
   };
 
   const handlePrevEmail = () => {
     if (activeEmailIndex > 0) {
-      setSelectedEmailId(displayedEmails[activeEmailIndex - 1].id);
+      setSelectedEmailId(filteredEmails[activeEmailIndex - 1].id);
     }
+  };
+  
+  // Handlers for List Pagination inside List View 
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(c => c + 1);
+  };
+  
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(c => c - 1);
   };
 
 
   return (
-    <div className="flex h-[calc(100vh)] bg-zinc-50 font-sans p-6 pb-0 pt-2 text-zinc-800">
+    <div className="flex max-w-7xl mx-auto h-[calc(100vh)] bg-zinc-50 font-sans p-6 pb-0 pt-2 text-zinc-800 hero-font">
 
       {/* --- LEFT SIDEBAR --- */}
       <div className="w-64 shrink-0 flex flex-col pt-4 pr-6">
@@ -305,11 +389,11 @@ export default function InboxLayout() {
       <div className="flex-1 flex flex-col bg-white rounded-t-3xl border border-zinc-200 shadow-sm overflow-hidden mb-[-1px]">
         
         {/* Top Breadcrumb Header Equivalent */}
-        <div className="px-6 py-4 flex justify-end items-center text-sm font-medium text-zinc-500 border-b border-zinc-100 bg-white">
+        {/* <div className="px-6 py-4 flex justify-end items-center text-sm font-medium text-zinc-500 border-b border-zinc-100 bg-white">
           <span>Home</span>
           <ChevronRight size={14} className="mx-2 text-zinc-300" />
           <span className="text-zinc-900">{activeEmail ? "Inbox Details" : "Inbox"}</span>
-        </div>
+        </div> */}
 
         {!activeEmail ? (
           /* --- LIST VIEW --- */
@@ -318,8 +402,13 @@ export default function InboxLayout() {
             {/* Toolbar */}
             <div className="px-6 py-4 flex items-center justify-between border-b border-zinc-100">
               <div className="flex items-center gap-4">
-                <button className="w-5 h-5 rounded border border-zinc-300 hover:border-zinc-500 transition-colors flex items-center justify-center text-transparent hover:text-zinc-400">
-                  <ChevronRight size={12} className="rotate-90"/> {/* mock semi-check icon */}
+                <button 
+                  onClick={handleToggleSelectAll}
+                  className={`w-5 h-5 rounded border transition-colors flex items-center justify-center 
+                    ${isAllSelected ? "bg-blue-600 border-blue-600 text-white" : isSomeSelected ? "bg-blue-600 border-blue-600 text-white" : "border-zinc-300 text-transparent hover:border-zinc-500"}`}
+                >
+                  <ChevronRight size={12} className={isSomeSelected && !isAllSelected ? "hidden" : "rotate-90"}/>
+                  {isSomeSelected && !isAllSelected && <div className="w-2.5 h-0.5 bg-white rounded-full"></div>}
                 </button>
                 <div className="h-5 w-px bg-zinc-200"></div>
                 <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><RotateCw size={18} /></button>
@@ -349,18 +438,30 @@ export default function InboxLayout() {
                 </div>
               ) : (
                 <div className="divide-y divide-zinc-50">
-                  {displayedEmails.map(email => (
+                  {displayedEmails.map(email => {
+                    const isSelected = selectedEmails.has(email.id);
+                    return (
                     <div 
                       key={email.id}
                       onClick={() => setSelectedEmailId(email.id)}
-                      className="group flex items-center gap-4 px-6 py-4 hover:shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:z-10 relative bg-white transition-all cursor-pointer border-l-4 border-transparent hover:border-l-blue-500"
+                      className={`group flex items-center gap-4 px-6 py-4 hover:shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:z-10 relative transition-all cursor-pointer border-l-4 ${isSelected ? "bg-blue-50/50 border-l-blue-600" : "bg-white border-transparent hover:border-l-blue-500"}`}
                     >
-                      <button className="shrink-0 w-5 h-5 rounded border border-zinc-300 group-hover:border-zinc-500 transition-colors" />
-                      <button className="shrink-0 text-zinc-300 hover:text-zinc-500 transition-colors">
-                        <Star size={18} className={email.isStarred ? 'fill-yellow-400 text-yellow-400' : ''} />
+                      <button 
+                        onClick={(e) => handleToggleEmailSelect(e, email.id)}
+                        className={`shrink-0 w-5 h-5 rounded border transition-colors flex items-center justify-center
+                          ${isSelected ? "bg-blue-600 border-blue-600 text-white" : "border-zinc-300 text-transparent group-hover:border-zinc-500 text-transparent hover:border-zinc-500"}`}
+                      >
+                         <ChevronRight size={12} className="rotate-90"/>
                       </button>
                       
-                      <div className="w-48 shrink-0 font-medium text-zinc-900 truncate pr-4">
+                      <button 
+                        onClick={(e) => handleToggleStar(e, email.id)}
+                        className={`shrink-0 transition-colors ${email.isStarred ? 'text-yellow-400' : 'text-zinc-300 hover:text-zinc-500'}`}
+                      >
+                        <Star size={18} className={email.isStarred ? 'fill-yellow-400' : ''} />
+                      </button>
+                      
+                      <div className={`w-48 shrink-0 font-medium truncate pr-4 ${!email.isStarred && !isSelected ? "text-zinc-900" : "text-zinc-900"}`}>
                         {email.sender}
                       </div>
                       
@@ -383,17 +484,25 @@ export default function InboxLayout() {
                         {email.date}
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </div>
 
             {/* Pagination Footer */}
             <div className="px-6 py-4 border-t border-zinc-100 flex items-center justify-between text-sm text-zinc-500">
-               <span>Showing {displayedEmails.length > 0 ? 1 : 0} of {displayedEmails.length}</span>
+               <span>Showing {displayedEmails.length > 0 ? currentPage : 0} of {Math.max(1, totalPages)}</span>
                <div className="flex items-center gap-2">
-                 <button className="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-400 transition-colors"><ChevronLeft size={16} /></button>
-                 <button className="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-400 transition-colors"><ChevronRight size={16} /></button>
+                 <button 
+                   onClick={handlePrevPage}
+                   disabled={currentPage === 1}
+                   className="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                 ><ChevronLeft size={16} /></button>
+                 <button 
+                   onClick={handleNextPage}
+                   disabled={currentPage === totalPages}
+                   className="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                 ><ChevronRight size={16} /></button>
                </div>
             </div>
 
@@ -415,7 +524,7 @@ export default function InboxLayout() {
                </div>
 
                <div className="flex items-center gap-4 text-sm text-zinc-500 font-medium">
-                 <span>{activeEmailIndex + 1} of {displayedEmails.length}</span>
+                 <span>{activeEmailIndex + 1} of {filteredEmails.length}</span>
                  <div className="flex items-center gap-2">
                    <button 
                      onClick={handlePrevEmail}
@@ -424,7 +533,7 @@ export default function InboxLayout() {
                    ><ChevronLeft size={16} /></button>
                    <button 
                      onClick={handleNextEmail}
-                     disabled={activeEmailIndex === displayedEmails.length - 1}
+                     disabled={activeEmailIndex === filteredEmails.length - 1}
                      className="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                    ><ChevronRight size={16} /></button>
                  </div>
