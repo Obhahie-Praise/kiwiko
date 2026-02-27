@@ -18,7 +18,7 @@ export default async function UpdatesPage({
 
   const projectId = contextRes.data.project.id;
   const notifRes = await getNotificationsAction(projectId);
-  const initialNotifications = notifRes.success ? notifRes.data : [];
+  const initialNotifications = notifRes.success && notifRes.data ? notifRes.data : [];
 
   return (
     <div className="">

@@ -323,7 +323,7 @@ export default function ProjectCalendar({ projectId }: { projectId: string }) {
   useEffect(() => {
     async function load() {
       const res = await getCalendarEventsAction(projectId);
-      if (res.success) {
+      if (res.success && res.data) {
         setEvents(res.data.map((e: any) => ({
           id: e.id,
           kind: e.attendees?.kind || "team",

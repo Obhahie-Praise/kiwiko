@@ -141,7 +141,15 @@ export default function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalP
             <button type="button" onClick={onClose} className="px-5 py-2.5 text-sm font-bold text-zinc-700 border border-zinc-200 rounded-xl hover:bg-zinc-50 transition-colors">
               Close
             </button>
-            <button type="submit" className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors shadow-sm focus:ring-4 focus:ring-blue-500/20">
+            <button 
+              type="submit" 
+              disabled={!title || !description || !startDate || !endDate}
+              className={`px-5 py-2.5 text-sm font-bold text-white rounded-xl transition-all shadow-sm ${
+                title && description && startDate && endDate 
+                  ? "bg-zinc-900 hover:bg-zinc-800"
+                  : "bg-zinc-300 cursor-not-allowed text-zinc-500"
+              }`}
+            >
               Add Event
             </button>
           </div>
