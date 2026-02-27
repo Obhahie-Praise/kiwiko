@@ -38,14 +38,14 @@ export default function TeamTabs() {
           <Link
             key={segment}
             href={href}
-            className={`flex items-center gap-2.5 py-4 text-sm font-semibold transition-all relative whitespace-nowrap
+            className={`flex items-center gap-2.5 py-4 font-medium transition-all relative whitespace-nowrap
               ${
                 isActive
                   ? "text-zinc-900"
-                  : "text-zinc-400 hover:text-zinc-600"
+                  : "text-zinc-500 hover:text-zinc-600"
               }`}
           >
-            <Icon size={18} className={isActive ? "text-zinc-900" : "text-zinc-400 group-hover:text-zinc-500"} />
+            <Icon size={18} strokeWidth={1.5} className={isActive ? "text-zinc-900" : "text-zinc-500 group-hover:text-zinc-500"} />
             <span>{label}</span>
             {isActive && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-zinc-900 rounded-full" />
