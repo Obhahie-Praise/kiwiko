@@ -82,18 +82,25 @@ export async function GET(req: Request) {
                     : threshold.key === "now" ? `Event Starting Now: ${event.title}`
                     : `Upcoming Event in ${threshold.key}: ${event.title}`;
 
+                // Map kind to notification type
+                const kind = (event.category || "meeting").toLowerCase();
+                const notificationType = ["meeting", "milestone", "achievement"].includes(kind) 
+                    ? kind 
+                    : "calendar_event";
+
                 // Create notifications for all members
                 const newNotifications = await Promise.all(members.map(member => 
                     prisma.notification.create({
                         data: {
                             projectId: event.projectId,
                             userId: member.userId,
-                            type: "calendar_reminder",
+                            type: notificationType,
                             title,
-                            message: `Event "${event.title}" scheduled from ${startTime.toLocaleTimeString()} to ${endTime.toLocaleTimeString()}.`,
+                            message: `The ${kind} "${event.title}" is ${threshold.key === "ended" ? "now over" : threshold.key === "now" ? "starting now" : `starting in ${threshold.key}`}.`,
                             metadata: {
                                 eventId,
-                                threshold: threshold.key
+                                threshold: threshold.key,
+                                isReminder: true
                             }
                         }
                     })

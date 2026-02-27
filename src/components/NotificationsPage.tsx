@@ -12,7 +12,8 @@ import {
   Mail,
   MessageSquare,
   Calendar,
-  UserPlus
+  UserPlus,
+  Target
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { markNotificationAsReadAction } from "@/actions/notification.actions";
@@ -44,6 +45,9 @@ const iconMap: Record<string, any> = {
   calendar_reminder: Bell,
   invite: UserPlus,
   commit: Github,
+  meeting: Calendar,
+  milestone: Target,
+  achievement: Sparkles,
 };
 
 export default function NotificationsPage({ initialNotifications }: { initialNotifications: any[] }) {

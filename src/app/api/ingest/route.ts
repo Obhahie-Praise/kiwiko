@@ -69,6 +69,14 @@ export async function POST(req: NextRequest) {
         where: { publicKey },
         select: { id: true }
       });
+
+      // Fallback to searching by ID (CUID) if publicKey doesn't match
+      if (!project) {
+        project = await prisma.project.findUnique({
+          where: { id: publicKey },
+          select: { id: true }
+        });
+      }
     }
 
     if (!project) {

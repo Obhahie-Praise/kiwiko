@@ -9,9 +9,9 @@ export async function GET(req: NextRequest) {
   window.__KIWIKO_INITIALIZED__ = true;
 
   const scriptTag = document.currentScript || document.querySelector('script[src*="tracker.js"]');
-  const projectId = scriptTag ? scriptTag.getAttribute('data-project') : null;
+  const publicKey = scriptTag ? scriptTag.getAttribute('data-project') : null;
 
-  if (!projectId) {
+  if (!publicKey) {
     console.error('Kiwiko Tracker: data-project attribute missing');
     return;
   }
@@ -52,7 +52,8 @@ export async function GET(req: NextRequest) {
     };
 
     if (navigator.sendBeacon) {
-      navigator.sendBeacon('${domain}/api/ingest', JSON.stringify(payload));
+      const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+      navigator.sendBeacon('${domain}/api/ingest', blob);
     } else {
       fetch('${domain}/api/ingest', {
         method: 'POST',
@@ -100,7 +101,7 @@ export async function GET(req: NextRequest) {
     }
   };
 
-  console.log('Kiwiko Tracker: Initialized for project ' + projectId);
+  console.log('Kiwiko Tracker: Initialized for project ' + publicKey);
 })();
   `.trim();
 

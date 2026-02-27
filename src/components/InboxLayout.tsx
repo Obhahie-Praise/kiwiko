@@ -20,8 +20,14 @@ import {
   ReplyAll,
   Forward,
   Mail,
-  PenLine
+  PenLine,
+  X
 } from "lucide-react";
+import { useParams } from "next/navigation";
+import { getProjectEmailsAction, sendComposeEmailAction } from "@/actions/mail.actions";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { getProjectHomeDataAction } from "@/actions/project.actions";
 
 // --- Types & Mock Data ---
 
@@ -173,13 +179,49 @@ const mockEmails: EmailItem[] = [
 ];
 
 export default function InboxLayout() {
-  const [emails, setEmails] = useState<EmailItem[]>(mockEmails);
+  const { projectSlug, orgSlug } = useParams() as { projectSlug: string, orgSlug: string };
+  const { toast } = useToast();
+  const [emails, setEmails] = useState<EmailItem[]>([]);
+  const [projectId, setProjectId] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isComposeOpen, setIsComposeOpen] = useState(false);
+  const [composeData, setComposeData] = useState({ to: "", subject: "", body: "" });
+
   const [activeFolder, setActiveFolder] = useState<Folder>("Inbox");
   const [activeFilter, setActiveFilter] = useState<FilterType>(null);
   const [activeLabel, setActiveLabel]   = useState<Label | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
+
+  // Fetch Project and Emails
+  React.useEffect(() => {
+    async function fetchData() {
+        const homeRes = await getProjectHomeDataAction(orgSlug, projectSlug);
+        if (homeRes.success && homeRes.data) {
+            setProjectId(homeRes.data.project.id);
+            const emailRes = await getProjectEmailsAction(homeRes.data.project.id);
+            if (emailRes.success && emailRes.data) {
+                const mapped: EmailItem[] = emailRes.data.map((e: any) => ({
+                    id: e.id,
+                    folder: e.isOutgoing ? "Sent" : "Inbox",
+                    sender: e.isOutgoing ? "You" : (e.senderName || e.senderEmail),
+                    email: e.isOutgoing ? e.recipientEmail : e.senderEmail,
+                    avatar: "",
+                    subject: e.subject,
+                    preview: e.content.substring(0, 100) + "...",
+                    body: e.content,
+                    date: format(new Date(e.createdAt), "MMM d, h:mm a"),
+                    isStarred: false,
+                    isImportant: false,
+                }));
+                setEmails(mapped);
+            }
+        }
+        setIsLoading(false);
+    }
+    fetchData();
+  }, [orgSlug, projectSlug]);
   
   // New States for Validation Array & Pagination
   const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set());
@@ -312,8 +354,11 @@ export default function InboxLayout() {
       {/* --- LEFT SIDEBAR --- */}
       <div className="w-64 shrink-0 flex flex-col pt-4 pr-6">
         <div className="mb-6">
-          <h1 className="text-xl font-bold text-zinc-900 mb-6">Inbox</h1>
-          <button className="flex items-center justify-center gap-2 w-full bg-zinc-900 hover:bg-zinc-700 text-white py-3 rounded-xl font-semibold transition-colors shadow-sm tracking-wide">
+          <h1 className="text-xl font-bold text-zinc-900 mb-6 tracking-tight">Inbox</h1>
+          <button 
+            onClick={() => setIsComposeOpen(true)}
+            className="flex items-center justify-center gap-2 w-full bg-zinc-900 hover:bg-zinc-800 text-white py-3 rounded-2xl font-semibold transition-all shadow-md active:scale-[0.98] tracking-wide"
+          >
             <PenLine size={16} /> Compose
           </button>
         </div>
@@ -614,6 +659,96 @@ export default function InboxLayout() {
         )}
       </div>
 
+      {/* --- COMPOSE MODAL --- */}
+      {isComposeOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+           <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 bg-zinc-50/50">
+                 <h2 className="text-lg font-bold text-zinc-900">New Message</h2>
+                 <button onClick={() => setIsComposeOpen(false)} className="p-2 hover:bg-zinc-200 rounded-full transition-colors">
+                    <X size={20} className="text-zinc-500" />
+                 </button>
+              </div>
+              <div className="p-6 space-y-4">
+                 <div>
+                    <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 ml-1">Recipient Email</label>
+                    <input 
+                       type="email" 
+                       placeholder="Enter email address..."
+                       value={composeData.to}
+                       onChange={(e) => setComposeData({...composeData, to: e.target.value})}
+                       className="w-full px-4 py-3 rounded-2xl border border-zinc-200 focus:outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all text-sm font-medium"
+                    />
+                 </div>
+                 <div>
+                    <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 ml-1">Subject</label>
+                    <input 
+                       type="text" 
+                       placeholder="Enter subject..."
+                       value={composeData.subject}
+                       onChange={(e) => setComposeData({...composeData, subject: e.target.value})}
+                       className="w-full px-4 py-3 rounded-2xl border border-zinc-200 focus:outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all text-sm font-medium"
+                    />
+                 </div>
+                 <div>
+                    <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 ml-1">Message</label>
+                    <textarea 
+                       rows={8}
+                       placeholder="Type your message here..."
+                       value={composeData.body}
+                       onChange={(e) => setComposeData({...composeData, body: e.target.value})}
+                       className="w-full px-4 py-3 rounded-2xl border border-zinc-200 focus:outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all text-sm font-medium resize-none"
+                    ></textarea>
+                 </div>
+              </div>
+              <div className="px-6 py-4 bg-zinc-50 border-t border-zinc-100 flex justify-end items-center gap-3">
+                 <button 
+                   onClick={() => setIsComposeOpen(false)}
+                   className="px-6 py-2.5 rounded-2xl text-sm font-bold text-zinc-600 hover:bg-zinc-200 transition-colors"
+                 >
+                    Cancel
+                 </button>
+                 <button 
+                   onClick={async () => {
+                      if (!composeData.to || !composeData.subject || !composeData.body) {
+                        toast({ title: "Error", description: "Please fill all fields", variant: "destructive" });
+                        return;
+                      }
+                      const res = await sendComposeEmailAction(projectId, composeData.to, composeData.subject, composeData.body);
+                      if (res.success) {
+                        toast({ title: "Success", description: "Email sent successfully!", variant: "success" });
+                        setIsComposeOpen(false);
+                        setComposeData({ to: "", subject: "", body: "" });
+                        // Refresh emails
+                        const emailRes = await getProjectEmailsAction(projectId);
+                        if (emailRes.success && emailRes.data) {
+                            const mapped: EmailItem[] = emailRes.data.map((e: any) => ({
+                                id: e.id,
+                                folder: e.isOutgoing ? "Sent" : "Inbox",
+                                sender: e.isOutgoing ? "You" : (e.senderName || e.senderEmail),
+                                email: e.isOutgoing ? e.recipientEmail : e.senderEmail,
+                                avatar: "",
+                                subject: e.subject,
+                                preview: e.content.substring(0, 100) + "...",
+                                body: e.content,
+                                date: format(new Date(e.createdAt), "MMM d, h:mm a"),
+                                isStarred: false,
+                                isImportant: false,
+                            }));
+                            setEmails(mapped);
+                        }
+                      } else {
+                        toast({ title: "Error", description: res.error || "Failed to send email", variant: "destructive" });
+                      }
+                   }}
+                   className="px-8 py-2.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold transition-all shadow-md active:scale-95"
+                 >
+                    Send Email
+                 </button>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }

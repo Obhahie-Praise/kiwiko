@@ -9,12 +9,35 @@ export async function getCalendarEventsAction(projectId: string) {
   if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
   try {
-    const events = await prisma.calendarEvent.findMany({
-      where: { projectId },
-      orderBy: { startTime: "asc" }
-    });
+    const [events, emails] = await Promise.all([
+      prisma.calendarEvent.findMany({
+        where: { projectId },
+        orderBy: { startTime: "asc" }
+      }),
+      prisma.email.findMany({
+        where: { projectId },
+        orderBy: { createdAt: "asc" }
+      })
+    ]);
 
-    return { success: true, data: events };
+    const mappedEmails = emails.map(email => ({
+      id: email.id,
+      projectId: email.projectId,
+      title: email.isOutgoing ? (email.recipientName || email.recipientEmail || "Unknown Recipient") : (email.senderName || email.senderEmail),
+      description: email.content, // Truncation can happen on frontend or here
+      startTime: email.createdAt,
+      endTime: email.createdAt,
+      location: null,
+      attendees: { kind: "email" },
+      createdAt: email.createdAt,
+      updatedAt: email.createdAt,
+    }));
+
+    const allEvents = [...events, ...mappedEmails].sort((a, b) => 
+      new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    );
+
+    return { success: true, data: allEvents };
   } catch (error) {
     return { success: false, error: "Failed to fetch events" };
   }
@@ -43,24 +66,31 @@ export async function addCalendarEventAction(
         startTime: data.startTime,
         endTime: data.endTime,
         location: data.location,
-        attendees: { kind: data.kind || "team" }, 
+        category: data.kind || "meeting",
       }
     });
 
     // Notify all project members about the new event
     const members = await prisma.projectMember.findMany({
-      where: { projectId, userId: { not: session.user.id } },
+      where: { projectId },
       select: { userId: true }
     });
+
+    // Map kind to notification type
+    const kind = (data.kind || "meeting").toLowerCase();
+    const notificationType = ["meeting", "milestone", "achievement"].includes(kind) 
+      ? kind 
+      : "calendar_event";
 
     await Promise.all(
       members.map(m => prisma.notification.create({
         data: {
           projectId,
           userId: m.userId,
-          type: "calendar_event",
-          title: "New Calendar Event",
-          message: `${session.user.name || "A user"} added an event: ${data.title}`,
+          type: notificationType,
+          title: data.title,
+          message: `${session.user.name || "A user"} added a ${kind}: ${data.title}`,
+          read: m.userId === session.user.id,
           metadata: { eventId: event.id }
         }
       }))
