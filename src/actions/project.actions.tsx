@@ -602,6 +602,118 @@ export async function inviteProjectMemberAction(projectId: string, email: string
     }
 }
 
+export async function editProjectMemberAction(
+    projectId: string,
+    memberId: string,
+    isPendingInvite: boolean,
+    updatedData: { role: string; email: string }
+): Promise<ActionResponse<boolean>> {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+
+    const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: { organization: true }
+    });
+
+    if (!project) return { success: false, error: "Project not found" };
+
+    const membership = await prisma.membership.findUnique({
+        where: { userId_orgId: { userId: session.user.id, orgId: project.orgId } }
+    });
+
+    if (!membership || !["OWNER", "ADMIN"].includes(membership.role)) {
+        return { success: false, error: "Insufficient permissions to edit members" };
+    }
+
+    try {
+        if (isPendingInvite) {
+            const invite = await prisma.projectInvite.findUnique({ where: { id: memberId } });
+            if (!invite) return { success: false, error: "Invite not found" };
+
+            // If email changed, we need to resend the invite with a new token
+            if (invite.email !== updatedData.email) {
+                const token = crypto.randomBytes(32).toString("hex");
+                await prisma.projectInvite.update({
+                    where: { id: memberId },
+                    data: {
+                        role: mapRole(updatedData.role) as any,
+                        email: updatedData.email,
+                        token,
+                        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                    }
+                });
+
+                await sendTeamInviteEmail({
+                    email: updatedData.email,
+                    orgName: project.organization.name,
+                    inviterName: session.user.name || "Someone",
+                    inviteLink: `${process.env.BETTER_AUTH_URL}/invite/${token}`,
+                    logoUrl: project.logoUrl || project.organization.logoUrl,
+                    bannerUrl: project.bannerUrl || project.organization.bannerUrl,
+                    projectName: project.name
+                });
+            } else {
+                // Just update role
+                await prisma.projectInvite.update({
+                    where: { id: memberId },
+                    data: { role: mapRole(updatedData.role) as any }
+                });
+            }
+        } else {
+            // Active project member
+            const pMember = await prisma.projectMember.findUnique({ 
+                where: { id: memberId },
+                include: { user: true }
+            });
+            if (!pMember) return { success: false, error: "Project member not found" };
+
+            // Role update
+            if (pMember.user.email === updatedData.email) {
+                 await prisma.projectMember.update({
+                     where: { id: memberId },
+                     data: { role: mapRole(updatedData.role) as any }
+                 });
+            } else {
+                 // Email changed for an ACTIVE member
+                 // We remove them from the project and send a brand new invite to the new email
+                 await prisma.projectMember.delete({ where: { id: memberId }});
+                 
+                 const token = crypto.randomBytes(32).toString("hex");
+                 await prisma.projectInvite.create({
+                    data: {
+                        email: updatedData.email,
+                        role: mapRole(updatedData.role) as any,
+                        projectId,
+                        invitedById: session.user.id,
+                        token,
+                        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                    }
+                });
+
+                await sendTeamInviteEmail({
+                    email: updatedData.email,
+                    orgName: project.organization.name,
+                    inviterName: session.user.name || "Someone",
+                    inviteLink: `${process.env.BETTER_AUTH_URL}/invite/${token}`,
+                    logoUrl: project.logoUrl || project.organization.logoUrl,
+                    bannerUrl: project.bannerUrl || project.organization.bannerUrl,
+                    projectName: project.name
+                });
+            }
+        }
+
+        revalidatePath(`/${project.organization.slug}/${project.slug}/teams/board`);
+        return { success: true, data: true };
+    } catch (error) {
+        console.error("Edit Project Member Error:", error);
+        return { success: false, error: "Failed to edit project member" };
+    }
+}
+
 export async function getUserContextAction(): Promise<ActionResponse<{ organizations: any[] }>> {
     const session = await auth.api.getSession({
         headers: await headers(),

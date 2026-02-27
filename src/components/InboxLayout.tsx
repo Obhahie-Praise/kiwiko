@@ -313,7 +313,7 @@ export default function InboxLayout() {
       <div className="w-64 shrink-0 flex flex-col pt-4 pr-6">
         <div className="mb-6">
           <h1 className="text-xl font-bold text-zinc-900 mb-6">Inbox</h1>
-          <button className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors shadow-sm tracking-wide">
+          <button className="flex items-center justify-center gap-2 w-full bg-zinc-900 hover:bg-zinc-700 text-white py-3 rounded-xl font-semibold transition-colors shadow-sm tracking-wide">
             <PenLine size={16} /> Compose
           </button>
         </div>
@@ -333,14 +333,14 @@ export default function InboxLayout() {
                 <button
                   key={folder}
                   onClick={() => handleSelectFolder(folder)}
-                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-colors ${isActive ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-zinc-600 hover:bg-zinc-100 font-medium'}`}
+                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-colors ${isActive ? 'bg-zinc-100 text-zinc-900 font-semibold' : 'text-zinc-600 hover:bg-zinc-100 font-medium'}`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon size={18} className={isActive ? 'text-blue-600' : 'text-zinc-500'} />
+                    <Icon size={18} className={isActive ? 'text-zinc-600' : 'text-zinc-500'} />
                     <span>{folder}</span>
                   </div>
                   {folderCounts[folder] > 0 && (
-                    <span className={`text-xs ${isActive ? 'text-blue-600' : 'text-zinc-400'}`}>{folderCounts[folder]}</span>
+                    <span className={`text-xs ${isActive ? 'text-zinc-600' : 'text-zinc-400'}`}>{folderCounts[folder]}</span>
                   )}
                 </button>
               )
@@ -412,7 +412,7 @@ export default function InboxLayout() {
                 </button>
                 <div className="h-5 w-px bg-zinc-200"></div>
                 <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><RotateCw size={18} /></button>
-                <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><Trash2 size={18} /></button>
+                <button className="text-red-500 hover:text-red-800 transition-colors"><Trash2 size={18} /></button>
                 <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><Mail size={18} /></button>
                 <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><MoreVertical size={18} /></button>
               </div>
