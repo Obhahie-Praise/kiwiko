@@ -171,7 +171,7 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
                 {/* Empty member (future-facing) */}
                 <Link href={`/${orgSlug}/${projectSlug}/teams`} className="flex items-center justify-between opacity-90 hover:opacity-100 transition-opacity">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full border border-dashed border-zinc-300 flex items-center justify-center text-black text-zinc-400">
+                    <div className="w-9 h-9 rounded-full border border-dashed border-zinc-300 flex items-center justify-center text-zinc-600">
                       +
                     </div>
                     <div>
@@ -200,7 +200,7 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
           )}
 
           <div className="col-span-12">
-            <ProjectCalendar />
+            <ProjectCalendar projectId={project.id} />
           </div>
         </div>
       </div>

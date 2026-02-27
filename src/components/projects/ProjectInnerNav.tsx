@@ -157,10 +157,10 @@ const ProjectInnerNav = () => {
               {currentProject?.logoUrl ? (
                 <img src={currentProject.logoUrl} className="w-full h-full object-cover rounded" alt="" />
               ) : (
-                <span className="text-[9px] font-black">{(currentProject?.name || projectSlug).charAt(0).toUpperCase()}</span>
+                <span className="text-[9px] font-black">{(currentProject?.name || projectSlug || "?").charAt(0).toUpperCase()}</span>
               )}
             </div>
-            <span className="max-w-[140px] truncate">{currentProject?.name || projectSlug}</span>
+            <span className="max-w-[140px] truncate">{currentProject?.name || projectSlug || "Project"}</span>
             <ChevronDown size={11} className={`text-zinc-400 transition-transform duration-150 ${isProjectMenuOpen ? "rotate-180" : ""}`} />
           </button>
 
@@ -227,11 +227,13 @@ const ProjectInnerNav = () => {
           <Settings size={15} strokeWidth={1.5} />
         </Link>
 
-        <NotificationsMenu />
-
-        <div className="h-4 w-px bg-zinc-200 mx-1" />
-
-        <NavProfileDropdown session={session} orgSlug={orgSlug} />
+        {session?.user && (
+          <>
+            <NotificationsMenu />
+            <div className="h-4 w-px bg-zinc-200 mx-1" />
+            <NavProfileDropdown session={session} orgSlug={orgSlug} />
+          </>
+        )}
       </div>
     </nav>
   );

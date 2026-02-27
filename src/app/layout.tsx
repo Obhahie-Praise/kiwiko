@@ -4,11 +4,7 @@ import "./globals.css";
 import { ReactLenis } from "../utils/lenis";
 import Script from "next/script";
 
-<Script
-  src="http://localhost:3000/api/tracker.js"
-  data-project="pk_7a78c55694cfb3564b3742dbeda39ba34f130b27ec16fc28"
-  strategy="afterInteractive"
-/>
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +42,11 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} ${leagueSpartan.variable} antialiased overflow-x-hidden`}
         >
           {children}
+          <Script
+            src="http://localhost:3000/api/tracker.js"
+            data-project="pk_7a78c55694cfb3564b3742dbeda39ba34f130b27ec16fc28"
+            strategy="afterInteractive"
+          />
         </body>
       </ReactLenis>
     </html>

@@ -12,7 +12,18 @@ export async function sendProjectEmailAction(
   content: string
 ) {
   try {
-    // 1. Save message to DB
+    // 1. Save message to DB (using the new Email model)
+    const emailRecord = await prisma.email.create({
+      data: {
+        projectId,
+        senderName,
+        senderEmail,
+        subject,
+        content,
+      },
+    });
+
+    // Also keep ProjectMessage for legacy if needed, or replace it. Using both for safety.
     const message = await prisma.projectMessage.create({
       data: {
         projectId,
@@ -43,6 +54,25 @@ export async function sendProjectEmailAction(
     if (adminEmails.length === 0) {
       return { success: false, error: "No admins found for this project." };
     }
+
+    // Push notification to admins
+    await Promise.all(
+      admins.map((admin) => 
+        prisma.notification.create({
+          data: {
+            projectId,
+            userId: admin.userId,
+            type: "email",
+            title: `New Message from ${senderName}`,
+            message: subject,
+            metadata: {
+              emailId: emailRecord.id,
+              senderEmail,
+            }
+          }
+        })
+      )
+    );
 
     // 3. Send email to admins
     const EmailTemplate = () => {

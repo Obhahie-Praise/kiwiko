@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Plus, AlertTriangle } from "lucide-react";
+import { X, Plus, AlertTriangle, Banknote, Users, Globe } from "lucide-react";
 import { FundingLineChart } from "./FundingLineChart";
 import { InvestorPieChart } from "./FundingPieChart";
 
@@ -24,38 +24,31 @@ export default function FundingDashboard() {
       label: "Total Raised",
       value: "$128,000",
       sub: "All-time",
+      icon: Banknote,
+      positive: true,
     },
     {
       label: "Investors",
       value: "34",
       sub: "Across rounds",
+      icon: Users,
+      positive: true,
     },
     {
       label: "Avg Ticket",
       value: "$3,764",
       sub: "Per investor",
+      icon: Banknote,
+      positive: true,
     },
     {
       label: "Funding Type",
       value: "Public",
       sub: "Open to everyone",
+      icon: Globe,
+      positive: true,
     },
   ];
-
-  <div className="grid grid-cols-4 gap-4  bg-zinc-50">
-    {metrics.map((m) => (
-      <div key={m.label} className="border rounded-2xl p-4 space-y-2 bg-white">
-        <p className="text-xs text-zinc-500">{m.label}</p>
-
-        <p className="text-xl font-semibold text-zinc-900">{m.value}</p>
-
-        <p className="text-xs text-zinc-400">{m.sub}</p>
-      </div>
-    ))}
-    
-
-  </div>
-  
 
   return (
     <div className="space-y-8 border-t-2 border-l-2 rounded-tl-2xl p-6 bg-zinc-50">
@@ -70,13 +63,29 @@ export default function FundingDashboard() {
         {metrics.map((m) => (
           <div
             key={m.label}
-            className="border rounded-2xl p-4 space-y-2 bg-white"
+            className="bg-white border-[0.1px] border-zinc-200 rounded-2xl p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden shadow-none hover:shadow-md transition-shadow"
           >
-            <p className="text-xs text-zinc-500">{m.label}</p>
+            {/* Top row: label + icon */}
+            <div className="flex items-start justify-between">
+                <p className="text-sm text-zinc-600 font-medium tracking-wider hero-font">{m.label}</p>
+                <div className="p-1.5 bg-zinc-100 rounded-lg border border-zinc-100">
+                <m.icon className="w-3.5 h-3.5 text-zinc-500" strokeWidth={1.5} />
+                </div>
+            </div>
 
-            <p className="text-xl font-semibold text-zinc-900">{m.value}</p>
-
-            <p className="text-xs text-zinc-400">{m.sub}</p>
+            {/* Bottom row: value + change pill */}
+            <div className="flex items-end justify-between mt-4">
+                <p className="text-2xl font-bold hero-font text-zinc-900 tracking-tight">{m.value}</p>
+                <div className="flex items-center gap-1.5 text-right">
+                <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                    m.positive
+                    ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                    : "bg-red-50 text-red-600 border border-red-100"
+                }`}>
+                    {m.sub}
+                </span>
+                </div>
+            </div>
           </div>
         ))}
       </div>

@@ -29,6 +29,8 @@ model User {
   createdProjects     Project[]          @relation("ProjectCreator")
   projectMemberships  ProjectMember[]
   connectedAccounts   ConnectedAccount[]
+  notifications       Notification[]
+  chatMessages        ChatMessage[]
 
   @@unique([email])
   @@map("user")
@@ -224,6 +226,10 @@ model Project {
   commits         ProjectCommit[]
   projectMessages ProjectMessage[]
   events          Event[]
+  emails          Email[]
+  notifications   Notification[]
+  calendarEvents  CalendarEvent[]
+  chatMessages    ChatMessage[]
 
   @@unique([orgId, slug])
   @@index([orgId])
@@ -410,4 +416,79 @@ model Event {
   @@index([sessionId])
   @@index([timestamp])
   @@map("events")
+}
+
+model Email {
+  id          String   @id @default(cuid())
+  projectId   String   @map("project_id")
+  senderName  String   @map("sender_name")
+  senderEmail String   @map("sender_email")
+  subject     String
+  content     String   @db.Text
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("emails")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  userId    String?  @map("user_id")
+  type      String
+  title     String
+  message   String
+  metadata  Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([userId])
+  @@map("notifications")
+}
+
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  projectId   String   @map("project_id")
+  title       String
+  description String?  @db.Text
+  startTime   DateTime @map("start_time")
+  endTime     DateTime @map("end_time")
+  location    String?
+  attendees   Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("calendar_events")
+}
+
+model ChatMessage {
+  id         String   @id @default(cuid())
+  projectId  String   @map("project_id")
+  senderId   String   @map("sender_id")
+  receiverId String?  @map("receiver_id") // Null for group chats
+  text       String   @db.Text
+  file       Json?
+  link       Json?
+  folder     Json?
+  image      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sender  User    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@map("chat_messages")
 }

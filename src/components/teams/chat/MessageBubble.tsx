@@ -76,6 +76,7 @@ export default function MessageBubble({ message }: any) {
 
         
         <span className="text-[11px] font-medium text-zinc-400 mt-1 opacity-100 transition-opacity">
+            {!message.mine && message.user && <span className="mr-1">{message.user} •</span>}
             {message.time || "Just now"}
         </span>
       </div>

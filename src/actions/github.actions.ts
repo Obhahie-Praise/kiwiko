@@ -263,6 +263,52 @@ export async function syncProjectGithubMetrics(projectId: string): Promise<Actio
       }))
     ]);
 
+    // Send notifications for new commits
+    if (latestCommits.length > 0) {
+      const existingCommitsAfterSync = await prisma.projectCommit.findMany({
+        where: { projectId, sha: { in: latestCommits.map(c => c.sha) } },
+        select: { sha: true, createdAt: true, committedAt: true }
+      });
+
+      // Filter to commits that were created in the last 10 seconds to detect "new" ones from this sync
+      const nowTime = Date.now();
+      const newShas = new Set(
+        existingCommitsAfterSync
+          .filter(c => nowTime - c.createdAt.getTime() < 10000)
+          .map(c => c.sha)
+      );
+
+      const newCommitsToNotify = latestCommits.filter(c => newShas.has(c.sha));
+
+      if (newCommitsToNotify.length > 0) {
+        const admins = await prisma.projectMember.findMany({
+          where: { projectId, role: { in: ["OWNER", "ADMIN", "FOUNDER", "CO_FOUNDER"] } },
+          select: { userId: true }
+        });
+
+        const notifications = [];
+        for (const admin of admins) {
+          for (const c of newCommitsToNotify) {
+            notifications.push({
+              projectId,
+              userId: admin.userId,
+              type: "git_commit",
+              title: "New Commit Pushed",
+              message: `${c.commit.author.name} pushed a commit: ${c.commit.message}`,
+              metadata: {
+                sha: c.sha,
+                url: c.html_url
+              }
+            });
+          }
+        }
+
+        if (notifications.length > 0) {
+          await prisma.notification.createMany({ data: notifications });
+        }
+      }
+    }
+
     return { success: true, data: true };
   } catch (error: any) {
     return { success: false, error: error.message };

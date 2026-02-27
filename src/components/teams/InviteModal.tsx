@@ -36,7 +36,7 @@ export default function InviteMember({ projectId, orgSlug }: { projectId: string
     <>
       <button
         onClick={() => setOpen(true)}
-        className="px-3 py-1.5 rounded-lg border font-medium border-zinc-500 hover:bg-zinc-100"
+        className="px-3 py-1.5 rounded-lg border font-medium border-zinc-500 bg-black text-white hover:bg-zinc-900"
       >
         Invite Member
       </button>

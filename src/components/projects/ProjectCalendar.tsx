@@ -32,6 +32,8 @@ export interface CalendarEvent {
   color?: string; // custom hex color
 }
 
+import { getCalendarEventsAction, addCalendarEventAction } from "@/actions/calendar.actions";
+
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const KIND_META: Record<EventKind, { label: string; color: string; bg: string; Icon: React.ElementType }> = {
@@ -42,32 +44,7 @@ const KIND_META: Record<EventKind, { label: string; color: string; bg: string; I
   team:        { label: "Team",        color: "text-zinc-600",  bg: "bg-zinc-100 border-zinc-200", Icon: Users },
 };
 
-const LOCAL_STORAGE_KEY = "kiwiko_mock_events";
-
-// ─── Sample data ──────────────────────────────────────────────────────────────
-
 const now = new Date();
-const d = (offset: number, h = 10, m = 0) => {
-  const x = new Date(now);
-  x.setDate(x.getDate() + offset);
-  x.setHours(h, m, 0, 0);
-  return x;
-};
-
-const SAMPLE_EVENTS: CalendarEvent[] = [
-  { id: "1",  kind: "achievement", title: "First 100 Users",            description: "Reached 100 active users on platform",    date: d(-14, 9),  past: true },
-  { id: "2",  kind: "milestone",   title: "MVP Launch",                 description: "Public MVP went live",                    date: d(-10, 10), past: true },
-  { id: "3",  kind: "meeting",     title: "Investor Call – Seed Round", description: "30-min intro with ABC Ventures",          date: d(-7,  14), past: true,  duration: 30 },
-  { id: "4",  kind: "email",       title: "YC Application Sent",        description: "Submitted Y Combinator W25 application",  date: d(-5,  11), past: true },
-  { id: "5",  kind: "team",        title: "Design Sprint Kickoff",       description: "Team aligned on Q1 product direction",   date: d(-3,  10), past: true },
-  { id: "6",  kind: "achievement", title: "500 Sign-ups",               description: "Crossed 500 total sign-ups",              date: d(-1,  16), past: true },
-  { id: "7",  kind: "meeting",     title: "Weekly Standup",             description: "Team sync — progress + blockers",         date: d(1,   9),  past: false, duration: 30 },
-  { id: "8",  kind: "milestone",   title: "Beta Feature Freeze",        description: "No new features until beta stable",       date: d(3,   12), past: false },
-  { id: "9",  kind: "meeting",     title: "Demo Day Practice",          description: "Rehearsal with full team + pitch deck",   date: d(5,   15), past: false, duration: 60 },
-  { id: "10", kind: "email",       title: "Follow-up: TechStars",       description: "Send progress update to TechStars team",  date: d(7,   10), past: false },
-  { id: "11", kind: "team",        title: "Q1 Retrospective",           description: "Review wins, misses & team morale check", date: d(10,  14), past: false },
-  { id: "12", kind: "milestone",   title: "Paid Tier Launch",           description: "Go live with Pro subscription tier",      date: d(14,  9),  past: false },
-];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -326,8 +303,8 @@ function DayView({ cursor, events }: { cursor: Date; events: CalendarEvent[] }) 
 type ViewMode = "day" | "week" | "month";
 type TabMode  = "upcoming" | "past";
 
-export default function ProjectCalendar() {
-  const [events, setEvents] = useState<CalendarEvent[]>(SAMPLE_EVENTS);
+export default function ProjectCalendar({ projectId }: { projectId: string }) {
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [view, setView]     = useState<ViewMode>("month");
   const [cursor, setCursor] = useState(new Date());
   const [tab, setTab]       = useState<TabMode>("upcoming");
@@ -342,38 +319,41 @@ export default function ProjectCalendar() {
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
 
-  // Load events from LocalStorage
+  // Load events from DB
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // Dates need to be revived
-        const revived: CalendarEvent[] = parsed.map((e: any) => ({
-          ...e,
-          date: new Date(e.date),
-          endDate: e.endDate ? new Date(e.endDate) : undefined
-        }));
-        
-        // Merge standard events and local ones (if needed), or just replace
-        // We'll append custom local events to SAMPLE_EVENTS
-        const existingIds = new Set(SAMPLE_EVENTS.map(s => s.id));
-        const customEvents = revived.filter(e => !existingIds.has(e.id));
-        setEvents([...SAMPLE_EVENTS, ...customEvents]);
+    async function load() {
+      const res = await getCalendarEventsAction(projectId);
+      if (res.success) {
+        setEvents(res.data.map((e: any) => ({
+          id: e.id,
+          kind: e.attendees?.kind || "team",
+          title: e.title,
+          description: e.description || undefined,
+          date: new Date(e.startTime),
+          endDate: e.endTime ? new Date(e.endTime) : undefined,
+          duration: e.endTime ? Math.round((new Date(e.endTime).getTime() - new Date(e.startTime).getTime()) / 60000) : undefined,
+          past: new Date(e.startTime).getTime() < new Date().getTime(),
+          color: undefined
+        })));
       }
-    } catch(e) {
-      console.error("Failed to parse local stored events", e);
     }
-  }, []);
+    load();
+  }, [projectId]);
 
-  const handleAddEvent = (newEvent: CalendarEvent) => {
-    const updated = [...events, newEvent];
-    setEvents(updated);
-    
-    // Save to local storage (omitting original sample events to save space if desired, or save all)
-    // To make it simple, we save only the user-created ones
-    const userEvents = updated.filter(e => !SAMPLE_EVENTS.map(s=>s.id).includes(e.id));
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userEvents));
+  const handleAddEvent = async (newEvent: CalendarEvent) => {
+    // Add optimistic approach
+    setEvents(p => [...p, newEvent]);
+    const res = await addCalendarEventAction(projectId, {
+      title: newEvent.title,
+      description: newEvent.description,
+      startTime: newEvent.date,
+      endTime: newEvent.endDate || newEvent.date,
+      kind: newEvent.kind,
+    });
+    if (!res.success) {
+      // Revert if error
+      setEvents(p => p.filter(e => e.id !== newEvent.id));
+    }
   };
 
   // Drag handlers for Event Log list

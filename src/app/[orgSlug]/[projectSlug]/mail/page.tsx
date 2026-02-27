@@ -1,5 +1,5 @@
 import React from "react";
-import { getProjectHomeDataAction } from "@/actions/project.actions";
+import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import MailForm from "@/components/projects/MailForm";
 
@@ -10,14 +10,19 @@ export default async function MailPage({
 }) {
   const { orgSlug, projectSlug } = await params;
 
-  // Verify access and get basic project info
-  const contextRes = await getProjectHomeDataAction(orgSlug, projectSlug);
+  // Fetch project using prisma directly so it's public
+  const project = await prisma.project.findFirst({
+    where: {
+      slug: projectSlug,
+      organization: {
+        slug: orgSlug,
+      },
+    },
+  });
 
-  if (!contextRes.success) {
+  if (!project) {
      redirect(`/${orgSlug}/projects`);
   }
-
-  const { project } = contextRes.data;
 
   return (
     <div className="flex flex-col h-full bg-zinc-50 hero-font">
@@ -32,7 +37,6 @@ export default async function MailPage({
                 Send a direct message to the founders and administrators of this project.
               </p>
             </div>
-            
             <MailForm projectId={project.id} />
             
           </div>

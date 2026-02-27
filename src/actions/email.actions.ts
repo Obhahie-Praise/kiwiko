@@ -303,6 +303,28 @@ export async function acceptInviteAction(token: string): Promise<ActionResponse<
         })
       ]);
 
+      const admins = await prisma.projectMember.findMany({
+          where: { projectId: projectInvite.projectId, role: { in: ["OWNER", "ADMIN", "FOUNDER", "CO_FOUNDER"] } },
+          select: { userId: true }
+      });
+      await Promise.all(
+          admins.map(admin =>
+              prisma.notification.create({
+                  data: {
+                      projectId: projectInvite.projectId,
+                      userId: admin.userId,
+                      type: "invite_accepted",
+                      title: "Invite Accepted",
+                      message: `${session.user.name || session.user.email} joined the project as ${projectInvite.role}.`,
+                      metadata: {
+                          joinedUserId: userId,
+                          role: projectInvite.role
+                      }
+                  }
+              })
+          )
+      );
+
       revalidatePath(`/${projectInvite.project.organization.slug}/${projectInvite.project.slug}/home`);
       return { success: true, data: `/${projectInvite.project.organization.slug}/${projectInvite.project.slug}/home` };
     }

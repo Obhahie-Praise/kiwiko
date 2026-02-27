@@ -158,8 +158,8 @@ const Sidebar = () => {
           {!isCollapsed && (
             <>
               <div className="flex-1 min-w-0 text-left">
-                <p className="font-medium text-zinc-800 truncate leading-tight">{user?.name || "User"}</p>
-                <p className="text-xs font-light text-zinc-400 truncate leading-tight">{user?.email}</p>
+                <p className="font-medium text-zinc-800 truncate leading-tight">{user?.name || "Guest"}</p>
+                <p className="text-xs font-light text-zinc-400 truncate leading-tight">{user?.email || "Not signed in"}</p>
               </div>
               <ChevronUp
                 size={16}

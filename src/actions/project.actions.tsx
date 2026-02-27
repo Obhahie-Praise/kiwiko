@@ -566,7 +566,7 @@ export async function inviteProjectMemberAction(projectId: string, email: string
         const token = crypto.randomBytes(32).toString("hex");
         
         // Create invite
-        await prisma.projectInvite.create({
+        const invite = await prisma.projectInvite.create({
             data: {
                 email,
                 role: mapRole(role) as any,
@@ -576,6 +576,33 @@ export async function inviteProjectMemberAction(projectId: string, email: string
                 expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             }
         });
+
+        // Notify admins about the new invite
+        const admins = await prisma.projectMember.findMany({
+            where: {
+                projectId,
+                role: { in: ["OWNER", "ADMIN", "FOUNDER", "CO_FOUNDER"] }
+            },
+            select: { userId: true }
+        });
+
+        await Promise.all(
+            admins.map(admin => 
+                prisma.notification.create({
+                    data: {
+                        projectId,
+                        userId: admin.userId,
+                        type: "invite_sent",
+                        title: "New Team Member Invited",
+                        message: `${session.user.name || "A user"} invited ${email} as ${role}.`,
+                        metadata: {
+                           invitedEmail: email,
+                           inviteId: invite.id
+                        }
+                    }
+                })
+            )
+        );
 
         // Send email
         await sendTeamInviteEmail({
