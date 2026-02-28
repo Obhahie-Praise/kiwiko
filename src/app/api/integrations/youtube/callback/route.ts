@@ -13,14 +13,29 @@ export async function GET(request: NextRequest) {
     return new NextResponse("No code provided", { status: 400 });
   }
 
+  // Decode and parse the state parameter
+  let userIdFromState: string | null = null;
+  let returnTo: string | null = null;
+
+  try {
+    if (state) {
+      const decodedState = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
+      userIdFromState = decodedState.userId;
+      returnTo = decodedState.returnTo;
+    }
+  } catch (e) {
+    console.error("YouTube OAuth: Failed to decode state", state);
+    return new NextResponse("Invalid State Format", { status: 400 });
+  }
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  if (!session?.user?.id || session.user.id !== state) {
-    console.error("YouTube OAuth: Unauthorized or Invalid State", { 
+  if (!session?.user?.id || (userIdFromState && session.user.id !== userIdFromState)) {
+    console.error("YouTube OAuth: Unauthorized or Invalid State Match", { 
         userId: session?.user?.id, 
-        state 
+        userIdFromState 
     });
     return new NextResponse("Unauthorized or Invalid State", { status: 401 });
   }
@@ -86,6 +101,13 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    const metadata = {
+      channelId: providerAccountId,
+      channelTitle,
+      thumbnail,
+      subscriberCount,
+    };
+
     if (existing) {
       await prisma.connectedAccount.update({
         where: { id: existing.id },
@@ -94,12 +116,7 @@ export async function GET(request: NextRequest) {
           accessToken: tokens.access_token!,
           refreshToken: tokens.refresh_token || undefined,
           expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : (tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000) : undefined),
-          metadata: {
-            channelId: providerAccountId,
-            channelTitle,
-            thumbnail,
-            subscriberCount,
-          },
+          metadata,
         }
       });
     } else {
@@ -111,17 +128,17 @@ export async function GET(request: NextRequest) {
           accessToken: tokens.access_token!,
           refreshToken: tokens.refresh_token,
           expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : (tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000) : undefined),
-          metadata: {
-            channelId: providerAccountId,
-            channelTitle,
-            thumbnail,
-            subscriberCount,
-          },
+          metadata,
         }
       });
     }
 
-    return NextResponse.redirect(`${process.env.BETTER_AUTH_URL}/onboarding?success=youtube`);
+    // Determine final redirect URL
+    const finalRedirectUrl = returnTo 
+        ? `${process.env.BETTER_AUTH_URL}${returnTo}${returnTo.includes("?") ? "&" : "?"}success=youtube`
+        : `${process.env.BETTER_AUTH_URL}/onboarding?success=youtube`;
+
+    return NextResponse.redirect(finalRedirectUrl);
   } catch (error: any) {
     console.error("YouTube OAuth Callback Error:", error);
     return new NextResponse(`Internal Server Error: ${error.message || "Unknown error"}`, { status: 500 });

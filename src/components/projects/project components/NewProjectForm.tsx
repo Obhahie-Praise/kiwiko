@@ -718,7 +718,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                                  <button
                                     onClick={() => {
                                         setIsConnectingYoutube(true);
-                                        router.push("/api/integrations/youtube/connect");
+                                        router.push(`/api/integrations/youtube/connect?returnTo=/${orgSlug}/new-project`);
                                     }}
                                     disabled={isConnectingYoutube}
                                     className="px-4 py-2 bg-zinc-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"

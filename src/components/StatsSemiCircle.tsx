@@ -1,16 +1,29 @@
 import React from 'react'
-import FloatingCards from './FloatingCards'
 
 const StatsSemiCircle = () => {
   return (
-    <div className="relative -z-20 mt-10">
-        <div className="w-400 h-600 absolute top-10 left-1/2 -translate-x-1/2 bg-linear-to-r from-orange-400 via-orange-600 to-orange-400 rounded-t-full"></div>
-        <div className="w-400 h-600 absolute top-10.5 left-1/2 -translate-x-1/2 bg-white rounded-t-full"></div>
-        <div className="-z-10 h-500 w-400 rounded-full absolute top-10 bg-orange-400 left-1/2 top- -translate-x-1/2 blur-[50px]"></div>
-  {/*       <div className="-z-50 h-200 w-200 rounded-full absolute top-20 bg-lime-300 right-1/2 blur-3xl"></div>
-        <div className="-z-50 h-200 w-200 rounded-full absolute top-20 bg-lime-300 left-1/2 blur-3xl"></div> */}
-        <div className="h-200 w-200 bg-linear-to-r from-zinc-300 to-white/20 blur-2xl -z-10 absolute -top-110 -left-180 rotate-75"></div>
-        <div className="h-200 w-200 bg-linear-to-l from-zinc-300 to-white/20 blur-2xl -z-10 absolute -top-110 -right-180 -rotate-75"></div>
+    <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
+        {/* Left Arc */}
+        <div className="absolute -left-[10%] bottom-0 w-[600px] h-[600px] border-[1px] border-orange-500/20 rounded-full" 
+             style={{ 
+               clipPath: 'inset(0 0 0 50%)',
+               transform: 'translateY(50%) rotate(-45deg)',
+               filter: 'blur(0.5px)'
+             }} 
+        />
+        
+        {/* Right Arc */}
+        <div className="absolute -right-[10%] bottom-0 w-[600px] h-[600px] border-[1px] border-purple-500/20 rounded-full" 
+             style={{ 
+               clipPath: 'inset(0 50% 0 0)',
+               transform: 'translateY(50%) rotate(45deg)',
+               filter: 'blur(0.5px)'
+             }} 
+        />
+
+        {/* Subtle Glows */}
+        <div className="absolute -left-[5%] bottom-0 w-[400px] h-[400px] bg-orange-200/20 blur-[120px] rounded-full" />
+        <div className="absolute -right-[5%] bottom-0 w-[400px] h-[400px] bg-purple-200/10 blur-[120px] rounded-full" />
     </div>
   )
 }

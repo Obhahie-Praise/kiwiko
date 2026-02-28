@@ -1,9 +1,12 @@
 import { google } from "googleapis";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const returnTo = searchParams.get("returnTo");
+  
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -28,11 +31,19 @@ export async function GET() {
     "https://www.googleapis.com/auth/userinfo.profile",
   ];
 
+  // Encode state as JSON to pass multiple values (userId + optional returnTo)
+  const stateData = JSON.stringify({
+    userId: session.user.id,
+    returnTo: returnTo || undefined
+  });
+  
+  const encodedState = Buffer.from(stateData).toString("base64");
+
   const url = oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: scopes,
     prompt: "consent",
-    state: session.user.id,
+    state: encodedState,
   });
 
   return NextResponse.redirect(url);
