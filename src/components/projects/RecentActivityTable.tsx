@@ -56,18 +56,40 @@ export default function RecentActivityTable() {
   }, [orgSlug, projectSlug]);
 
   const filteredActivities = activities.filter((item) => {
+    const itemType = item.type;
+    const itemMetadataCat = item.metadata?.category?.toLowerCase();
+
     if (filter === "Most Recent") return true;
-    if (filter === "Meetings") return item.type === "meeting";
-    if (filter === "Milestones") return item.type === "milestone";
-    if (filter === "Achievements") return item.type === "achievement";
-    if (filter === "External Activity") return item.type === "git_commit";
-    if (filter === "Emails") return item.type === "email_received" || item.type === "email_sent" || item.type === "email";
-    if (filter === "Team") return item.type.startsWith("invite");
-    if (filter === "Chat") return item.type === "chat_message";
+    
+    // Mapping logic
+    if (filter === "Meetings") {
+      // If the user wants meetings under "Emails", this filter might be redundant, 
+      // but let's keep it for items specifically typed as meeting if they aren't metadata-categorized.
+      return itemType === "meeting" && itemMetadataCat !== "meeting";
+    }
+    if (filter === "Milestones") return itemType === "milestone" || itemMetadataCat === "milestone";
+    if (filter === "Achievements") return itemType === "achievement" || itemMetadataCat === "achievement";
+    if (filter === "External Activity") return itemType === "git_commit";
+    if (filter === "Emails") {
+      return itemType === "email_received" || 
+             itemType === "email_sent" || 
+             itemType === "email" || 
+             itemMetadataCat === "meeting" || 
+             itemMetadataCat === "email";
+    }
+    if (filter === "Team") return itemType.startsWith("invite") || itemMetadataCat === "team";
+    if (filter === "Chat") return itemType === "chat_message";
     return true;
   });
 
-  const getIconForType = (type: string) => {
+  const getIconForType = (type: string, item?: any) => {
+    const itemMetadataCat = item?.metadata?.category?.toLowerCase();
+    
+    if (itemMetadataCat === "meeting" || itemMetadataCat === "email") return Mail;
+    if (itemMetadataCat === "team") return Users;
+    if (itemMetadataCat === "milestone") return Target;
+    if (itemMetadataCat === "achievement") return Sparkles;
+
     switch (type) {
       case "git_commit": return GitCommit;
       case "email_received": 
@@ -76,7 +98,7 @@ export default function RecentActivityTable() {
       case "invite_sent":
       case "invite_accepted": return Users;
       case "chat_message": return MessageSquare;
-      case "meeting": return Users;
+      case "meeting": return Users; // Default for non-metadata meeting
       case "milestone": return Target;
       case "achievement": return Sparkles;
       case "calendar_event":
@@ -87,12 +109,11 @@ export default function RecentActivityTable() {
 
   const getCategoryForType = (item: any) => {
     const { type, metadata } = item;
+    const cat = metadata?.category?.toLowerCase();
     
-    // Check if category is explicitly set in metadata (for calendar events)
-    if (metadata && (metadata as any).category) {
-      const cat = (metadata as any).category;
-      return cat.charAt(0).toUpperCase() + cat.slice(1);
-    }
+    if (cat === "meeting" || cat === "email") return "Email";
+    if (cat === "team") return "Team";
+    if (cat) return cat.charAt(0).toUpperCase() + cat.slice(1);
 
     switch (type) {
       case "git_commit": return "External";
@@ -115,6 +136,7 @@ export default function RecentActivityTable() {
     const { type, metadata } = item;
     const isReminder = (metadata as any)?.isReminder;
     const threshold = (metadata as any)?.threshold;
+    const cat = metadata?.category?.toLowerCase();
 
     if (isReminder) {
       if (threshold === "ended") return "bg-zinc-100 text-zinc-500";
@@ -122,10 +144,11 @@ export default function RecentActivityTable() {
       return "bg-blue-50 text-blue-600";
     }
 
+    if (cat === "meeting" || cat === "email" || type === "email" || type === "email_received" || type === "email_sent") {
+        return "bg-emerald-50 text-emerald-600";
+    }
+
     switch (type) {
-      case "email":
-      case "email_received": 
-      case "email_sent": return "bg-emerald-50 text-emerald-600";
       case "milestone": return "bg-amber-50 text-amber-600";
       case "achievement": return "bg-purple-50 text-purple-600";
       case "meeting": return "bg-zinc-50 text-zinc-600";
@@ -138,6 +161,7 @@ export default function RecentActivityTable() {
     const { type, metadata } = item;
     const isReminder = (metadata as any)?.isReminder;
     const threshold = (metadata as any)?.threshold;
+    const cat = metadata?.category?.toLowerCase();
 
     if (isReminder) {
       switch (threshold) {
@@ -151,10 +175,11 @@ export default function RecentActivityTable() {
       }
     }
 
+    if (cat === "meeting" || cat === "email" || type === "email" || type === "email_received" || type === "email_sent") {
+        return "delivered";
+    }
+
     switch (type) {
-      case "email":
-      case "email_received": 
-      case "email_sent": return "delivered";
       case "milestone": return "pending";
       case "achievement": return "unlocked";
       case "meeting": return "scheduled";

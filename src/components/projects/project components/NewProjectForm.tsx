@@ -267,6 +267,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                         onUploadSuccess={(url) => setBannerUrl(url)}
                         className="h-full border-none rounded-none"
                         showPreview={true}
+                        initialImage={bannerUrl}
                     />
                     <div className="absolute top-4 right-4 z-20">
                         <span className="px-2 py-1 bg-black/50 backdrop-blur-md text-[10px] text-white rounded-md font-bold uppercase tracking-widest">
@@ -290,6 +291,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                                     label="Project Logo"
                                     onUploadSuccess={(url) => setLogoUrl(url)}
                                     className="max-w-[280px]"
+                                    initialImage={logoUrl}
                                 />
                                 <p className="text-[10px] text-zinc-400 mt-2">
                                     SQUARE, PNG or SVG. Max 2MB.
@@ -457,6 +459,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                                         onUploadSuccess={(url) => setPitchDeckUrl(url)}
                                         className="h-full"
                                         showPreview={true}
+                                        initialImage={pitchDeckUrl}
                                     />
                                 </div>
                                 <p className="text-[10px] text-zinc-400 mt-2">

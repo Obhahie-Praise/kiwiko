@@ -44,7 +44,12 @@ export default function UniversalUploadDropzone({
   // Initialize with initialImage if provided
   useEffect(() => {
     if (initialImage) {
-      setFilePreview({ url: initialImage, type: "image/png" }); // Type is dummy here
+      const isPDF = initialImage.toLowerCase().endsWith(".pdf") || initialImage.includes(".pdf?") || initialImage.includes("/pdf");
+      setFilePreview({ 
+        url: initialImage, 
+        type: isPDF ? "application/pdf" : "image/png",
+        name: initialImage.split("/").pop()?.split("?")[0] || "file"
+      });
     }
   }, [initialImage]);
 

@@ -18,17 +18,46 @@ export async function GET(request: NextRequest) {
   });
 
   if (!session?.user?.id || session.user.id !== state) {
+    console.error("YouTube OAuth: Unauthorized or Invalid State", { 
+        userId: session?.user?.id, 
+        state 
+    });
     return new NextResponse("Unauthorized or Invalid State", { status: 401 });
   }
 
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    `${process.env.BETTER_AUTH_URL}/api/integrations/youtube/callback`
-  );
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const redirectUri = `${process.env.BETTER_AUTH_URL}/api/integrations/youtube/callback`;
+
+  if (!clientId || !clientSecret) {
+    console.error("YouTube OAuth: Missing environment variables (GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET)");
+    return new NextResponse("Internal Server Error: Missing OAuth Credentials", { status: 500 });
+  }
 
   try {
-    const { tokens } = await oauth2Client.getToken(code);
+    // 1. Exchange code for tokens manually to get better error visibility
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: "authorization_code",
+      }),
+    });
+
+    const tokens = await tokenResponse.json();
+
+    if (!tokenResponse.ok) {
+      console.error("YouTube OAuth Token Exchange Failed:", tokens);
+      return new NextResponse(`OAuth Token Exchange Failed: ${tokens.error_description || tokens.error || "Unknown error"}`, { status: 400 });
+    }
+
+    const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
     oauth2Client.setCredentials(tokens);
 
     const youtube = google.youtube({ version: "v3", auth: oauth2Client });
@@ -39,6 +68,7 @@ export async function GET(request: NextRequest) {
 
     const channels = channelsRes.data.items;
     if (!channels || channels.length === 0) {
+      console.error("YouTube OAuth: No YouTube channel found for this user");
       return new NextResponse("No YouTube channel found", { status: 400 });
     }
 
@@ -63,7 +93,7 @@ export async function GET(request: NextRequest) {
           providerAccountId,
           accessToken: tokens.access_token!,
           refreshToken: tokens.refresh_token || undefined,
-          expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
+          expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : (tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000) : undefined),
           metadata: {
             channelId: providerAccountId,
             channelTitle,
@@ -80,7 +110,7 @@ export async function GET(request: NextRequest) {
           providerAccountId,
           accessToken: tokens.access_token!,
           refreshToken: tokens.refresh_token,
-          expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
+          expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : (tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000) : undefined),
           metadata: {
             channelId: providerAccountId,
             channelTitle,
@@ -92,8 +122,8 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.redirect(`${process.env.BETTER_AUTH_URL}/onboarding?success=youtube`);
-  } catch (error) {
-    console.error("YouTube OAuth Error:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+  } catch (error: any) {
+    console.error("YouTube OAuth Callback Error:", error);
+    return new NextResponse(`Internal Server Error: ${error.message || "Unknown error"}`, { status: 500 });
   }
 }

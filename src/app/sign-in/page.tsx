@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, GithubIcon, LoaderCircle, ShieldCheck, Zap, Globe, Fingerprint } from "lucide-react";
+import { ArrowLeft, GithubIcon, LoaderCircle, ShieldCheck, Zap, Globe, Fingerprint, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
@@ -7,10 +7,12 @@ import { useState } from "react";
 import AuthClient from "./auth-client";
 import { useRouter } from "next/navigation";
 import { organizations } from "@/constants";
+import TeamSignInForm from "@/components/auth/TeamSignInForm";
 
 const SignInPage = () => {
   const [isGoogleAuthenticating, setIsGoogleAuthenticating] = useState(false);
   const [isGithubAuthenticating, setIsGithubAuthenticating] = useState(false);
+  const [activeTab, setActiveTab] = useState<"standard" | "team">("standard");
   const router = useRouter();
 
   const handleSocial = async (provider: "google" | "github") => {
@@ -50,10 +52,6 @@ const SignInPage = () => {
 
         {/* Center Content */}
         <div className="relative z-10 space-y-8 max-w-lg">
-          {/* <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800 text-white rounded-full border border-zinc-700 text-[10px] font-black uppercase tracking-widest italic">
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-            Venture Protocol v4.0
-          </div> */}
           <h2 className="text-6xl font-black text-white leading-[0.85] uppercase italic tracking-tighter">
             Welcome back to <br /> <span className="text-zinc-500">Kiwiko.</span>
           </h2>
@@ -74,10 +72,7 @@ const SignInPage = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="relative z-10 flex items-center justify-between text-[10px] font-black text-zinc-600 uppercase tracking-widest italic">
-           {/* <span>Institutional Integrity Protocol</span>
-           <span>EST. 2024</span> */}
-        </div>
+        <div className="relative z-10 flex items-center justify-between text-[10px] font-black text-zinc-600 uppercase tracking-widest italic" />
       </div>
 
       {/* Right Panel: Authentication Form */}
@@ -92,54 +87,97 @@ const SignInPage = () => {
         <div className="w-full max-w-md space-y-10">
           <div className="space-y-4">
             <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter leading-none">
-              Welcome Back.
+              {activeTab === "standard" ? "Welcome Back." : "Team Access."}
             </h1>
             <p className="font-bold text-zinc-500">
-              Don't have an account?{" "}
-              <Link href="/onboarding" className="text-zinc-900 underline decoration-zinc-200 underline-offset-4 hover:decoration-zinc-900 transition-all">
-                Create Acccount
-              </Link>
+              {activeTab === "standard" ? (
+                <>
+                  Don't have an account?{" "}
+                  <Link href="/onboarding" className="text-zinc-900 underline decoration-zinc-200 underline-offset-4 hover:decoration-zinc-900 transition-all">
+                    Create Account
+                  </Link>
+                </>
+              ) : (
+                "Enter your email to access your project dashboard."
+              )}
             </p>
           </div>
 
-          <div className="flex flex-col space-y-3">
+          {/* Tab Switcher */}
+          <div className="flex p-1 bg-zinc-100 rounded-2xl border border-zinc-200 shadow-sm relative overflow-hidden group">
             <button
-              className="relative w-full group overflow-hidden disabled:opacity-60"
-              disabled={isGithubAuthenticating || isGoogleAuthenticating}
-              onClick={() => handleSocial("github")}
+              onClick={() => setActiveTab("standard")}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all z-10 relative ${
+                activeTab === "standard" ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-600"
+              }`}
             >
-              <div className="absolute inset-0 bg-zinc-900 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-              <div className="relative flex items-center justify-center gap-3 py-4 border-2 border-zinc-900 rounded-2xl transition-all group-hover:text-white">
-                <GithubIcon size={20} />
-                <span className="text-[11px] font-black uppercase tracking-widest">Continue with Github</span>
-                {isGithubAuthenticating && <LoaderCircle className="animate-spin" size={16} />}
-              </div>
+              <Fingerprint size={14} />
+              Standard
             </button>
-
             <button
-              className="relative w-full group overflow-hidden disabled:opacity-60"
-              disabled={isGithubAuthenticating || isGoogleAuthenticating}
-              onClick={() => handleSocial("google")}
+              onClick={() => setActiveTab("team")}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all z-10 relative ${
+                activeTab === "team" ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-600"
+              }`}
             >
-              <div className="relative flex items-center justify-center gap-3 py-4 border-2 border-zinc-200 rounded-2xl hover:border-zinc-900 hover:bg-zinc-50 transition-all">
-                <Image src="/google.png" alt="google" width={20} height={20} />
-                <span className="text-[11px] font-black uppercase tracking-widest text-zinc-900">Continue with Google</span>
-                {isGoogleAuthenticating && <LoaderCircle className="animate-spin" size={16} />}
-              </div>
+              <Users size={14} />
+              Team Member
             </button>
+            <div 
+              className="absolute top-1 bottom-1 bg-white rounded-xl shadow-sm transition-all duration-300 ease-out z-0"
+              style={{ 
+                left: activeTab === "standard" ? "4px" : "50%", 
+                width: "calc(50% - 4px)" 
+              }}
+            />
           </div>
 
-          <div className="flex items-center gap-4">
-             <div className="h-px bg-zinc-100 flex-1" />
-             <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">or continue with</span>
-             <div className="h-px bg-zinc-100 flex-1" />
-          </div>
+          {activeTab === "standard" ? (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <div className="flex flex-col space-y-3">
+                <button
+                  className="relative w-full group overflow-hidden disabled:opacity-60"
+                  disabled={isGithubAuthenticating || isGoogleAuthenticating}
+                  onClick={() => handleSocial("github")}
+                >
+                  <div className="absolute inset-0 bg-zinc-900 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                  <div className="relative flex items-center justify-center gap-3 py-4 border-2 border-zinc-900 rounded-2xl transition-all group-hover:text-white">
+                    <GithubIcon size={20} />
+                    <span className="text-[11px] font-black uppercase tracking-widest">Continue with Github</span>
+                    {isGithubAuthenticating && <LoaderCircle className="animate-spin" size={16} />}
+                  </div>
+                </button>
 
-          <div className="">
-             <div className="bg-white p-6 rounded-[2rem] border-0.5 border-zinc-200 shadow-sm">
-                <AuthClient />
-             </div>
-          </div>
+                <button
+                  className="relative w-full group overflow-hidden disabled:opacity-60"
+                  disabled={isGithubAuthenticating || isGoogleAuthenticating}
+                  onClick={() => handleSocial("google")}
+                >
+                  <div className="relative flex items-center justify-center gap-3 py-4 border-2 border-zinc-200 rounded-2xl hover:border-zinc-900 hover:bg-zinc-50 transition-all">
+                    <Image src="/google.png" alt="google" width={20} height={20} />
+                    <span className="text-[11px] font-black uppercase tracking-widest text-zinc-900">Continue with Google</span>
+                    {isGoogleAuthenticating && <LoaderCircle className="animate-spin" size={16} />}
+                  </div>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-4">
+                 <div className="h-px bg-zinc-100 flex-1" />
+                 <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">or continue with</span>
+                 <div className="h-px bg-zinc-100 flex-1" />
+              </div>
+
+              <div className="bg-white p-6 rounded-[2rem] border-0.5 border-zinc-200 shadow-sm">
+                 <AuthClient />
+              </div>
+            </div>
+          ) : (
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <div className="bg-white p-6 rounded-[2rem] border-0.5 border-zinc-200 shadow-sm">
+                <TeamSignInForm />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
