@@ -18,9 +18,37 @@ export async function getOverviewMetrics(projectId: string, userId: string) {
     if (!project) return null;
 
     // 1. Profile Views
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
     const viewCount = await prisma.projectView.count({
       where: { projectId }
     });
+
+    const currentPeriodViews = await prisma.projectView.count({
+        where: {
+            projectId,
+            createdAt: { gte: sevenDaysAgo }
+        }
+    });
+
+    const previousPeriodViews = await prisma.projectView.count({
+        where: {
+            projectId,
+            createdAt: { 
+                gte: fourteenDaysAgo,
+                lt: sevenDaysAgo
+            }
+        }
+    });
+
+    let viewGrowth = 0;
+    if (previousPeriodViews > 0) {
+        viewGrowth = Math.round(((currentPeriodViews - previousPeriodViews) / previousPeriodViews) * 100);
+    } else if (currentPeriodViews > 0) {
+        viewGrowth = 100; // If no views previously but some now, it's 100% growth
+    }
 
     // 2. GitHub Commits (per week)
     let commitsPerWeek = project.githubCommitsPerWeek || 0;
@@ -64,25 +92,43 @@ export async function getOverviewMetrics(projectId: string, userId: string) {
     }
 
     // 4. Kiwiko Analytics
-    const { 
-        getActiveUsers, 
-        getSessions, 
-        getUsersOnline, 
-        getAllTimeUsers, 
-        getChurnRate 
-    } = await import("./analytics-utils");
+    const analytics = await import("./analytics-utils");
 
-    const activeUsers = await getActiveUsers(projectId);
-    const activeUsers7d = await getActiveUsers(projectId, 168);
-    const activeUsers30d = await getActiveUsers(projectId, 720);
-    const sessions = await getSessions(projectId);
-    const usersOnline = await getUsersOnline(projectId);
-    const allTimeUsers = await getAllTimeUsers(projectId);
-    const churnRate = await getChurnRate(projectId);
-    const activeUsersByHour = await import("./analytics-utils").then(m => m.getActiveUsersByHour(projectId));
+    const activeUsers = await analytics.getActiveUsers(projectId);
+    const activeUsers7d = await analytics.getActiveUsers(projectId, 168);
+    const activeUsers30d = await analytics.getActiveUsers(projectId, 720);
+    const sessions = await analytics.getSessions(projectId);
+    const usersOnline = await analytics.getUsersOnline(projectId);
+    const allTimeUsers = await analytics.getAllTimeUsers(projectId);
+    const churnRate = await analytics.getChurnRate(projectId);
+    const engagementRate = await analytics.getEngagementRate(projectId);
+    
+    const activeUsersByHour = await analytics.getActiveUsersByHour(projectId);
+
+    const churnTimeSeries = await analytics.getMetricTimeSeries(projectId, "churn");
+    const usersTimeSeries = await analytics.getMetricTimeSeries(projectId, "users");
+    const sessionsTimeSeries = await analytics.getMetricTimeSeries(projectId, "sessions");
+    const engagementTimeSeries = await analytics.getMetricTimeSeries(projectId, "engagement");
+
+    // Integration Statuses
+    const githubConnected = !!project.githubRepoFullName;
+    const youtubeConnected = !!youtubeSignal;
+    
+    // Check if Kiwiko is "connected" (has any events recorded)
+    const eventCount = await prisma.event.count({ where: { projectId } });
+    const kiwikoConnected = eventCount > 0;
+
+    // Upcoming Events Count
+    const upcomingEventsCount = await prisma.calendarEvent.count({
+        where: {
+            projectId,
+            startTime: { gte: new Date() }
+        }
+    });
 
     return {
       viewCount,
+      viewGrowth,
       commitsPerWeek,
       youtubeMetric,
       kiwiko: {
@@ -93,9 +139,25 @@ export async function getOverviewMetrics(projectId: string, userId: string) {
         usersOnline,
         allTimeUsers,
         churnRate,
-        activeUsersByHour
+        engagementRate,
+        activeUsersByHour,
+        sparklines: {
+          churn: churnTimeSeries,
+          users: usersTimeSeries,
+          sessions: sessionsTimeSeries,
+          engagement: engagementTimeSeries
+        },
+        growth: {
+          churn: await analytics.getMetricGrowth(projectId, "churn"),
+          users: await analytics.getMetricGrowth(projectId, "users"),
+          sessions: await analytics.getMetricGrowth(projectId, "sessions"),
+          engagement: await analytics.getMetricGrowth(projectId, "engagement")
+        }
       },
-      githubConnected: !!project.githubRepoFullName
+      githubConnected,
+      youtubeConnected,
+      kiwikoConnected,
+      upcomingEventsCount
     };
   } catch (error) {
     console.error("Error fetching overview metrics:", error);

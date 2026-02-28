@@ -22,30 +22,37 @@ import { getProjectHomeDataAction } from "@/actions/project.actions";
 import { getNotificationsAction } from "@/actions/notification.actions";
 import { formatDistanceToNow } from "date-fns";
 
-export default function RecentActivityTable({ 
-  orgSlug, 
-  projectSlug 
-}: { 
-  orgSlug: string; 
-  projectSlug: string; 
-}) {
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
+
+export default function RecentActivityTable() {
+  const { orgSlug, projectSlug } = useProjectSlugs();
   const [filter, setFilter] = useState<string>("Most Recent");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [activities, setActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      const contextRes = await getProjectHomeDataAction(orgSlug, projectSlug);
-      if (contextRes.success) {
-        const notifRes = await getNotificationsAction(contextRes.data.project.id);
-        if (notifRes.success && notifRes.data) {
-          setActivities(notifRes.data);
-        }
+  const loadData = async () => {
+    setLoading(true);
+    const contextRes = await getProjectHomeDataAction(orgSlug, projectSlug);
+    if (contextRes.success) {
+      const notifRes = await getNotificationsAction(contextRes.data.project.id);
+      if (notifRes.success && notifRes.data) {
+        setActivities(notifRes.data);
       }
-      setLoading(false);
     }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     loadData();
+
+    // Listen for custom refresh events
+    const handleRefresh = () => {
+      loadData();
+    };
+
+    window.addEventListener("refresh-activities", handleRefresh);
+    return () => window.removeEventListener("refresh-activities", handleRefresh);
   }, [orgSlug, projectSlug]);
 
   const filteredActivities = activities.filter((item) => {
@@ -69,16 +76,24 @@ export default function RecentActivityTable({
       case "invite_sent":
       case "invite_accepted": return Users;
       case "chat_message": return MessageSquare;
-      case "meeting": return Calendar;
+      case "meeting": return Users;
       case "milestone": return Target;
       case "achievement": return Sparkles;
       case "calendar_event":
-      case "calendar_reminder": return Calendar;
+      case "calendar_reminder": return Users;
       default: return Bell;
     }
   };
 
-  const getCategoryForType = (type: string) => {
+  const getCategoryForType = (item: any) => {
+    const { type, metadata } = item;
+    
+    // Check if category is explicitly set in metadata (for calendar events)
+    if (metadata && (metadata as any).category) {
+      const cat = (metadata as any).category;
+      return cat.charAt(0).toUpperCase() + cat.slice(1);
+    }
+
     switch (type) {
       case "git_commit": return "External";
       case "email":
@@ -198,8 +213,8 @@ export default function RecentActivityTable({
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-zinc-100 pb-4">
-              <th className="text-xs tracking-wider font-medium text-zinc-600 pb-4">Category</th>
               <th className="text-xs tracking-wider font-medium text-zinc-600 pb-4">Activity</th>
+              <th className="text-xs tracking-wider font-medium text-zinc-600 pb-4">Category</th>
               <th className="text-xs tracking-wider font-medium text-zinc-600 pb-4 text-right">Time</th>
             </tr>
           </thead>
@@ -225,9 +240,9 @@ export default function RecentActivityTable({
                         </p>
                       </div>
                     </td>
-                    <td className="py-4">
+                     <td className="py-4">
                       <div className="flex items-center gap-2">
-                         <span className="text-sm text-zinc-600">{getCategoryForType(item.type)}</span>
+                         <span className="text-sm text-zinc-600">{getCategoryForType(item)}</span>
                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${getStatusColor(item)}`}>
                            {getStatusLabel(item)}
                          </span>

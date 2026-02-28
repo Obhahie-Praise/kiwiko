@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Users, MessageSquare, ListTodo, BarChart3 } from "lucide-react";
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 
 const tabs = [
   { label: "Board", segment: "board", icon: Users },
@@ -20,10 +21,7 @@ const tabs = [
 
 export default function TeamTabs() {
   const pathname = usePathname();
-  const params = useParams();
-  
-  const orgSlug = params?.orgSlug as string;
-  const projectSlug = params?.projectSlug as string;
+  const { orgSlug, projectSlug } = useProjectSlugs();
 
   const getHref = (segment: string) => `/${orgSlug}/${projectSlug}/teams/${segment}`;
 

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { X } from "lucide-react";
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 
 export const EVENT_CATEGORIES = [
   { id: 'achievement', label: 'Achievement', value: '#d97706' }, // text-amber-600
@@ -18,6 +19,7 @@ interface AddEventModalProps {
 }
 
 export default function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalProps) {
+  const { orgSlug, projectSlug } = useProjectSlugs();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("meeting");
@@ -55,6 +57,8 @@ export default function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalP
     setStartDate("");
     setEndDate("");
     onClose();
+    // Handled in ProjectCalendar via window event dispatch and router.refresh()
+    // This ensures RecentActivityTable and other components update without a page reload.
   };
 
   return (

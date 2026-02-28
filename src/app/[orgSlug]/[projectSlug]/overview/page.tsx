@@ -1,5 +1,5 @@
 import { getSession } from "@/constants/getSession";
-import { Users, Eye, GitCommit, Check } from "lucide-react";
+import { Users, Eye, GitCommit, Check, Calendar } from "lucide-react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getProjectHomeDataAction } from "@/actions/project.actions";
@@ -8,6 +8,7 @@ import SocialAnalyticsChart from "@/components/projects/SocialAnalyticsChart";
 import RecentActivityTable from "@/components/projects/RecentActivityTable";
 import KiwikoAdvancedAnalytics from "@/components/projects/KiwikoAdvancedAnalytics";
 import ProjectCalendar from "@/components/projects/ProjectCalendar";
+import RefreshButton from "@/components/projects/RefreshButton";
 
 const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
   /* const response = await groq.chat.completions.create({
@@ -45,9 +46,10 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
       id: "views",
       label: "Profile Views",
       value: overviewData?.viewCount?.toString() || "0",
-      change: "+2.5%",
-      positive: true,
+      change: `${(overviewData?.viewGrowth ?? 0) >= 0 ? "+" : ""}${overviewData?.viewGrowth || 0}%`,
+      positive: (overviewData?.viewGrowth ?? 0) >= 0,
       icon: Eye,
+      visible: true
     },
     {
       id: "commits",
@@ -56,14 +58,18 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
       change: "+0%",
       positive: true,
       icon: GitCommit,
+      visible: overviewData?.githubConnected
     },
     {
       id: "social-views",
-      label: "Social Views (Month)",
-      value: "45.2K",
-      change: "+12.5%",
+      label: overviewData?.youtubeConnected ? "Social Views (Month)" : "Upcoming Events",
+      value: overviewData?.youtubeConnected 
+        ? (overviewData?.youtubeMetric?.value || "0")
+        : (overviewData?.upcomingEventsCount?.toString() || "0"),
+      change: overviewData?.youtubeConnected ? "+12.5%" : "Next 30 days",
       positive: true,
-      icon: Eye,
+      icon: overviewData?.youtubeConnected ? Eye : Calendar,
+      visible: true
     },
     {
       id: "active-users-7d",
@@ -72,14 +78,16 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
       change: "Last 7 days",
       positive: true,
       icon: Users,
+      visible: overviewData?.kiwikoConnected
     }
-  ];
+  ].filter(m => m.visible);
 
   return (
-    <div className="flex flex-col h-full bg-zinc-50">
+    <div className="flex flex-col h-full bg-zinc-50 relative">
+      <RefreshButton path={`/${params.orgSlug}/${params.projectSlug}/overview`} />
       <div className="flex-1">
         <div className="grid grid-cols-12 gap-6 p-6 w-full auto-rows-min max-w-7xl mx-auto">
-          <div className="grid grid-cols-4 gap-4 col-span-12">
+          <div className={`grid grid-cols-${displayMetrics.length} gap-4 col-span-12`}>
             {displayMetrics.map((item) => (
               <div
                 key={item.id}
@@ -114,9 +122,11 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
             <AnalyticsChart projectId={project.id} />
           </div>
 
-          <div className="col-span-12">
-            <SocialAnalyticsChart projectId={project.id} />
-          </div>
+          {overviewData?.youtubeConnected && (
+            <div className="col-span-12">
+              <SocialAnalyticsChart projectId={project.id} />
+            </div>
+          )}
 
           <div className="bg-white border-[0.2px] border-zinc-200 rounded-2xl col-span-4 p-5 h-full">
             <div className="flex items-center justify-between mb-4">
@@ -190,10 +200,10 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
           </div>
 
           <div className="col-span-8">
-            <RecentActivityTable orgSlug={orgSlug} projectSlug={projectSlug} />
+            <RecentActivityTable />
           </div>
 
-          {overviewData?.kiwiko && (
+          {overviewData?.kiwikoConnected && overviewData?.kiwiko && (
             <div className="col-span-12">
               <KiwikoAdvancedAnalytics data={overviewData.kiwiko} />
             </div>

@@ -14,6 +14,7 @@ import {
   Tag,
   Plus,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import AddEventModal from "./AddEventModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -304,6 +305,7 @@ type ViewMode = "day" | "week" | "month";
 type TabMode  = "upcoming" | "past";
 
 export default function ProjectCalendar({ projectId }: { projectId: string }) {
+  const router = useRouter();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [view, setView]     = useState<ViewMode>("month");
   const [cursor, setCursor] = useState(new Date());
@@ -326,7 +328,7 @@ export default function ProjectCalendar({ projectId }: { projectId: string }) {
       if (res.success && res.data) {
         setEvents(res.data.map((e: any) => ({
           id: e.id,
-          kind: e.attendees?.kind || "team",
+          kind: e.category || "team",
           title: e.title,
           description: e.description || undefined,
           date: new Date(e.startTime),
@@ -350,7 +352,11 @@ export default function ProjectCalendar({ projectId }: { projectId: string }) {
       endTime: newEvent.endDate || newEvent.date,
       kind: newEvent.kind,
     });
-    if (!res.success) {
+    if (res.success) {
+      // Trigger a refresh of the page data and the activity table
+      window.dispatchEvent(new Event("refresh-activities"));
+      router.refresh();
+    } else {
       // Revert if error
       setEvents(p => p.filter(e => e.id !== newEvent.id));
     }

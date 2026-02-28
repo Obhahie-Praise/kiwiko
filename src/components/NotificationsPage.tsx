@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Calendar,
   UserPlus,
+  Users,
   Target
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -45,7 +46,7 @@ const iconMap: Record<string, any> = {
   calendar_reminder: Bell,
   invite: UserPlus,
   commit: Github,
-  meeting: Calendar,
+  meeting: Users,
   milestone: Target,
   achievement: Sparkles,
 };

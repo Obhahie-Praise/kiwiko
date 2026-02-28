@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 export async function getCalendarEventsAction(projectId: string) {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -28,7 +29,7 @@ export async function getCalendarEventsAction(projectId: string) {
       startTime: email.createdAt,
       endTime: email.createdAt,
       location: null,
-      attendees: { kind: "email" },
+      category: "email",
       createdAt: email.createdAt,
       updatedAt: email.createdAt,
     }));
@@ -91,10 +92,20 @@ export async function addCalendarEventAction(
           title: data.title,
           message: `${session.user.name || "A user"} added a ${kind}: ${data.title}`,
           read: m.userId === session.user.id,
-          metadata: { eventId: event.id }
+          metadata: { eventId: event.id, category: kind }
         }
       }))
     );
+
+    // Revalidate the overview page to refresh server data
+    const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: { organization: true }
+    });
+    
+    if (project) {
+        revalidatePath(`/${project.organization.slug}/${project.slug}/overview`);
+    }
 
     return { success: true, data: event };
   } catch (error) {

@@ -71,7 +71,7 @@ export default async function ProjectSettingsPage({ params }: PageProps) {
        />
        
        <main className="flex justify-center pt-10 px-6">
-          <ProjectSettingsForm project={project} orgSlug={orgSlug} />
+          <ProjectSettingsForm project={project} />
        </main>
     </div>
   );

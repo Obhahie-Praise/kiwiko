@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Search,
   Bell,
@@ -21,14 +21,12 @@ import { getUserContextAction } from "@/actions/project.actions";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import NavProfileDropdown from "../NavProfileDropdown";
 import NotificationsMenu from "../NotificationsMenu";
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 
 const ProjectInnerNav = () => {
-  const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
-
-  const orgSlug = params?.orgSlug as string;
-  const projectSlug = params?.projectSlug as string;
+  const { orgSlug, projectSlug } = useProjectSlugs();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [userOrgs, setUserOrgs] = useState<any[]>([]);

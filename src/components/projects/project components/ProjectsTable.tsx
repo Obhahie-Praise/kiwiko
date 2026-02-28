@@ -3,8 +3,9 @@
 import { MoreHorizontal, ExternalLink, GitBranch, Clock, Search, Plus, Instagram, Linkedin, Twitter } from "lucide-react";
 import React, { useState, useRef } from "react";
 import { useClickOutside } from "@/hooks/useClickOutside";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import DeleteProjectModal from "../DeleteProjectModal";
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 
 type Project = {
   id: string;
@@ -28,8 +29,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
   const [projectToDelete, setProjectToDelete] = useState<{ id: string; name: string } | null>(null);
   
   const router = useRouter();
-  const params = useParams();
-  const orgSlug = params?.orgSlug as string;
+  const { orgSlug } = useProjectSlugs();
 
   const handleRowClick = (projectSlug: string) => {
     router.push(`/${orgSlug}/${projectSlug}/overview`);

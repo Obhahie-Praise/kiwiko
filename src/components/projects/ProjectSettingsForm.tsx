@@ -11,15 +11,15 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "../lightswind/tooltip";
 import { SignalType } from "@/generated/prisma";
-import { signIn } from "@/lib/auth-client";
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 
 interface ProjectSettingsFormProps {
   project: any;
-  orgSlug: string;
 }
 
-const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => {
+const ProjectSettingsForm = ({ project }: ProjectSettingsFormProps) => {
   const router = useRouter();
+  const { orgSlug } = useProjectSlugs();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -279,7 +279,7 @@ const ProjectSettingsForm = ({ project, orgSlug }: ProjectSettingsFormProps) => 
                     setBannerUrl(url);
                     setHasChanges(true);
                 }}
-                className="w-full h-full border-none rounded-none min-h-0 !p-0 bg-transparent"
+                className="w-full h-full border-none rounded-none min-h-0 p-0! bg-transparent"
                 containerClassName="h-full"
                 showPreview={false}
              />

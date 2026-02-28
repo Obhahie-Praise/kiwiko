@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 import { projects } from "@/constants";
 import { 
   ArrowLeft, 
@@ -15,9 +16,8 @@ import {
 import Link from "next/link";
 
 const ProjectMailPage = () => {
-  const params = useParams();
+  const { orgSlug } = useProjectSlugs();
   const router = useRouter();
-  const orgSlug = params?.orgSlug as string;
   const project = projects.find(p => p.name.toLowerCase().replace(/\s+/g, "-") === orgSlug);
 
   const [submitted, setSubmitted] = React.useState(false);

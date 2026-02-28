@@ -23,7 +23,7 @@ import {
   PenLine,
   X
 } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 import { getProjectEmailsAction, sendComposeEmailAction } from "@/actions/mail.actions";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -179,7 +179,7 @@ const mockEmails: EmailItem[] = [
 ];
 
 export default function InboxLayout() {
-  const { projectSlug, orgSlug } = useParams() as { projectSlug: string, orgSlug: string };
+  const { orgSlug, projectSlug } = useProjectSlugs();
   const { toast } = useToast();
   const [emails, setEmails] = useState<EmailItem[]>([]);
   const [projectId, setProjectId] = useState<string>("");

@@ -12,12 +12,17 @@ export async function GET(req: NextRequest) {
   const publicKey = scriptTag ? scriptTag.getAttribute('data-project') : null;
 
   if (!publicKey) {
-    console.error('Kiwiko Tracker: data-project attribute missing');
+    console.warn('Kiwiko Tracker: data-project attribute missing');
     return;
   }
 
-  const STORAGE_KEY = 'kiwiko_user_id';
-  const SESSION_KEY = 'kiwiko_session_id';
+  const config = {
+    publicKey: publicKey,
+    STORAGE_KEY: 'kiwiko_user_id',
+    SESSION_KEY: 'kiwiko_session_id',
+    isNewUser: false,
+    isNewSession: false
+  };
 
   function getUuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -26,46 +31,53 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  let userId = localStorage.getItem(STORAGE_KEY);
+  let userId = localStorage.getItem(config.STORAGE_KEY);
   if (!userId) {
     userId = 'user_' + getUuid();
-    localStorage.setItem(STORAGE_KEY, userId);
+    localStorage.setItem(config.STORAGE_KEY, userId);
+    config.isNewUser = true;
   }
 
-  let sessionId = sessionStorage.getItem(SESSION_KEY);
-  let isNewSession = false;
+  let sessionId = sessionStorage.getItem(config.SESSION_KEY);
   if (!sessionId) {
     sessionId = 'sess_' + getUuid();
-    sessionStorage.setItem(SESSION_KEY, sessionId);
-    isNewSession = true;
+    sessionStorage.setItem(config.SESSION_KEY, sessionId);
+    config.isNewSession = true;
   }
 
   function track(eventName, metadata = {}) {
-    const payload = {
-      publicKey,
-      userId,
-      sessionId,
-      eventName,
-      url: window.location.href,
-      metadata,
-      timestamp: new Date().toISOString()
-    };
+    try {
+      const payload = {
+        publicKey: config.publicKey,
+        userId: userId,
+        sessionId: sessionId,
+        eventName: eventName,
+        url: window.location.href,
+        metadata: {
+          ...metadata,
+          visitorType: config.isNewUser ? 'new' : 'returning'
+        },
+        timestamp: new Date().toISOString()
+      };
 
-    if (navigator.sendBeacon) {
-      const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-      navigator.sendBeacon('${domain}/api/ingest', blob);
-    } else {
-      fetch('${domain}/api/ingest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        keepalive: true
-      }).catch(() => {});
+      if (navigator.sendBeacon) {
+        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+        navigator.sendBeacon('${domain}/api/ingest', blob);
+      } else {
+        fetch('${domain}/api/ingest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          keepalive: true
+        }).catch(() => {});
+      }
+    } catch (e) {
+      console.error('Kiwiko Tracker Error:', e);
     }
   }
 
   // Initial events
-  if (isNewSession) {
+  if (config.isNewSession) {
     track('session_start');
   }
   track('page_view');
@@ -84,16 +96,18 @@ export async function GET(req: NextRequest) {
     }
   });
 
-  observer.observe(document.querySelector('body'), {
-    childList: true,
-    subtree: true
-  });
+  if (document.body) {
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
 
   // Global API
   window.Kiwiko = {
     identify: (newUserId) => {
       userId = newUserId;
-      localStorage.setItem(STORAGE_KEY, userId);
+      localStorage.setItem(config.STORAGE_KEY, userId);
       track('identify', { userId });
     },
     track: (eventName, metadata) => {
@@ -101,7 +115,7 @@ export async function GET(req: NextRequest) {
     }
   };
 
-  console.log('Kiwiko Tracker: Initialized for project ' + publicKey);
+  console.log('Kiwiko Tracker: Initialized for project ' + config.publicKey);
 })();
   `.trim();
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Bell,
   Search,
@@ -19,15 +19,13 @@ import NavProfileDropdown from "../NavProfileDropdown";
 import { getUserContextAction } from "@/actions/project.actions";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useSession } from "@/lib/auth-client";
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 
 const ProjectNavbar = () => {
-  const params = useParams();
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
-
-  const orgSlug = params?.orgSlug as string;
-  const projectSlug = params?.projectSlug as string;
+  const { orgSlug, projectSlug } = useProjectSlugs();
 
   const [userOrgs, setUserOrgs] = useState<any[]>([]);
   const [isOrgMenuOpen, setIsOrgMenuOpen] = useState(false);
@@ -80,7 +78,7 @@ const ProjectNavbar = () => {
   ];
 
   return (
-    <nav className="h-14 bg-white border-b border-zinc-200 flex items-center justify-between px-4 sticky top-0 z-[100] w-full shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+    <nav className="h-14 bg-white border-b border-zinc-200 flex items-center justify-between px-4 sticky top-0 z-100 w-full shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
       <div className="flex items-center gap-4 h-full">
         {/* Logo */}
         <Link href={`/${orgSlug}/${projectSlug}/overview`} className="flex items-center gap-2 hover:opacity-80 transition-opacity pr-2">

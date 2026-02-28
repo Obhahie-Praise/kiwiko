@@ -23,7 +23,20 @@ interface KiwikoAdvancedAnalyticsProps {
     usersOnline: number;
     allTimeUsers: number;
     churnRate: number;
+    engagementRate: number;
     activeUsersByHour: { timestamp: string; count: number }[];
+    sparklines: {
+      churn: { timestamp: string; value: number }[];
+      users: { timestamp: string; value: number }[];
+      sessions: { timestamp: string; value: number }[];
+      engagement: { timestamp: string; value: number }[];
+    };
+    growth: {
+      churn: number;
+      users: number;
+      sessions: number;
+      engagement: number;
+    };
   };
 }
 
@@ -40,17 +53,14 @@ const KiwikoMiniMetricCard = ({
   description: string; 
   change: string; 
   isPositive: boolean;
-  sparklineData: { value: number }[];
+  sparklineData: { timestamp: string; value: number }[];
 }) => (
   <div className="bg-white border-[0.2px] border-zinc-200 rounded-2xl p-4 flex flex-col justify-between h-full relative overflow-hidden group hover:shadow-md transition-all">
     <div className="flex justify-between items-start mb-2">
       <div>
         <h4 className="text-lg font-semibold text-zinc-900 hero-font">{title}</h4>
-        <p className="text-sm text-zinc-500">{description}</p>
+        <p className="text-sm text-zinc-500 line-clamp-1">{description}</p>
       </div>
-      <button className="text-zinc-400 hover:text-zinc-600">
-        <MoreVertical size={14} />
-      </button>
     </div>
     
     <div className="flex items-end justify-between mt-auto">
@@ -58,11 +68,11 @@ const KiwikoMiniMetricCard = ({
         <p className="text-xl font-bold text-zinc-900 tracking-tight">{value}</p>
         <p className={`text-[10px] font-semibold mt-1 flex items-center gap-0.5 ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
           {isPositive ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-          {change} <span className="text-zinc-400 font-medium ml-1">than last Week</span>
+          {change} <span className="text-zinc-400 font-medium ml-1">last 7d</span>
         </p>
       </div>
       
-      <div className="w-20 h-10 -mr-2 -mb-2">
+      <div className="w-24 h-12 -mr-2 -mb-2">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={sparklineData}>
             <defs>
@@ -71,6 +81,22 @@ const KiwikoMiniMetricCard = ({
                 <stop offset="95%" stopColor={isPositive ? "#10b981" : "#ef4444"} stopOpacity={0} />
               </linearGradient>
             </defs>
+            <Tooltip 
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const date = new Date(payload[0].payload.timestamp);
+                  return (
+                    <div className="bg-white p-2 border border-zinc-100 rounded-lg shadow-xl translate-y-[-40px]">
+                      <p className="text-[9px] font-bold text-zinc-400 tracking-widest uppercase">
+                        {date.toLocaleDateString([], { day: 'numeric', month: 'short' })}
+                      </p>
+                      <p className="text-xs font-bold text-zinc-900">{payload[0].value}</p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
             <Area
               type="monotone"
               dataKey="value"
@@ -89,42 +115,38 @@ const KiwikoMiniMetricCard = ({
 );
 
 const KiwikoAdvancedAnalytics = ({ data }: KiwikoAdvancedAnalyticsProps) => {
-  // Generate some semi-realistic sparkline data if real time series for these aren't available yet
-  const generateSparkline = (base: number, variance: number) => 
-    Array.from({ length: 10 }, () => ({ value: base + (Math.random() - 0.5) * variance }));
-
   const metrics = [
     {
       title: "Churn Rate",
-      value: `${data.churnRate.toFixed(2)}%`,
-      description: "Downgrade to Free plan",
-      change: "0.31%",
-      isPositive: data.churnRate < 5,
-      sparklineData: generateSparkline(data.churnRate, 2)
+      value: `${data.churnRate.toFixed(1)}%`,
+      description: "Weekly visitor drop-off",
+      change: `${data.growth.churn > 0 ? '+' : ''}${data.growth.churn.toFixed(1)}%`,
+      isPositive: data.growth.churn <= 0, // Churn falling or stable (0) is good
+      sparklineData: data.sparklines.churn
     },
     {
       title: "All-Time Users",
       value: data.allTimeUsers.toLocaleString(),
       description: "Total unique visitors",
-      change: "+1.2%",
-      isPositive: true,
-      sparklineData: generateSparkline(data.allTimeUsers / 100, 10)
+      change: `${data.growth.users > 0 ? '+' : ''}${data.growth.users.toFixed(1)}%`,
+      isPositive: data.growth.users >= 0,
+      sparklineData: data.sparklines.users
     },
     {
       title: "Sessions",
       value: data.sessions.toLocaleString(),
       description: "Total visits (24h)",
-      change: "+3.85%",
-      isPositive: true,
-      sparklineData: generateSparkline(data.sessions / 100, 50)
+      change: `${data.growth.sessions > 0 ? '+' : ''}${data.growth.sessions.toFixed(1)}%`,
+      isPositive: data.growth.sessions >= 0,
+      sparklineData: data.sparklines.sessions
     },
     {
       title: "Engagement",
-      value: "84%",
-      description: "Stickiness ratio",
-      change: "+2.1%",
-      isPositive: true,
-      sparklineData: generateSparkline(80, 10)
+      value: `${data.engagementRate.toFixed(1)}%`,
+      description: "Weekly return ratio",
+      change: `${data.growth.engagement > 0 ? '+' : ''}${data.growth.engagement.toFixed(1)}%`,
+      isPositive: data.growth.engagement >= 0,
+      sparklineData: data.sparklines.engagement
     }
   ];
 
@@ -141,9 +163,6 @@ const KiwikoAdvancedAnalytics = ({ data }: KiwikoAdvancedAnalyticsProps) => {
       <div className="col-span-12 lg:col-span-7 bg-white border-[0.2px] border-zinc-200 shadow-sm rounded-2xl p-6 h-full flex flex-col">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-semibold text-zinc-900 hero-font">Active Users</h3>
-          <button className="text-zinc-400 hover:text-zinc-600">
-            <MoreVertical size={18} />
-          </button>
         </div>
 
         <div className="flex items-center gap-2 mb-4">
@@ -172,7 +191,7 @@ const KiwikoAdvancedAnalytics = ({ data }: KiwikoAdvancedAnalyticsProps) => {
                   if (active && payload && payload.length) {
                     const date = new Date(payload[0].payload.timestamp);
                     return (
-                      <div className="bg-white p-2 border border-zinc-100 rounded-lg">
+                      <div className="bg-white p-2 border border-zinc-100 rounded-lg shadow-lg">
                         <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
                           {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>

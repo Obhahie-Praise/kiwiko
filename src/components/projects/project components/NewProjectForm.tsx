@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, Upload, Globe, Wallet, ChevronDown, Check, UserPlus, FileText, Target, Tag, Users, X, Github, Lock, Search, Loader2, Instagram, Linkedin, Twitter, Youtube, Info, Sparkles, Zap, Facebook } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 import UploadDropzone from "../../ui/upload/UploadDropZone";
 import { createProjectAction, getUserIntegrationsAction } from "@/actions/project.actions";
 import { getUserGithubRepos } from "@/actions/github.actions";
@@ -18,9 +19,8 @@ interface NewProjectFormProps {
 }
 
 const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
-    const params = useParams();
     const router = useRouter();
-    const orgSlug = params?.orgSlug as string;
+    const { orgSlug } = useProjectSlugs();
     
     const [name, setName] = useState("");
     const [tagline, setTagline] = useState("");

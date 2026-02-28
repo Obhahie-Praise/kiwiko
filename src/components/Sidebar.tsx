@@ -4,16 +4,14 @@ import { useSession } from "@/lib/auth-client";
 import { LogOut, Settings, User, ChevronUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useParams, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 
 const Sidebar = () => {
   const currentPath = usePathname();
-  const params = useParams();
   const router = useRouter();
-
-  const orgSlug = params?.orgSlug as string;
-  const projectSlug = params?.projectSlug as string;
+  const { orgSlug, projectSlug } = useProjectSlugs();
 
   const [isCollapsed, setIsCollapsed] = useState<boolean | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);

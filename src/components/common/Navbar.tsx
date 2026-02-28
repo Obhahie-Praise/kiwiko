@@ -6,7 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
 import { useClickOutside } from "@/hooks/useClickOutside";
-import { useParams, useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 import NavProfileDropdown from "../NavProfileDropdown";
 import { GithubIcon } from "lucide-react";
 
@@ -36,6 +37,7 @@ const Navbar = ({
     currentOrg, 
     user 
 }: NavbarProps) => {
+  const { orgSlug, projectSlug } = useProjectSlugs();
   const [isOrgMenuOpen, setIsOrgMenuOpen] = useState(false);
   const [internalUser, setInternalUser] = useState<any>(null); // Fallback for client-side only usage
   
