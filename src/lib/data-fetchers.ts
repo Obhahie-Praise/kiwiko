@@ -1,9 +1,9 @@
-import prisma from "@/lib/prisma";
-import { getYouTubeChannelStats } from "@/actions/youtube.actions";
 import { getProjectRepoDetails } from "@/actions/github.actions";
+import { unstable_cache } from "next/cache";
 
-export async function getOverviewMetrics(projectId: string, userId: string) {
-  try {
+export const getOverviewMetrics = unstable_cache(
+  async (projectId: string, userId: string) => {
+    try {
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
@@ -172,4 +172,7 @@ export async function getOverviewMetrics(projectId: string, userId: string) {
     console.error("Error fetching overview metrics:", error);
     return null;
   }
-}
+},
+["overview-metrics"],
+{ revalidate: 300, tags: ["metrics"] }
+);

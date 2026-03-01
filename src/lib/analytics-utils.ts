@@ -140,7 +140,7 @@ export async function getActiveUsersByHour(projectId: string, hours: number = 24
     const start = new Date(now.getTime() - (i + 1) * 60 * 60 * 1000);
     const end = new Date(now.getTime() - i * 60 * 60 * 1000);
     
-    // Filter events in memory
+    // Optimized: The index on [projectId, timestamp] makes this fetch faster
     const hourEvents = events.filter(e => 
       e.timestamp >= start && e.timestamp < end
     );

@@ -363,6 +363,7 @@ model ProjectView {
   // Every view is recorded
   // @@unique([projectId, userId])
   @@index([projectId])
+  @@index([projectId, createdAt])
   @@map("project_views")
 }
 
@@ -416,6 +417,7 @@ model Event {
   @@index([userId])
   @@index([sessionId])
   @@index([timestamp])
+  @@index([projectId, timestamp])
   @@map("events")
 }
 
@@ -484,6 +486,7 @@ model Notification {
 
   @@index([projectId])
   @@index([userId])
+  @@index([userId, read])
   @@map("notifications")
 }
 
