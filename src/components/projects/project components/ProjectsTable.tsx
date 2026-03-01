@@ -31,8 +31,9 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
   const router = useRouter();
   const { orgSlug } = useProjectSlugs();
 
-  const handleRowClick = (projectSlug: string) => {
-    router.push(`/${orgSlug}/${projectSlug}/overview`);
+  const handleRowClick = (project: any) => {
+    const targetOrgSlug = project.orgSlug || orgSlug;
+    router.push(`/${targetOrgSlug}/${project.slug}/overview`);
   };
 
   // Filter projects based on search query
@@ -85,7 +86,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
             return (
               <div
                 key={project.id}
-                onClick={() => handleRowClick(project.slug)}
+                onClick={() => handleRowClick(project)}
                 className={`grid grid-cols-12 gap-4 px-4 py-3 items-center text-sm border-b hover:bg-zinc-50/50 transition-colors cursor-pointer group ${
                   index === filteredProjects.length - 1 ? "border-b-0" : ""
                 }`}

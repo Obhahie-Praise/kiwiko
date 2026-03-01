@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Search,
   Bell,
   PanelLeftClose,
   PanelLeftOpen,
@@ -15,6 +14,9 @@ import {
   Plus,
   Settings,
   Bolt,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { getUserContextAction } from "@/actions/project.actions";
@@ -76,10 +78,18 @@ const ProjectInnerNav = () => {
     );
   };
 
+  const [activeTheme, setActiveTheme] = useState<"light" | "dark" | "system">("system");
+
   const handleSwitchProject = (newProjectSlug: string) => {
     setIsProjectMenuOpen(false);
     router.push(`/${orgSlug}/${newProjectSlug}/overview`);
   };
+
+  const themes = [
+    { id: "light", icon: Sun },
+    { id: "system", icon: Monitor },
+    { id: "dark", icon: Moon },
+  ] as const;
 
   return (
     <nav className="flex items-center justify-between h-11 px-3 py-6 border-b border-zinc-200 bg-white sticky top-0 z-50">
@@ -204,16 +214,24 @@ const ProjectInnerNav = () => {
         </div>
       </div>
 
-      {/* Right: search + actions */}
+      {/* Right: actions */}
       <div className="flex items-center gap-1">
-        <form className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-50 border border-zinc-100 hover:border-zinc-200 transition-colors">
-          <Search size={16} strokeWidth={1.5} className="text-zinc-600" />
-          <input
-            type="text"
-            className="bg-transparent focus:outline-none text-sm text-zinc-600 placeholder:text-zinc-500 w-32"
-            placeholder="Search..."
-          />
-        </form>
+        {/* Theme Switcher */}
+        <div className="flex items-center bg-zinc-50 border border-zinc-100 rounded-lg p-0.5 mr-1">
+          {themes.map(({ id, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTheme(id)}
+              className={`p-1 rounded-md transition-all ${
+                activeTheme === id
+                  ? "bg-white text-zinc-900 shadow-sm border border-zinc-200/50"
+                  : "text-zinc-400 hover:text-zinc-600"
+              }`}
+            >
+              <Icon size={14} strokeWidth={activeTheme === id ? 2 : 1.5} />
+            </button>
+          ))}
+        </div>
 
         <div className="h-4 w-px bg-zinc-200 mx-1" />
 

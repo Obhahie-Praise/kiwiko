@@ -1,7 +1,7 @@
 "use client";
 import { sidebarNav } from "@/constants";
 import { useSession } from "@/lib/auth-client";
-import { LogOut, Settings, User, ChevronUp } from "lucide-react";
+import { LogOut, Settings, User, ChevronUp, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -78,6 +78,20 @@ const Sidebar = () => {
           </div>
         )}
       </div>
+ 
+      {/* Search Bar - Only show when not collapsed */}
+      {!isCollapsed && (
+        <div className="px-3 py-2 mb-1">
+          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-zinc-50 border border-zinc-100 hover:border-zinc-200 transition-colors group">
+            <Search size={14} strokeWidth={1.5} className="text-zinc-400 group-focus-within:text-zinc-600" />
+            <input
+              type="text"
+              className="bg-transparent focus:outline-none text-xs text-zinc-600 placeholder:text-zinc-500 w-full"
+              placeholder="Search..."
+            />
+          </div>
+        </div>
+      )}
 
       {/* Nav links */}
       <div className="px-2 py-3 flex-1 overflow-y-auto no-scrollbar">

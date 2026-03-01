@@ -49,16 +49,14 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
       change: `${(overviewData?.viewGrowth ?? 0) >= 0 ? "+" : ""}${overviewData?.viewGrowth || 0}%`,
       positive: (overviewData?.viewGrowth ?? 0) >= 0,
       icon: Eye,
-      visible: true
     },
     {
       id: "commits",
-      label: "Git Commits / Week",
-      value: overviewData?.commitsPerWeek?.toString() || "0",
-      change: "+0%",
+      label: overviewData?.githubConnected ? "Git Commits / Week" : "Project Status",
+      value: overviewData?.githubConnected ? (overviewData?.commitsPerWeek?.toString() || "0") : "Active",
+      change: overviewData?.githubConnected ? "+0%" : "Live",
       positive: true,
-      icon: GitCommit,
-      visible: overviewData?.githubConnected
+      icon: overviewData?.githubConnected ? GitCommit : Check,
     },
     {
       id: "social-views",
@@ -69,18 +67,18 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
       change: overviewData?.youtubeConnected ? "+12.5%" : "Next 30 days",
       positive: true,
       icon: overviewData?.youtubeConnected ? Eye : Calendar,
-      visible: true
     },
     {
       id: "active-users-7d",
-      label: "Active Users (7d)",
-      value: overviewData?.kiwiko?.activeUsers7d?.toString() || "0",
-      change: "Last 7 days",
+      label: "Active Team Members",
+      value: overviewData?.kiwikoConnected 
+        ? (overviewData?.kiwiko?.usersOnline?.toString() || "0")
+        : ((project.members?.length || 0) + (project.invites?.filter((i: any) => !i.accepted).length || 0)).toString(),
+      change: overviewData?.kiwikoConnected ? "Online now" : "Total members",
       positive: true,
       icon: Users,
-      visible: overviewData?.kiwikoConnected
     }
-  ].filter(m => m.visible);
+  ];
 
   return (
     <div className="flex flex-col h-full bg-zinc-50 relative">

@@ -19,8 +19,12 @@ export default function TeamSignInForm() {
         try {
             const res = await teamInviteSignInAction(email);
             if (res.success && res.data) {
-                // Successful sign-in, redirect to the project overview
-                router.push(`/${res.data.orgSlug}/${res.data.projectSlug}/overview`);
+                // Check if we should redirect to participation or overview
+                if ((res.data as any).redirectToParticipation) {
+                    router.push(`/project-participation`);
+                } else {
+                    router.push(`/${res.data.orgSlug}/${res.data.projectSlug}/overview`);
+                }
             } else {
                 setError(res.error || "Failed to sign in. Please check your email.");
                 setIsAuthenticating(false);

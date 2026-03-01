@@ -790,45 +790,38 @@ export async function getProjectHomeDataAction(orgSlug: string, projectSlug: str
     if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
     try {
-        const organization = await prisma.organization.findUnique({
-            where: { slug: orgSlug }
-        });
-
-        if (!organization) return { success: false, error: "Organization not found" };
-
-        const project = await prisma.project.findUnique({
-            where: {
-                orgId_slug: {
-                    orgId: organization.id,
-                    slug: projectSlug
-                }
-            },
-            include: {
-                members: {
-                    include: {
-                        user: true
-                    }
+        const [project, membership] = await Promise.all([
+            prisma.project.findFirst({
+                where: { 
+                    slug: projectSlug,
+                    organization: { slug: orgSlug }
                 },
-                invites: true
-            }
-        });
+                include: {
+                    organization: true,
+                    members: {
+                        include: {
+                            user: true
+                        }
+                    },
+                    invites: true
+                }
+            }),
+            prisma.membership.findFirst({
+                where: {
+                    userId: session.user.id,
+                    organization: { slug: orgSlug }
+                }
+            })
+        ]);
 
         if (!project) return { success: false, error: "Project not found" };
-
-        const membership = await prisma.membership.findUnique({
-            where: {
-                userId_orgId: {
-                    userId: session.user.id,
-                    orgId: organization.id
-                }
-            }
-        });
+        if (!project.organization) return { success: false, error: "Organization not found" };
 
         return { 
             success: true, 
             data: { 
                 project, 
-                organization,
+                organization: project.organization,
                 membership
             } 
         };

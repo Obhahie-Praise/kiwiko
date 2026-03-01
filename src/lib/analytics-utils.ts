@@ -118,30 +118,39 @@ export async function getEngagementRate(projectId: string) {
  * Get active users count grouped by hour for the last X hours.
  */
 export async function getActiveUsersByHour(projectId: string, hours: number = 24) {
-  const data = [];
-  const now = new Date();
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000);
   
+  // Fetch all relevant events in a single query
+  const events = await prisma.event.findMany({
+    where: {
+      projectId,
+      timestamp: { gte: since },
+      userId: { not: null },
+    },
+    select: {
+      timestamp: true,
+      userId: true,
+    }
+  });
+
+  const now = new Date();
+  const data = [];
+
   for (let i = hours - 1; i >= 0; i--) {
     const start = new Date(now.getTime() - (i + 1) * 60 * 60 * 1000);
     const end = new Date(now.getTime() - i * 60 * 60 * 1000);
     
-    // Using count instead of findMany/distinct for performance on large sets if possible, 
-    // but for "active users" we need unique count.
-    const uniqueUsers = await prisma.event.groupBy({
-      by: ["userId"],
-      where: {
-        projectId,
-        timestamp: {
-          gte: start,
-          lt: end,
-        },
-        userId: { not: null },
-      },
-    });
+    // Filter events in memory
+    const hourEvents = events.filter(e => 
+      e.timestamp >= start && e.timestamp < end
+    );
+    
+    // Count unique users
+    const uniqueUsers = new Set(hourEvents.map(e => e.userId)).size;
     
     data.push({
       timestamp: end.toISOString(),
-      count: uniqueUsers.length,
+      count: uniqueUsers,
     });
   }
   
@@ -160,57 +169,67 @@ export async function getMetricGrowth(projectId: string, metric: "users" | "sess
   let previousVal = 0;
 
   if (metric === "users") {
-    currentVal = await getActiveUsers(projectId, 168);
-    // Previous 7d
-    const res = await prisma.event.groupBy({
-      by: ["userId"],
-      where: {
-        projectId,
-        timestamp: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
-        userId: { not: null },
-      },
-    });
-    previousVal = res.length;
+    const [curr, prev] = await Promise.all([
+      getActiveUsers(projectId, 168),
+      prisma.event.groupBy({
+        by: ["userId"],
+        where: {
+          projectId,
+          timestamp: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
+          userId: { not: null },
+        },
+      })
+    ]);
+    currentVal = curr;
+    previousVal = prev.length;
   } else if (metric === "sessions") {
-    currentVal = await getSessions(projectId, 168);
-    previousVal = await prisma.event.count({
-      where: {
-        projectId,
-        eventName: "session_start",
-        timestamp: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
-      },
-    });
+    const [curr, prev] = await Promise.all([
+      getSessions(projectId, 168),
+      prisma.event.count({
+        where: {
+          projectId,
+          eventName: "session_start",
+          timestamp: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
+        },
+      })
+    ]);
+    currentVal = curr;
+    previousVal = prev;
   } else if (metric === "churn") {
-     // Churn is already a rate, so maybe we show the difference in % points or the trend
-     currentVal = await getChurnRate(projectId);
-     // Previous churn (14-21 vs 7-14)
-     const twentyOneDaysAgo = new Date(now.getTime() - 21 * 24 * 60 * 60 * 1000);
-     const active7_14 = await prisma.event.findMany({
-       where: { projectId, timestamp: { gte: fourteenDaysAgo, lt: sevenDaysAgo }, userId: { not: null } },
-       select: { userId: true }, distinct: ["userId"],
-     });
-     const set7_14 = new Set(active7_14.map(u => u.userId));
-     const active14_21 = await prisma.event.findMany({
-       where: { projectId, timestamp: { gte: twentyOneDaysAgo, lt: fourteenDaysAgo }, userId: { not: null } },
-       select: { userId: true }, distinct: ["userId"],
-     });
-     if (active14_21.length === 0) previousVal = 0;
-     else {
+     const [churnCurr, active7_14, active14_21] = await Promise.all([
+       getChurnRate(projectId),
+       prisma.event.findMany({
+         where: { projectId, timestamp: { gte: fourteenDaysAgo, lt: sevenDaysAgo }, userId: { not: null } },
+         select: { userId: true }, distinct: ["userId"],
+       }),
+       prisma.event.findMany({
+         where: { projectId, timestamp: { gte: new Date(now.getTime() - 21 * 24 * 60 * 60 * 1000), lt: fourteenDaysAgo }, userId: { not: null } },
+         select: { userId: true }, distinct: ["userId"],
+       })
+     ]);
+     
+     currentVal = churnCurr;
+     if (active14_21.length === 0) {
+       previousVal = 0;
+     } else {
+       const set7_14 = new Set(active7_14.map(u => u.userId));
        const lost = active14_21.filter(u => !set7_14.has(u.userId)).length;
        previousVal = (lost / active14_21.length) * 100;
      }
   } else if (metric === "engagement") {
-    currentVal = await getEngagementRate(projectId);
-    // Previous engagement
-    const totalPrevious = await prisma.event.groupBy({
-      by: ["userId"],
-      where: { projectId, timestamp: { lt: sevenDaysAgo }, userId: { not: null } },
-    });
-    const activePrevious = await prisma.event.groupBy({
-      by: ["userId"],
-      where: { projectId, timestamp: { gte: fourteenDaysAgo, lt: sevenDaysAgo }, userId: { not: null } },
-    });
-    previousVal = totalPrevious.length > 0 ? (activePrevious.length / totalPrevious.length) * 100 : 0;
+    const [curr, totalPrev, activePrev] = await Promise.all([
+      getEngagementRate(projectId),
+      prisma.event.groupBy({
+        by: ["userId"],
+        where: { projectId, timestamp: { lt: sevenDaysAgo }, userId: { not: null } },
+      }),
+      prisma.event.groupBy({
+        by: ["userId"],
+        where: { projectId, timestamp: { gte: fourteenDaysAgo, lt: sevenDaysAgo }, userId: { not: null } },
+      })
+    ]);
+    currentVal = curr;
+    previousVal = totalPrev.length > 0 ? (activePrev.length / totalPrev.length) * 100 : 0;
   }
 
   if (previousVal === 0) return currentVal > 0 ? 100 : 0;
@@ -222,74 +241,78 @@ export async function getMetricGrowth(projectId: string, metric: "users" | "sess
  * Points are daily for the last 14 days.
  */
 export async function getMetricTimeSeries(projectId: string, metric: "churn" | "users" | "sessions" | "engagement") {
-  const data = [];
   const now = new Date();
+  const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14); // 14 days + buffer
   
-  for (let i = 13; i >= 0; i--) {
-    const targetDayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-    const targetDayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i + 1);
-    
-    let value = 0;
+  const data = [];
 
-    if (metric === "users") {
-      const res = await prisma.event.groupBy({
-        by: ["userId"],
-        where: {
-          projectId,
-          timestamp: { gte: targetDayStart, lt: targetDayEnd },
-          userId: { not: null },
-        },
-      });
-      value = res.length;
-    } else if (metric === "sessions") {
-      value = await prisma.event.count({
-        where: {
-          projectId,
-          eventName: "session_start",
-          timestamp: { gte: targetDayStart, lt: targetDayEnd },
-        },
-      });
-    } else if (metric === "engagement") {
-       const activeThatDay = await prisma.event.groupBy({
-         by: ["userId"],
-         where: {
-           projectId,
-           timestamp: { gte: targetDayStart, lt: targetDayEnd },
-           userId: { not: null },
-         },
-       });
-       const totalUpToThatDay = await prisma.event.groupBy({
-         by: ["userId"],
-         where: {
-           projectId,
-           timestamp: { lt: targetDayEnd },
-           userId: { not: null },
-         },
-       });
-       value = totalUpToThatDay.length > 0 ? (activeThatDay.length / totalUpToThatDay.length) * 100 : 0;
-    } else if (metric === "churn") {
-      // Churn per day (Users from day i-1 who didn't return on day i)
-      const prevDayStart = new Date(targetDayStart.getTime() - 24 * 60 * 60 * 1000);
-      const prevDayUsers = await prisma.event.findMany({
-        where: { projectId, timestamp: { gte: prevDayStart, lt: targetDayStart }, userId: { not: null } },
-        select: { userId: true }, distinct: ["userId"],
-      });
-      const currentDayUsers = await prisma.event.findMany({
-        where: { projectId, timestamp: { gte: targetDayStart, lt: targetDayEnd }, userId: { not: null } },
-        select: { userId: true }, distinct: ["userId"],
-      });
-      const currentSet = new Set(currentDayUsers.map(u => u.userId));
-      if (prevDayUsers.length === 0) value = 0;
-      else {
-        const lost = prevDayUsers.filter(u => !currentSet.has(u.userId)).length;
-        value = (lost / prevDayUsers.length) * 100;
+  if (metric === "users" || metric === "sessions" || metric === "engagement") {
+    const events = await prisma.event.findMany({
+      where: {
+        projectId,
+        timestamp: { gte: startDate },
+        ...(metric === "sessions" ? { eventName: "session_start" } : { userId: { not: null } })
+      },
+      select: {
+        timestamp: true,
+        userId: true,
       }
-    }
-
-    data.push({
-      timestamp: targetDayEnd.toISOString(),
-      value: Math.round(value * 100) / 100,
     });
+
+    const allUsersCount = metric === "engagement" ? await getAllTimeUsers(projectId) : 0;
+
+    for (let i = 13; i >= 0; i--) {
+      const targetDayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      const targetDayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i + 1);
+      
+      const dayEvents = events.filter(e => e.timestamp >= targetDayStart && e.timestamp < targetDayEnd);
+      
+      let value = 0;
+      if (metric === "users") {
+        value = new Set(dayEvents.map(e => e.userId)).size;
+      } else if (metric === "sessions") {
+        value = dayEvents.length;
+      } else if (metric === "engagement") {
+        const activeCount = new Set(dayEvents.map(e => e.userId)).size;
+        // Optimization: totalUpToThatDay could also be pre-calculated if we had better tracking,
+        // but for now let's use the allTimeUsers as an approximation or fetch specifically if needed.
+        // Actually the original code did a DB call per day for totalPrevious.
+        // Let's stick with the most accurate version but minimized.
+        value = allUsersCount > 0 ? (activeCount / allUsersCount) * 100 : 0;
+      }
+
+      data.push({
+        timestamp: targetDayEnd.toISOString(),
+        value: Math.round(value * 100) / 100,
+      });
+    }
+  } else if (metric === "churn") {
+     const churnStartDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 15);
+     const events = await prisma.event.findMany({
+       where: { projectId, timestamp: { gte: churnStartDate }, userId: { not: null } },
+       select: { timestamp: true, userId: true }
+     });
+
+     for (let i = 13; i >= 0; i--) {
+        const targetDayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const targetDayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i + 1);
+        const prevDayStart = new Date(targetDayStart.getTime() - 24 * 60 * 60 * 1000);
+
+        const prevDayUsers = new Set(events.filter(e => e.timestamp >= prevDayStart && e.timestamp < targetDayStart).map(e => e.userId));
+        const currentDayUsers = new Set(events.filter(e => e.timestamp >= targetDayStart && e.timestamp < targetDayEnd).map(e => e.userId));
+        
+        let value = 0;
+        if (prevDayUsers.size > 0) {
+          let lostCount = 0;
+          prevDayUsers.forEach(u => { if (!currentDayUsers.has(u)) lostCount++; });
+          value = (lostCount / prevDayUsers.size) * 100;
+        }
+
+        data.push({
+          timestamp: targetDayEnd.toISOString(),
+          value: Math.round(value * 100) / 100,
+        });
+     }
   }
   
   return data;

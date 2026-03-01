@@ -39,11 +39,11 @@ const Navbar = () => {
 
         {/* Navigation - Centered */}
         <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-          {["Product", "Customer", "Pricing", "Resources", "Company"].map((item) => (
+          {["About", "Activity", "Features", "Testimonials", "Resources"].map((item) => (
             <Link 
               key={item}
-              className="relative text-sm font-medium text-zinc-500 hover:text-orange-500 transition-colors" 
-              href={`#${item.toLowerCase()}`}
+              className="relative text-sm font-semibold tracking-widest text-black hover:text-orange-500 transition-colors" 
+              href={item === "Resources" ? "/resources" : `#${item.toLowerCase()}`}
             >
               {item}
             </Link>
@@ -54,9 +54,16 @@ const Navbar = () => {
         <div className="flex items-center gap-4 z-10">
           <Link 
             href="/sign-in" 
-            className="text-xs font-bold uppercase tracking-widest text-white bg-zinc-900 px-5 py-2.5 rounded-xl hover:bg-zinc-800 transition-all shadow-lg shadow-zinc-200"
+            className="text-sm font-semibold tracking-widest text-zinc-900 px-4 py-2 hover:bg-zinc-100 rounded-xl transition-colors"
           >
-            Log in
+            Login
+          </Link>
+          <Link 
+            href="/onboarding" 
+            className="overflow-hidden relative bg-zinc-200 text-zinc-900 text-sm font-semibold tracking-widest px-6 py-2.5 rounded-xl hover:bg-black transition-all flex items-center gap-2 shadow-lg shadow-zinc-200"
+          >
+            Sign Up
+            <div className=" w-30 h-5 bg-orange-700/90 blur-lg rounded-[100%] absolute -bottom-2 left-1/2 -translate-x-1/2" />
           </Link>
         </div>
       </div>

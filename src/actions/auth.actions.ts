@@ -115,6 +115,7 @@ export async function teamInviteSignInAction(email: string) {
             session.token,
             {
                 ...cookieConfig.sessionToken.options,
+                sameSite: (cookieConfig.sessionToken.options.sameSite?.toLowerCase() as any) || "lax",
                 expires: session.expiresAt,
             }
         );
@@ -123,7 +124,8 @@ export async function teamInviteSignInAction(email: string) {
             success: true, 
             data: { 
                 orgSlug: invite.project.organization.slug, 
-                projectSlug: invite.project.slug 
+                projectSlug: invite.project.slug,
+                redirectToParticipation: true
             } 
         };
     } catch (error) {
