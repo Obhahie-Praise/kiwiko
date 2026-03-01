@@ -31,7 +31,7 @@ export type ActionResponse<T = any> =
   | { success: true; data: T }
   | { success: false; error: string };
 
-export async function createProjectAction(formData: FormData): Promise<ActionResponse<{ projectId: string; slug: string; invites: any[] }>> {
+export async function createProjectAction(formData: FormData): Promise<ActionResponse<{ projectId: string; slug: string; invites: any[]; publicKey: string; secretKey: string }>> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -924,17 +924,16 @@ export async function getProjectViewAnalyticsAction(
         if (!project) return { success: false, error: "Project not found" };
 
         const now = new Date();
-        const creationDate = project.createdAt;
         let startDate = new Date();
 
         if (range === "weekly") {
-            startDate = creationDate;
+            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         } else if (range === "monthly") {
-            startDate.setFullYear(now.getFullYear() - 1);
+            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         } else if (range === "quarterly") {
-            startDate.setFullYear(now.getFullYear() - 1);
+            startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
         } else if (range === "yearly") {
-            startDate.setFullYear(now.getFullYear() - 4);
+            startDate = new Date(now.getFullYear() - 1, now.getMonth() + 1, 1);
         }
 
         const views = await prisma.projectView.findMany({
@@ -947,45 +946,29 @@ export async function getProjectViewAnalyticsAction(
 
         const aggregated: Record<string, number> = {};
         
-        const getWeekNumber = (d: Date) => {
-            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            const dayNum = date.getUTCDay() || 7;
-            date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-            const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-            const weekNo = Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
-            return weekNo;
-        };
-
         // Initialize buckets
         if (range === "weekly") {
-            const startWeek = getWeekNumber(creationDate);
-            const currentWeek = getWeekNumber(now);
-            const currentYear = now.getFullYear();
-            const creationYear = creationDate.getFullYear();
-
-            if (currentYear === creationYear) {
-                for (let i = startWeek; i <= 52; i++) {
-                    aggregated[`Week ${i}`] = 0;
-                }
-            } else {
-                // If it spans years, we might need a more complex label, 
-                // but the user's specific request "start from the week the account was created" 
-                // and "align with week of the year" suggests within a year or relative to years.
-                // For now, let's assume current year or show all weeks from start until now.
-                // If it's multi-year, just show the last 52 weeks but aligned? 
-                // The user said "if the account was created on the week 7, then week 7 should start the charts x axis".
-                // Let's do a simple range of weeks.
-                for (let i = startWeek; i <= 52; i++) aggregated[`Week ${i}`] = 0;
-                for (let i = 1; i <= currentWeek; i++) aggregated[`Week ${i}`] = 0;
+            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+                aggregated[days[d.getDay()]] = 0;
             }
         } else if (range === "monthly") {
-            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            months.forEach(m => aggregated[m] = 0);
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+                aggregated[d.toLocaleDateString("en-US", { month: "short", day: "numeric" })] = 0;
+            }
         } else if (range === "quarterly") {
-            for (let i = 1; i <= 4; i++) aggregated[`Q${i}`] = 0;
+            for (let i = 12; i >= 0; i--) {
+                const d = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000);
+                aggregated[d.toLocaleDateString("en-US", { month: "short", day: "numeric" })] = 0;
+            }
         } else if (range === "yearly") {
-            for (let i = 1; i <= 4; i++) aggregated[`Year ${i}`] = 0;
-            aggregated[`Year 4+`] = 0;
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                aggregated[months[d.getMonth()]] = 0;
+            }
         }
 
         // Fill buckets
@@ -994,17 +977,19 @@ export async function getProjectViewAnalyticsAction(
             let key = "";
             
             if (range === "weekly") {
-                key = `Week ${getWeekNumber(d)}`;
+                const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                key = days[d.getDay()];
             } else if (range === "monthly") {
-                key = d.toLocaleString('default', { month: 'short' });
+                key = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
             } else if (range === "quarterly") {
-                const q = Math.floor((d.getMonth() + 3) / 3);
-                key = `Q${q}`;
+                const diffWeeks = Math.floor((now.getTime() - d.getTime()) / (7 * 24 * 60 * 60 * 1000));
+                if (diffWeeks <= 12) {
+                    const bucketDate = new Date(now.getTime() - diffWeeks * 7 * 24 * 60 * 60 * 1000);
+                    key = bucketDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                }
             } else if (range === "yearly") {
-                const diffYears = now.getFullYear() - d.getFullYear();
-                const yearNum = 4 - diffYears;
-                if (yearNum >= 1 && yearNum <= 3) key = `Year ${yearNum}`;
-                else if (yearNum >= 4) key = `Year 4+`;
+                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                key = months[d.getMonth()];
             }
 
             if (key && aggregated[key] !== undefined) aggregated[key]++;

@@ -57,7 +57,7 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
         <div>
           <h3 className="text-xl font-semibold text-zinc-900 hero-font tracking-tight">Profile Analytics</h3>
           <p className="text-sm text-zinc-500 font-medium">
-            Visitor analytics {range === "weekly" ? "(Last 52 Weeks)" : range === "monthly" ? "(12 Months)" : range === "quarterly" ? "(4 Quarters)" : "(Last 4+ Years)"}
+            Visitor analytics {range === "weekly" ? "(Last 7 Days)" : range === "monthly" ? "(Last 30 Days)" : range === "quarterly" ? "(Last 90 Days)" : "(Last 12 Months)"}
           </p>
         </div>
 

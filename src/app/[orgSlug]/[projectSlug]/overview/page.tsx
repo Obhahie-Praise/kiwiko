@@ -70,11 +70,11 @@ const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug
     },
     {
       id: "active-users-7d",
-      label: "Active Team Members",
+      label: overviewData?.kiwikoConnected ? "Active Users (7d)" : "Active Team Members",
       value: overviewData?.kiwikoConnected 
-        ? (overviewData?.kiwiko?.usersOnline?.toString() || "0")
-        : ((project.members?.length || 0) + (project.invites?.filter((i: any) => !i.accepted).length || 0)).toString(),
-      change: overviewData?.kiwikoConnected ? "Online now" : "Total members",
+        ? (overviewData?.kiwiko?.activeUsers7d?.toString() || "0")
+        : (overviewData?.kiwiko?.onlineTeamMembers?.toString() || "0"),
+      change: overviewData?.kiwikoConnected ? "Last 7 days" : "Online now",
       positive: true,
       icon: Users,
     }

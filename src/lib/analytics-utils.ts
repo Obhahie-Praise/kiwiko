@@ -317,3 +317,32 @@ export async function getMetricTimeSeries(projectId: string, metric: "churn" | "
   
   return data;
 }
+
+/**
+ * Get the number of team members currently in session (logged into the dashboard).
+ */
+export async function getOnlineTeamMembers(projectId: string) {
+  const now = new Date();
+  const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+  
+  // Find project members
+  const projectMembers = await prisma.projectMember.findMany({
+    where: { projectId },
+    select: { userId: true }
+  });
+
+  const memberIds = projectMembers.map(m => m.userId);
+  if (memberIds.length === 0) return 0;
+
+  // Count unique users who have a valid session updated in the last 5 minutes
+  const activeSessions = await prisma.session.groupBy({
+    by: ["userId"],
+    where: {
+      userId: { in: memberIds },
+      expiresAt: { gte: now },
+      updatedAt: { gte: fiveMinutesAgo }
+    }
+  });
+
+  return activeSessions.length;
+}

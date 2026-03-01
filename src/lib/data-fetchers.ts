@@ -45,7 +45,8 @@ export async function getOverviewMetrics(projectId: string, userId: string) {
       churnGrowth,
       usersGrowth,
       sessionsGrowth,
-      engagementGrowth
+      engagementGrowth,
+      onlineTeamMembers
     ] = await Promise.all([
       prisma.projectView.count({ where: { projectId } }),
       prisma.projectView.count({ where: { projectId, createdAt: { gte: sevenDaysAgo } } }),
@@ -68,7 +69,8 @@ export async function getOverviewMetrics(projectId: string, userId: string) {
       analytics.getMetricGrowth(projectId, "churn"),
       analytics.getMetricGrowth(projectId, "users"),
       analytics.getMetricGrowth(projectId, "sessions"),
-      analytics.getMetricGrowth(projectId, "engagement")
+      analytics.getMetricGrowth(projectId, "engagement"),
+      analytics.getOnlineTeamMembers(projectId)
     ]);
 
     // Handle GitHub Commits
@@ -124,6 +126,7 @@ export async function getOverviewMetrics(projectId: string, userId: string) {
         activeUsers30d,
         sessions,
         usersOnline,
+        onlineTeamMembers,
         allTimeUsers,
         churnRate,
         engagementRate,

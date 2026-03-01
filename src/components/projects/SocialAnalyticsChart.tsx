@@ -23,22 +23,37 @@ type MetricType = "Views" | "Uploads (Likes)" | "Uploads (Comments)" | "Uploads 
 // Mock data generator for smooth area charts
 const generateMockData = (range: TimeRange, metric: MetricType, platform: Platform) => {
   const data = [];
+  const now = new Date();
   
   let points = 12;
   let labels: string[] = [];
 
   if (range === "Weekly") {
-    points = 52;
-    labels = Array.from({ length: 52 }, (_, i) => `Week ${i + 1}`);
+    points = 7;
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    labels = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(now.getTime() - (6 - i) * 24 * 60 * 60 * 1000);
+        return days[d.getDay()];
+    });
   } else if (range === "Monthly") {
-    points = 12;
-    labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    points = 30;
+    labels = Array.from({ length: 30 }, (_, i) => {
+        const d = new Date(now.getTime() - (29 - i) * 24 * 60 * 60 * 1000);
+        return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    });
   } else if (range === "Quarterly") {
-    points = 4;
-    labels = ["Q1", "Q2", "Q3", "Q4"];
+    points = 13;
+    labels = Array.from({ length: 13 }, (_, i) => {
+        const d = new Date(now.getTime() - (12 - i) * 7 * 24 * 60 * 60 * 1000);
+        return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    });
   } else if (range === "Annually") {
-    points = 4;
-    labels = ["Year 1", "Year 2", "Year 3", "Year 4+"];
+    points = 12;
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    labels = Array.from({ length: 12 }, (_, i) => {
+        const d = new Date(now.getFullYear(), now.getMonth() - (11 - i), 1);
+        return months[d.getMonth()];
+    });
   }
   
   let baseValue = metric === "Views" ? 15000 : metric === "Uploads (Likes)" ? 500 : 200;
@@ -94,7 +109,7 @@ const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
         <div>
           <h3 className="text-xl font-semibold text-zinc-900 hero-font tracking-tight">Social Media Statistics</h3>
           <p className="text-sm text-zinc-500 font-medium mt-1">
-            All time stats for each {range === "Annually" ? "month" : range === "Quarterly" ? "week" : "day"}
+            Historical stats for the selected period
           </p>
           
           {/* Filters */}
@@ -152,10 +167,10 @@ const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
           <button className="flex items-center gap-2 px-3 py-1.5 border border-zinc-200 hover:bg-zinc-50 rounded-xl text-xs font-semibold text-zinc-700 shadow-sm transition-colors">
             <Calendar size={14} className="text-zinc-500" />
             <span>
-              {range === "Weekly" ? "All Time (52 Weeks)" : 
-               range === "Monthly" ? "All Time (12 Months)" : 
-               range === "Quarterly" ? "All Time (4 Quarters)" : 
-               "All Time (4+ Years)"}
+              {range === "Weekly" ? "Last 7 Days" : 
+               range === "Monthly" ? "Last 30 Days" : 
+               range === "Quarterly" ? "Last 90 Days" : 
+               "Last 12 Months"}
             </span>
           </button>
         </div>
