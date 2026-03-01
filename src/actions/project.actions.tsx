@@ -962,7 +962,8 @@ export async function getProjectViewAnalyticsAction(
             const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
             for (let i = 6; i >= 0; i--) {
                 const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-                aggregated[days[d.getDay()]] = 0;
+                const label = `${days[d.getDay()]} ${d.getDate()}`;
+                aggregated[label] = 0;
             }
         } else if (range === "monthly") {
             for (let i = 29; i >= 0; i--) {
@@ -989,7 +990,7 @@ export async function getProjectViewAnalyticsAction(
             
             if (range === "weekly") {
                 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                key = days[d.getDay()];
+                key = `${days[d.getDay()]} ${d.getDate()}`;
             } else if (range === "monthly") {
                 key = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
             } else if (range === "quarterly") {

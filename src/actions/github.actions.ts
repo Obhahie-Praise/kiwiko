@@ -176,26 +176,30 @@ export async function syncProjectGithubMetrics(projectId: string): Promise<Actio
     if (!repoRes.ok) throw new Error("Metadata fetch failed");
     const repoData = await repoRes.json();
 
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    // Also need 30 days for some fields, but we focus on 7d for commitsPerWeek
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
     const commitsRes = await fetch(
-      `https://api.github.com/repos/${project.githubRepoFullName}/commits?since=${thirtyDaysAgo.toISOString()}&per_page=1`, 
+      `https://api.github.com/repos/${project.githubRepoFullName}/commits?since=${sevenDaysAgo.toISOString()}&per_page=1`, 
       {
         headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github.v3+json" }
       }
     );
 
-    let commitCount30d = 0;
+    let commitCount7d = 0;
     let latestCommits: any[] = [];
     if (commitsRes.ok) {
        const link = commitsRes.headers.get("Link");
        if (link) {
          const match = link.match(/&page=(\d+)>; rel="last"/);
-         if (match) commitCount30d = parseInt(match[1]);
+         if (match) commitCount7d = parseInt(match[1]);
        } else {
          const c = await commitsRes.json();
-         commitCount30d = Array.isArray(c) ? c.length : 0;
+         commitCount7d = Array.isArray(c) ? c.length : 0;
        }
 
        // Fetch actual commit data to persist
@@ -210,7 +214,26 @@ export async function syncProjectGithubMetrics(projectId: string): Promise<Actio
        }
     }
 
-    const commitsPerWeek = Math.round((commitCount30d / 30) * 7 * 10) / 10;
+    const commitsRes30d = await fetch(
+      `https://api.github.com/repos/${project.githubRepoFullName}/commits?since=${thirtyDaysAgo.toISOString()}&per_page=1`, 
+      {
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github.v3+json" }
+      }
+    );
+
+    let commitCount30d = 0;
+    if (commitsRes30d.ok) {
+        const link = commitsRes30d.headers.get("Link");
+        if (link) {
+            const match = link.match(/&page=(\d+)>; rel="last"/);
+            if (match) commitCount30d = parseInt(match[1]);
+        } else {
+            const c = await commitsRes30d.json();
+            commitCount30d = Array.isArray(c) ? c.length : 0;
+        }
+    }
+
+    const commitsPerWeek = commitCount30d === 0 && commitCount7d > 0 ? commitCount7d : commitCount7d; // Strictly rolling 7d
 
     await prisma.$transaction([
       prisma.project.update({
@@ -326,11 +349,11 @@ export async function getProjectRepoDetails(repoFullName: string, connectedByUse
     if (!repoResponse.ok) throw new Error(`GitHub Error: ${repoResponse.status}`);
     const repoData = await repoResponse.json();
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     
     const commitsRes = await fetch(
-      `https://api.github.com/repos/${repoFullName}/commits?since=${thirtyDaysAgo.toISOString()}&per_page=100`, 
+      `https://api.github.com/repos/${repoFullName}/commits?since=${sevenDaysAgo.toISOString()}&per_page=100`, 
       {
         headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github.v3+json" }
       }

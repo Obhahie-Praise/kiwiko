@@ -33,7 +33,7 @@ const generateMockData = (range: TimeRange, metric: MetricType, platform: Platfo
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     labels = Array.from({ length: 7 }, (_, i) => {
         const d = new Date(now.getTime() - (6 - i) * 24 * 60 * 60 * 1000);
-        return days[d.getDay()];
+        return `${days[d.getDay()]} ${d.getDate()}`;
     });
   } else if (range === "Monthly") {
     points = 30;
