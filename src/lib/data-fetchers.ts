@@ -81,7 +81,7 @@ export const getOverviewMetrics = unstable_cache(
       const lastSynced = project.githubLastSyncedAt;
       const hoursSinceSync = lastSynced ? (now.getTime() - lastSynced.getTime()) / (1000 * 60 * 60) : Infinity;
       
-      if (hoursSinceSync > 6) {
+      if (hoursSinceSync > 1) {
         // Trigger background sync - we don't await this to keep the overview page fast
         (async () => {
           try {

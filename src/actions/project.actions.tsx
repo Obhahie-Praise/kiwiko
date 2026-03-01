@@ -938,7 +938,7 @@ export async function getProjectViewAnalyticsAction(
         let startDate = new Date();
 
         if (range === "weekly") {
-            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         } else if (range === "monthly") {
             startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         } else if (range === "quarterly") {
@@ -955,59 +955,68 @@ export async function getProjectViewAnalyticsAction(
             orderBy: { createdAt: "asc" }
         });
 
-        const aggregated: Record<string, number> = {};
+        // NEW: Use an array of buckets to guarantee chronological order and avoid collisions
+        const buckets: Array<{ dateKey: string, label: string, value: number }> = [];
         
-        // Initialize buckets
+        // Initialize buckets chronologically
         if (range === "weekly") {
             const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            for (let i = 6; i >= 0; i--) {
+            for (let i = 29; i >= 0; i--) {
                 const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+                const dateKey = d.toISOString().split('T')[0]; // Unique YYYY-MM-DD
                 const label = `${days[d.getDay()]} ${d.getDate()}`;
-                aggregated[label] = 0;
+                buckets.push({ dateKey, label, value: 0 });
             }
         } else if (range === "monthly") {
             for (let i = 29; i >= 0; i--) {
                 const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-                aggregated[d.toLocaleDateString("en-US", { month: "short", day: "numeric" })] = 0;
+                const dateKey = d.toISOString().split('T')[0];
+                const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                buckets.push({ dateKey, label, value: 0 });
             }
         } else if (range === "quarterly") {
+            // Last 13 weeks
             for (let i = 12; i >= 0; i--) {
                 const d = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000);
-                aggregated[d.toLocaleDateString("en-US", { month: "short", day: "numeric" })] = 0;
+                // Start of the week for grouping
+                const dayOfWeek = d.getDay();
+                const startOfWeek = new Date(d);
+                startOfWeek.setDate(d.getDate() - dayOfWeek);
+                const dateKey = startOfWeek.toISOString().split('T')[0];
+                const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                buckets.push({ dateKey, label, value: 0 });
             }
         } else if (range === "yearly") {
             const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             for (let i = 11; i >= 0; i--) {
                 const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                aggregated[months[d.getMonth()]] = 0;
+                const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                const label = months[d.getMonth()];
+                buckets.push({ dateKey, label, value: 0 });
             }
         }
 
         // Fill buckets
         views.forEach(v => {
             const d = new Date(v.createdAt);
-            let key = "";
+            let matchKey = "";
             
-            if (range === "weekly") {
-                const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                key = `${days[d.getDay()]} ${d.getDate()}`;
-            } else if (range === "monthly") {
-                key = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            if (range === "weekly" || range === "monthly") {
+                matchKey = d.toISOString().split('T')[0];
             } else if (range === "quarterly") {
-                const diffWeeks = Math.floor((now.getTime() - d.getTime()) / (7 * 24 * 60 * 60 * 1000));
-                if (diffWeeks <= 12) {
-                    const bucketDate = new Date(now.getTime() - diffWeeks * 7 * 24 * 60 * 60 * 1000);
-                    key = bucketDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-                }
+                const dayOfWeek = d.getDay();
+                const startOfWeek = new Date(d);
+                startOfWeek.setDate(d.getDate() - dayOfWeek);
+                matchKey = startOfWeek.toISOString().split('T')[0];
             } else if (range === "yearly") {
-                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                key = months[d.getMonth()];
+                matchKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
             }
 
-            if (key && aggregated[key] !== undefined) aggregated[key]++;
+            const bucket = buckets.find(b => b.dateKey === matchKey);
+            if (bucket) bucket.value++;
         });
 
-        const data = Object.entries(aggregated).map(([label, value]) => ({
+        const data = buckets.map(({ label, value }) => ({
             label,
             value
         }));

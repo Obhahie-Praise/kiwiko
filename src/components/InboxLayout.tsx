@@ -21,7 +21,11 @@ import {
   Forward,
   Mail,
   PenLine,
-  X
+  X,
+  Undo2,
+  FileText,
+  Image as ImageIcon,
+  Loader2
 } from "lucide-react";
 import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 import { 
@@ -31,7 +35,9 @@ import {
   toggleStarEmailAction,
   moveEmailsToTrashAction,
   getProjectTrashedEmailsAction,
-  getInboxCountsAction
+  getInboxCountsAction,
+  recoverEmailsFromTrashAction,
+  permanentlyDeleteEmailsAction
 } from "@/actions/mail.actions";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -189,6 +195,7 @@ export default function InboxLayout() {
   const { orgSlug, projectSlug } = useProjectSlugs();
   const { toast } = useToast();
   const [emails, setEmails] = useState<EmailItem[]>([]);
+  const [trashedEmails, setTrashedEmails] = useState<EmailItem[]>([]);
   const [projectId, setProjectId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [isComposeOpen, setIsComposeOpen] = useState(false);
@@ -203,6 +210,11 @@ export default function InboxLayout() {
 
   const [starredCount, setStarredCount] = useState(0);
   const [trashedCount, setTrashedCount] = useState(0);
+  const [inboxCount, setInboxCount] = useState(0);
+  const [sentCount, setSentCount] = useState(0);
+  const [draftsCount, setDraftsCount] = useState(0);
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Fetch Project and Emails
   const fetchData = React.useCallback(async () => {
@@ -212,17 +224,17 @@ export default function InboxLayout() {
         const pid = homeRes.data.project.id;
         setProjectId(pid);
         
-        let emailRes;
-        if (activeFolder === "Trash") {
-            emailRes = await getProjectTrashedEmailsAction(pid);
-        } else {
-            emailRes = await getProjectEmailsAction(pid);
-        }
+        // Fetch all data in parallel
+        const [emailRes, trashedRes, countRes] = await Promise.all([
+            getProjectEmailsAction(pid),
+            getProjectTrashedEmailsAction(pid),
+            getInboxCountsAction(pid)
+        ]);
 
         if (emailRes.success && emailRes.data) {
             const mapped: EmailItem[] = emailRes.data.map((e: any) => ({
                 id: e.id,
-                folder: activeFolder === "Trash" ? "Trash" : (e.isOutgoing ? "Sent" : "Inbox"),
+                folder: e.isOutgoing ? "Sent" : "Inbox",
                 sender: e.isOutgoing ? "You" : (e.senderName || e.senderEmail),
                 email: e.isOutgoing ? e.recipientEmail : e.senderEmail,
                 avatar: "",
@@ -233,19 +245,41 @@ export default function InboxLayout() {
                 isStarred: e.isStarred || false,
                 isImportant: e.isImportant || false,
                 label: e.label as Label,
+                attachments: e.attachments,
             }));
             setEmails(mapped);
         }
 
+        if (trashedRes.success && trashedRes.data) {
+            const mappedTrashed: EmailItem[] = trashedRes.data.map((e: any) => ({
+                id: e.id,
+                folder: "Trash",
+                sender: e.senderName || e.senderEmail,
+                email: e.senderEmail,
+                avatar: "",
+                subject: e.subject,
+                preview: e.content.substring(0, 100) + "...",
+                body: e.content,
+                date: format(new Date(e.createdAt), "MMM d, h:mm a"),
+                isStarred: e.isStarred || false,
+                isImportant: e.isImportant || false,
+                label: e.label as Label,
+                attachments: e.attachments,
+            }));
+            setTrashedEmails(mappedTrashed);
+        }
+
         // Fetch counts for badges
-        const countRes = await getInboxCountsAction(pid);
         if (countRes.success && countRes.data) {
             setStarredCount(countRes.data.starred);
             setTrashedCount(countRes.data.trashed);
+            setInboxCount(countRes.data.inbox);
+            setSentCount(countRes.data.sent);
+            setDraftsCount(countRes.data.drafts);
         }
     }
     setIsLoading(false);
-  }, [orgSlug, projectSlug, activeFolder]);
+  }, [orgSlug, projectSlug]);
 
   React.useEffect(() => {
     fetchData();
@@ -261,22 +295,27 @@ export default function InboxLayout() {
     Inbox: emails.filter(m => m.folder === "Inbox").length,
     Sent: emails.filter(m => m.folder === "Sent").length,
     Drafts: emails.filter(m => m.folder === "Drafts").length,
-    Trash: emails.filter(m => m.folder === "Trash").length,
+    Trash: trashedEmails.length,
   };
 
   // 1. Filter emails based on the current selection state (ALL items in filter)
   const filteredEmails = useMemo(() => {
-    let list = emails;
-
+    // If a filter like "Starred" or "Important" is selected, we show matches from the regular list (Inbox/Sent)
+    // regardless of the active folder, because these are usually global views.
     if (activeFilter === "Starred") {
-      list = list.filter(m => m.isStarred);
-    } else if (activeFilter === "Important") {
-      list = list.filter(m => m.isImportant);
-    } else if (activeLabel) {
-      list = list.filter(m => m.label === activeLabel);
-    } else {
-      list = list.filter(m => m.folder === activeFolder);
+      return emails.filter(m => m.isStarred);
     }
+    if (activeFilter === "Important") {
+      return emails.filter(m => m.isImportant);
+    }
+    if (activeLabel) {
+      // Labels are also typically global attributes
+      return emails.filter(m => m.label === activeLabel);
+    }
+
+    // Default: filter by folder
+    let list = activeFolder === "Trash" ? trashedEmails : emails;
+    list = list.filter(m => m.folder === activeFolder);
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -288,7 +327,7 @@ export default function InboxLayout() {
     }
 
     return list;
-  }, [emails, activeFolder, activeFilter, activeLabel, searchQuery]);
+  }, [emails, trashedEmails, activeFolder, activeFilter, activeLabel, searchQuery]);
   
   // 2. Pagination derivation
   const totalPages = Math.ceil(filteredEmails.length / ITEMS_PER_PAGE);
@@ -350,18 +389,20 @@ export default function InboxLayout() {
   // Handler for Starring
   const handleToggleStar = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    const email = emails.find(em => em.id === id);
+    const email = emails.find(em => em.id === id) || trashedEmails.find(em => em.id === id);
     if (!email) return;
 
     const newStarred = !email.isStarred;
     // Optimistic update
     setEmails(prev => prev.map(em => em.id === id ? { ...em, isStarred: newStarred } : em));
+    setTrashedEmails(prev => prev.map(em => em.id === id ? { ...em, isStarred: newStarred } : em));
     
     const res = await toggleStarEmailAction(id, newStarred);
     if (!res.success) {
         toast({ title: "Error", description: res.error, variant: "destructive" });
         // Revert
         setEmails(prev => prev.map(em => em.id === id ? { ...em, isStarred: !newStarred } : em));
+        setTrashedEmails(prev => prev.map(em => em.id === id ? { ...em, isStarred: !newStarred } : em));
     } else {
         // Update local count
         setStarredCount(prev => newStarred ? prev + 1 : prev - 1);
@@ -377,7 +418,13 @@ export default function InboxLayout() {
   const handleDelete = async () => {
     if (selectedEmails.size === 0) return;
     
+    if (activeFolder === "Trash") {
+        setIsDeleteDialogOpen(true);
+        return;
+    }
+
     const ids = Array.from(selectedEmails);
+    setIsLoading(true);
     const res = await moveEmailsToTrashAction(ids, projectId);
     
     if (res.success) {
@@ -386,6 +433,39 @@ export default function InboxLayout() {
         fetchData();
     } else {
         toast({ title: "Error", description: res.error || "Failed to delete emails", variant: "destructive" });
+        setIsLoading(false);
+    }
+  };
+
+  const handlePermanentDelete = async () => {
+    const ids = Array.from(selectedEmails);
+    setIsLoading(true);
+    const res = await permanentlyDeleteEmailsAction(ids, projectId);
+    
+    if (res.success) {
+        toast({ title: "Permanently Deleted", description: `${ids.length} emails removed.` });
+        setSelectedEmails(new Set());
+        setIsDeleteDialogOpen(false);
+        fetchData();
+    } else {
+        toast({ title: "Error", description: res.error || "Failed to delete emails", variant: "destructive" });
+        setIsLoading(false);
+    }
+  };
+
+  const handleRecover = async () => {
+    if (selectedEmails.size === 0) return;
+    const ids = Array.from(selectedEmails);
+    setIsLoading(true);
+    const res = await recoverEmailsFromTrashAction(ids, projectId);
+    
+    if (res.success) {
+        toast({ title: "Recovered", description: `${ids.length} emails restored to inbox.` });
+        setSelectedEmails(new Set());
+        fetchData();
+    } else {
+        toast({ title: "Error", description: res.error || "Failed to recover emails", variant: "destructive" });
+        setIsLoading(false);
     }
   };
 
@@ -448,11 +528,13 @@ export default function InboxLayout() {
                     <Icon size={18} className={isActive ? 'text-zinc-600' : 'text-zinc-500'} />
                     <span>{folder}</span>
                   </div>
-                  {folder === "Trash" ? (
-                    trashedCount > 0 && <span className={`text-xs ${isActive ? 'text-zinc-600' : 'text-zinc-400'}`}>{trashedCount}</span>
-                  ) : (
-                    folderCounts[folder] > 0 && <span className={`text-xs ${isActive ? 'text-zinc-600' : 'text-zinc-400'}`}>{folderCounts[folder]}</span>
-                  )}
+                  {(() => {
+                    const count = folder === "Inbox" ? inboxCount : 
+                                  folder === "Sent" ? sentCount : 
+                                  folder === "Drafts" ? draftsCount : 
+                                  trashedCount;
+                    return count > 0 && <span className={`text-xs ${isActive ? 'text-zinc-600' : 'text-zinc-400'}`}>{count}</span>;
+                  })()}
                 </button>
               )
             })}
@@ -502,7 +584,16 @@ export default function InboxLayout() {
       </div>
 
       {/* --- RIGHT MAIN VIEW --- */}
-      <div className="flex-1 flex flex-col bg-white rounded-t-3xl border border-zinc-200 shadow-sm overflow-hidden mb-[-1px]">
+      <div className="flex-1 flex flex-col bg-white rounded-t-3xl border border-zinc-200 shadow-sm overflow-hidden mb-[-1px] relative">
+        
+        {/* ACTION LOADING OVERLAY */}
+        {isLoading && (
+          <div className="absolute inset-0 z-50 bg-white/40 backdrop-blur-[1px] flex items-center justify-center animate-in fade-in duration-300">
+             <div className="flex flex-col items-center gap-3">
+                <Loader2 size={32} className="text-zinc-400 animate-spin" />
+             </div>
+          </div>
+        )}
         
         {/* Top Breadcrumb Header Equivalent */}
         {/* <div className="px-6 py-4 flex justify-end items-center text-sm font-medium text-zinc-500 border-b border-zinc-100 bg-white">
@@ -528,7 +619,10 @@ export default function InboxLayout() {
                 </button>
                 <div className="h-5 w-px bg-zinc-200"></div>
                 <button onClick={handleReload} className="text-zinc-500 hover:text-zinc-800 transition-colors"><RotateCw size={18} /></button>
-                <button onClick={handleDelete} className="text-red-500 hover:text-red-800 transition-colors"><Trash2 size={18} /></button>
+                <button onClick={handleDelete} className="text-red-500 hover:text-red-800 transition-colors" title={activeFolder === "Trash" ? "Delete Permanently" : "Move to Trash"}><Trash2 size={18} /></button>
+                {activeFolder === "Trash" && (
+                  <button onClick={handleRecover} className="text-blue-500 hover:text-blue-800 transition-colors" title="Recover Email"><Undo2 size={18} /></button>
+                )}
                 {/* <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><Mail size={18} /></button>
                 <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><MoreVertical size={18} /></button> */}
               </div>
@@ -634,7 +728,10 @@ export default function InboxLayout() {
                    <ArrowLeft size={16} />
                  </button>
                  <div className="h-5 w-px bg-zinc-200"></div>
-                 <button className="p-1.5 rounded border border-zinc-200 hover:bg-zinc-50 text-zinc-500 transition-colors"><Trash2 size={16} /></button>
+                 <button onClick={handleDelete} className="p-1.5 rounded border border-zinc-200 hover:bg-zinc-50 text-red-500 transition-colors"><Trash2 size={16} /></button>
+                 {activeFolder === "Trash" && (
+                    <button onClick={handleRecover} className="p-1.5 rounded border border-zinc-200 hover:bg-zinc-50 text-blue-500 transition-colors"><Undo2 size={16} /></button>
+                 )}
                  <button className="p-1.5 rounded border border-zinc-200 hover:bg-zinc-50 text-zinc-500 transition-colors"><Info size={16} /></button>
                  <button className="p-1.5 rounded border border-zinc-200 hover:bg-zinc-50 text-zinc-500 transition-colors"><Mail size={16} /></button>
                </div>
@@ -687,25 +784,41 @@ export default function InboxLayout() {
                  {activeEmail.body}
                </div>
 
-               {/* Attachments */}
+                {/* Attachments */}
                {activeEmail.attachments && activeEmail.attachments.length > 0 && (
-                 <div className="mt-10 border border-zinc-200 rounded-2xl p-6 bg-zinc-50/50 max-w-4xl">
-                   <p className="flex items-center gap-2 text-sm font-bold text-zinc-700 mb-4">
-                     <Paperclip size={16} className="text-zinc-400"/> {activeEmail.attachments.length} Attachments
+                 <div className="mt-10 border border-zinc-200 rounded-2xl p-8 bg-zinc-50/50 max-w-4xl">
+                   <p className="flex items-center gap-2 text-sm font-bold text-zinc-700 mb-6 uppercase tracking-widest opacity-60">
+                     <Paperclip size={16} className="text-zinc-400"/> {activeEmail.attachments.length} {activeEmail.attachments.length === 1 ? 'Attachment' : 'Attachments'}
                    </p>
                    <div className="flex flex-wrap gap-4">
-                     {activeEmail.attachments.map((att, i) => (
-                        <div key={i} className="flex flex-col bg-white border border-zinc-200 rounded-xl p-4 w-60 hover:shadow-sm transition-shadow">
-                          <div className="flex items-start justify-between mb-2">
-                             <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50 text-blue-600 border border-blue-100 font-bold text-xs">
-                               {att.type}
-                             </div>
+                     {activeEmail.attachments.map((att: any, i) => (
+                        <a 
+                          key={i} 
+                          href={att.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download={att.name}
+                          className="flex items-center gap-4 bg-white border border-zinc-100 rounded-xl p-4 min-w-[240px] hover:shadow-md hover:border-zinc-300 transition-all group/att relative shadow-sm cursor-pointer"
+                        >
+                          <div className="w-10 h-10 bg-zinc-50 rounded-lg flex items-center justify-center shrink-0">
+                            {att.name.toLowerCase().endsWith('.pdf') ? (
+                                <div className="flex flex-col items-center">
+                                    <FileText size={18} className="text-red-500" />
+                                    <span className="text-[6px] font-bold text-red-500 mt-0.5">PDF</span>
+                                </div>
+                            ) : att.type?.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(att.name) ? (
+                                <ImageIcon size={18} className="text-blue-500" />
+                            ) : (
+                                <File size={18} className="text-zinc-400" />
+                            )}
                           </div>
-                          <p className="text-sm font-semibold text-zinc-900 truncate">{att.name}</p>
-                          <p className="text-xs text-zinc-500 flex items-center justify-between mt-1">
-                            {att.type} • {att.size} <span className="text-blue-600 font-medium cursor-pointer hover:underline">Download</span>
-                          </p>
-                        </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-zinc-900 truncate">{att.name}</p>
+                            <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-tight">
+                              {att.name.toLowerCase().endsWith('.pdf') ? 'PDF Document' : 'Media Asset'} • {att.size || '3.2 MB'}
+                            </p>
+                          </div>
+                        </a>
                      ))}
                    </div>
                  </div>
@@ -780,42 +893,59 @@ export default function InboxLayout() {
                     Cancel
                  </button>
                  <button 
-                   onClick={async () => {
+                    onClick={async () => {
                       if (!composeData.to || !composeData.subject || !composeData.body) {
                         toast({ title: "Error", description: "Please fill all fields", variant: "destructive" });
                         return;
                       }
+                      setIsLoading(true);
                       const res = await sendComposeEmailAction(projectId, composeData.to, composeData.subject, composeData.body);
                       if (res.success) {
                         toast({ title: "Success", description: "Email sent successfully!", variant: "success" });
                         setIsComposeOpen(false);
                         setComposeData({ to: "", subject: "", body: "" });
                         // Refresh emails
-                        const emailRes = await getProjectEmailsAction(projectId);
-                        if (emailRes.success && emailRes.data) {
-                            const mapped: EmailItem[] = emailRes.data.map((e: any) => ({
-                                id: e.id,
-                                folder: e.isOutgoing ? "Sent" : "Inbox",
-                                sender: e.isOutgoing ? "You" : (e.senderName || e.senderEmail),
-                                email: e.isOutgoing ? e.recipientEmail : e.senderEmail,
-                                avatar: "",
-                                subject: e.subject,
-                                preview: e.content.substring(0, 100) + "...",
-                                body: e.content,
-                                date: format(new Date(e.createdAt), "MMM d, h:mm a"),
-                                isStarred: false,
-                                isImportant: false,
-                            }));
-                            setEmails(mapped);
-                        }
+                        await fetchData();
                       } else {
                         toast({ title: "Error", description: res.error || "Failed to send email", variant: "destructive" });
+                        setIsLoading(false);
                       }
                    }}
                    className="px-8 py-2.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold transition-all shadow-md active:scale-95"
                  >
                     Send Email
                  </button>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* --- DELETE CONFIRMATION MODAL --- */}
+      {isDeleteDialogOpen && (
+        <div className="fixed inset-0 z-110 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+           <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 p-8">
+              <div className="flex flex-col items-center text-center">
+                 <div className="w-16 h-16 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-6">
+                    <Trash2 size={32} />
+                 </div>
+                 <h2 className="text-2xl font-semibold text-zinc-900 mb-2">Permanent Deletion</h2>
+                 <p className="text-zinc-500 mb-8">
+                    Are you sure you would like to permanently delete {selectedEmails.size === 1 ? "this email" : `these ${selectedEmails.size} emails`}? This action cannot be undone.
+                 </p>
+                 <div className="flex items-center gap-3 w-full">
+                    <button 
+                      onClick={() => setIsDeleteDialogOpen(false)}
+                      className="flex-1 px-6 py-3 rounded-xl text-sm font-semibold text-zinc-600 hover:bg-zinc-100 transition-colors border border-zinc-200"
+                    >
+                       Cancel
+                    </button>
+                    <button 
+                      onClick={handlePermanentDelete}
+                      className="flex-1 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-all shadow-md active:scale-[0.98]"
+                    >
+                       Delete
+                    </button>
+                 </div>
               </div>
            </div>
         </div>

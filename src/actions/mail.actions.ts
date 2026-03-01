@@ -81,11 +81,22 @@ export async function getProjectTrashedEmailsAction(projectId: string) {
 
 export async function getInboxCountsAction(projectId: string) {
   try {
-    const [starred, trashed] = await Promise.all([
+    const [starred, trashed, inbox, sent] = await Promise.all([
       prisma.email.count({ where: { projectId, isStarred: true } }),
-      prisma.trashedEmail.count({ where: { projectId } })
+      prisma.trashedEmail.count({ where: { projectId } }),
+      prisma.email.count({ where: { projectId, isOutgoing: false } }),
+      prisma.email.count({ where: { projectId, isOutgoing: true } }),
     ]);
-    return { success: true, data: { starred, trashed } };
+    return { 
+      success: true, 
+      data: { 
+        starred, 
+        trashed,
+        inbox,
+        sent,
+        drafts: 0 // Placeholder as drafts aren't implemented in DB yet
+      } 
+    };
   } catch (error) {
     return { success: false, error: "Failed to fetch counts" };
   }
@@ -128,6 +139,7 @@ export async function sendProjectEmailAction(
         recipientEmail: adminEmails.join(", "),
         isOutgoing: false,
         attachments: attachments || [],
+        label: "Public Outreach",
       },
     });
 
@@ -286,4 +298,53 @@ export async function getProjectEmailsAction(projectId: string) {
   } catch (error) {
     return { success: false, error: "Failed to fetch emails" };
   }
+}
+
+export async function recoverEmailsFromTrashAction(trashedIds: string[], projectId: string) {
+    try {
+        const trashed = await prisma.trashedEmail.findMany({
+            where: { id: { in: trashedIds }, projectId }
+        });
+
+        if (trashed.length === 0) return { success: false, error: "No emails found in trash" };
+
+        await prisma.email.createMany({
+            data: trashed.map(e => ({
+                projectId: e.projectId,
+                senderName: e.senderName,
+                senderEmail: e.senderEmail,
+                subject: e.subject,
+                content: e.content,
+                read: e.read,
+                isOutgoing: e.isOutgoing,
+                recipientEmail: e.recipientEmail,
+                recipientName: e.recipientName,
+                attachments: e.attachments || [],
+                isImportant: e.isImportant,
+                isStarred: e.isStarred,
+                label: e.label,
+            }))
+        });
+
+        await prisma.trashedEmail.deleteMany({
+            where: { id: { in: trashedIds }, projectId }
+        });
+
+        revalidatePath(`/inbox`); // General revalidation
+        return { success: true };
+    } catch (error) {
+        console.error("Recovery error:", error);
+        return { success: false, error: "Failed to recover emails" };
+    }
+}
+
+export async function permanentlyDeleteEmailsAction(trashedIds: string[], projectId: string) {
+    try {
+        await prisma.trashedEmail.deleteMany({
+            where: { id: { in: trashedIds }, projectId }
+        });
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: "Failed to permanently delete emails" };
+    }
 }
