@@ -531,6 +531,17 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
         revalidatePath(`/${project.organization.slug}/projects`);
         revalidatePath(`/${project.organization.slug}/${project.slug}`);
         if (slug) revalidatePath(`/${project.organization.slug}/${slug}`);
+
+        // Trigger GitHub sync if repo is updated or newly linked
+        const currentRepo = githubRepoFullName || project.githubRepoFullName;
+        if (currentRepo && (githubRepoFullName || !project.githubLastSyncedAt)) {
+            try {
+                const { syncProjectGithubMetrics } = await import("@/actions/github.actions");
+                await syncProjectGithubMetrics(projectId);
+            } catch (syncError) {
+                console.error("GitHub sync failed after settings update:", syncError);
+            }
+        }
         
         return { success: true, data: true };
     } catch (error) {
@@ -1004,5 +1015,32 @@ export async function getProjectViewAnalyticsAction(
     } catch (error: any) {
         console.error("Failed to fetch analytics:", error);
         return { success: false, error: "Failed to fetch analytics" };
+    }
+}
+
+export async function getPublicProjectAction(slug: string): Promise<ActionResponse<any>> {
+    try {
+        const project = await prisma.project.findFirst({
+            where: { slug },
+            select: {
+                id: true,
+                name: true,
+                logoUrl: true,
+                slug: true,
+                organization: {
+                    select: {
+                        name: true,
+                        slug: true
+                    }
+                }
+            }
+        });
+
+        if (!project) return { success: false, error: "Project not found" };
+
+        return { success: true, data: project };
+    } catch (error) {
+        console.error("Failed to fetch public project:", error);
+        return { success: false, error: "Internal server error" };
     }
 }

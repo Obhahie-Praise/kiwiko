@@ -24,14 +24,22 @@ import {
   X
 } from "lucide-react";
 import { useProjectSlugs } from "@/hooks/useProjectSlugs";
-import { getProjectEmailsAction, sendComposeEmailAction } from "@/actions/mail.actions";
+import { 
+  getProjectEmailsAction, 
+  sendComposeEmailAction,
+  revalidateInboxAction,
+  toggleStarEmailAction,
+  moveEmailsToTrashAction,
+  getProjectTrashedEmailsAction,
+  getInboxCountsAction
+} from "@/actions/mail.actions";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { getProjectHomeDataAction } from "@/actions/project.actions";
 
 // --- Types & Mock Data ---
 
-type Label = "Personal" | "Work" | "Payments" | "Invoices" | "Blank";
+type Label = "Team" | "Public Outreach" | "Investor" | "Support" | "Personal" | "Work" | "Payments" | "Invoices" | "Blank";
 type Folder = "Inbox" | "Sent" | "Drafts" | "Trash";
 type FilterType = "Starred" | "Important" | null;
 
@@ -52,11 +60,10 @@ interface EmailItem {
 }
 
 const LABELS: { id: Label; color: string; labelClass: string }[] = [
-  { id: "Personal", color: "#22c55e", labelClass: "bg-green-100 text-green-700" }, // Green
-  { id: "Work", color: "#ef4444", labelClass: "bg-red-100 text-red-700" }, // Red
-  { id: "Payments", color: "#f97316", labelClass: "bg-orange-100 text-orange-700" }, // Orange
-  { id: "Invoices", color: "#0ea5e9", labelClass: "bg-sky-100 text-sky-700" }, // Cyan
-  { id: "Blank", color: "#3b82f6", labelClass: "bg-blue-100 text-blue-700" }, // Blue
+  { id: "Team", color: "#6366f1", labelClass: "bg-indigo-100 text-indigo-700" }, // Indigo
+  { id: "Public Outreach", color: "#22c55e", labelClass: "bg-green-100 text-green-700" }, // Green
+  { id: "Investor", color: "#f97316", labelClass: "bg-orange-100 text-orange-700" }, // Orange
+  { id: "Support", color: "#0ea5e9", labelClass: "bg-sky-100 text-sky-700" }, // Cyan
 ];
 
 const mockEmails: EmailItem[] = [
@@ -194,34 +201,55 @@ export default function InboxLayout() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
 
+  const [starredCount, setStarredCount] = useState(0);
+  const [trashedCount, setTrashedCount] = useState(0);
+
   // Fetch Project and Emails
-  React.useEffect(() => {
-    async function fetchData() {
-        const homeRes = await getProjectHomeDataAction(orgSlug, projectSlug);
-        if (homeRes.success && homeRes.data) {
-            setProjectId(homeRes.data.project.id);
-            const emailRes = await getProjectEmailsAction(homeRes.data.project.id);
-            if (emailRes.success && emailRes.data) {
-                const mapped: EmailItem[] = emailRes.data.map((e: any) => ({
-                    id: e.id,
-                    folder: e.isOutgoing ? "Sent" : "Inbox",
-                    sender: e.isOutgoing ? "You" : (e.senderName || e.senderEmail),
-                    email: e.isOutgoing ? e.recipientEmail : e.senderEmail,
-                    avatar: "",
-                    subject: e.subject,
-                    preview: e.content.substring(0, 100) + "...",
-                    body: e.content,
-                    date: format(new Date(e.createdAt), "MMM d, h:mm a"),
-                    isStarred: false,
-                    isImportant: false,
-                }));
-                setEmails(mapped);
-            }
+  const fetchData = React.useCallback(async () => {
+    setIsLoading(true);
+    const homeRes = await getProjectHomeDataAction(orgSlug, projectSlug);
+    if (homeRes.success && homeRes.data) {
+        const pid = homeRes.data.project.id;
+        setProjectId(pid);
+        
+        let emailRes;
+        if (activeFolder === "Trash") {
+            emailRes = await getProjectTrashedEmailsAction(pid);
+        } else {
+            emailRes = await getProjectEmailsAction(pid);
         }
-        setIsLoading(false);
+
+        if (emailRes.success && emailRes.data) {
+            const mapped: EmailItem[] = emailRes.data.map((e: any) => ({
+                id: e.id,
+                folder: activeFolder === "Trash" ? "Trash" : (e.isOutgoing ? "Sent" : "Inbox"),
+                sender: e.isOutgoing ? "You" : (e.senderName || e.senderEmail),
+                email: e.isOutgoing ? e.recipientEmail : e.senderEmail,
+                avatar: "",
+                subject: e.subject,
+                preview: e.content.substring(0, 100) + "...",
+                body: e.content,
+                date: format(new Date(e.createdAt), "MMM d, h:mm a"),
+                isStarred: e.isStarred || false,
+                isImportant: e.isImportant || false,
+                label: e.label as Label,
+            }));
+            setEmails(mapped);
+        }
+
+        // Fetch counts for badges
+        const countRes = await getInboxCountsAction(pid);
+        if (countRes.success && countRes.data) {
+            setStarredCount(countRes.data.starred);
+            setTrashedCount(countRes.data.trashed);
+        }
     }
+    setIsLoading(false);
+  }, [orgSlug, projectSlug, activeFolder]);
+
+  React.useEffect(() => {
     fetchData();
-  }, [orgSlug, projectSlug]);
+  }, [fetchData]);
   
   // New States for Validation Array & Pagination
   const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set());
@@ -320,9 +348,45 @@ export default function InboxLayout() {
   };
 
   // Handler for Starring
-  const handleToggleStar = (e: React.MouseEvent, id: string) => {
+  const handleToggleStar = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    setEmails(prev => prev.map(em => em.id === id ? { ...em, isStarred: !em.isStarred } : em));
+    const email = emails.find(em => em.id === id);
+    if (!email) return;
+
+    const newStarred = !email.isStarred;
+    // Optimistic update
+    setEmails(prev => prev.map(em => em.id === id ? { ...em, isStarred: newStarred } : em));
+    
+    const res = await toggleStarEmailAction(id, newStarred);
+    if (!res.success) {
+        toast({ title: "Error", description: res.error, variant: "destructive" });
+        // Revert
+        setEmails(prev => prev.map(em => em.id === id ? { ...em, isStarred: !newStarred } : em));
+    } else {
+        // Update local count
+        setStarredCount(prev => newStarred ? prev + 1 : prev - 1);
+    }
+  };
+
+  const handleReload = async () => {
+    await revalidateInboxAction(orgSlug, projectSlug);
+    await fetchData();
+    toast({ title: "Refreshed", description: "Inbox is up to date." });
+  };
+
+  const handleDelete = async () => {
+    if (selectedEmails.size === 0) return;
+    
+    const ids = Array.from(selectedEmails);
+    const res = await moveEmailsToTrashAction(ids, projectId);
+    
+    if (res.success) {
+        toast({ title: "Deleted", description: `${ids.length} emails moved to trash.` });
+        setSelectedEmails(new Set());
+        fetchData();
+    } else {
+        toast({ title: "Error", description: res.error || "Failed to delete emails", variant: "destructive" });
+    }
   };
 
   // Pagination inside Detail View
@@ -384,8 +448,10 @@ export default function InboxLayout() {
                     <Icon size={18} className={isActive ? 'text-zinc-600' : 'text-zinc-500'} />
                     <span>{folder}</span>
                   </div>
-                  {folderCounts[folder] > 0 && (
-                    <span className={`text-xs ${isActive ? 'text-zinc-600' : 'text-zinc-400'}`}>{folderCounts[folder]}</span>
+                  {folder === "Trash" ? (
+                    trashedCount > 0 && <span className={`text-xs ${isActive ? 'text-zinc-600' : 'text-zinc-400'}`}>{trashedCount}</span>
+                  ) : (
+                    folderCounts[folder] > 0 && <span className={`text-xs ${isActive ? 'text-zinc-600' : 'text-zinc-400'}`}>{folderCounts[folder]}</span>
                   )}
                 </button>
               )
@@ -398,9 +464,14 @@ export default function InboxLayout() {
             <div className="space-y-1">
               <button
                 onClick={() => handleSelectFilter("Starred")}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors ${activeFilter === "Starred" ? 'bg-zinc-100 text-zinc-900 font-semibold' : 'text-zinc-600 hover:bg-zinc-100 font-medium'}`}
+                className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-colors ${activeFilter === "Starred" ? 'bg-zinc-100 text-zinc-900 font-semibold' : 'text-zinc-600 hover:bg-zinc-100 font-medium'}`}
               >
-                <Star size={18} className="text-zinc-500" /> Starred
+                <div className="flex items-center gap-3">
+                  <Star size={18} className="text-zinc-500" /> Starred
+                </div>
+                {starredCount > 0 && (
+                  <span className="text-xs text-zinc-400">{starredCount}</span>
+                )}
               </button>
               <button
                 onClick={() => handleSelectFilter("Important")}
@@ -456,10 +527,10 @@ export default function InboxLayout() {
                   {isSomeSelected && !isAllSelected && <div className="w-2.5 h-0.5 bg-white rounded-full"></div>}
                 </button>
                 <div className="h-5 w-px bg-zinc-200"></div>
-                <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><RotateCw size={18} /></button>
-                <button className="text-red-500 hover:text-red-800 transition-colors"><Trash2 size={18} /></button>
-                <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><Mail size={18} /></button>
-                <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><MoreVertical size={18} /></button>
+                <button onClick={handleReload} className="text-zinc-500 hover:text-zinc-800 transition-colors"><RotateCw size={18} /></button>
+                <button onClick={handleDelete} className="text-red-500 hover:text-red-800 transition-colors"><Trash2 size={18} /></button>
+                {/* <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><Mail size={18} /></button>
+                <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><MoreVertical size={18} /></button> */}
               </div>
               
               <div className="relative">
@@ -525,7 +596,7 @@ export default function InboxLayout() {
                         )}
                       </div>
 
-                      <div className="w-20 shrink-0 text-right text-sm text-zinc-500 font-medium">
+                      <div className="w-20 text-nowrap shrink-0 text-right text-sm text-zinc-500 font-medium">
                         {email.date}
                       </div>
                     </div>

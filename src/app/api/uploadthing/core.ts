@@ -132,6 +132,20 @@ export const ourFileRouter = {
       };
     }),
 
+  // 📧 PUBLIC MAIL ATTACHMENT
+  publicMailAttachmentUploader: f({
+    image: { maxFileSize: "4MB", maxFileCount: 5 },
+    pdf: { maxFileSize: "8MB", maxFileCount: 5 },
+    blob: { maxFileSize: "8MB", maxFileCount: 5 },
+  })
+    .middleware(async () => {
+      // No auth required for public outreach
+      return {};
+    })
+    .onUploadComplete(async ({ file }) => {
+      return { url: file.url };
+    }),
+
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

@@ -5,13 +5,99 @@ import { sendEmail } from "@/lib/resend";
 import * as React from "react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
+
+export async function revalidateInboxAction(orgSlug: string, projectSlug: string) {
+  revalidatePath(`/${orgSlug}/${projectSlug}/inbox`);
+  return { success: true };
+}
+
+export async function toggleStarEmailAction(emailId: string, isStarred: boolean) {
+  try {
+    await prisma.email.update({
+      where: { id: emailId },
+      data: { isStarred }
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: "Failed to update star status" };
+  }
+}
+
+export async function moveEmailsToTrashAction(emailIds: string[], projectId: string) {
+  try {
+    const emails = await prisma.email.findMany({
+      where: { id: { in: emailIds }, projectId }
+    });
+
+    if (emails.length === 0) return { success: false, error: "No emails found" };
+
+    // Move to TrashedEmail
+    await prisma.trashedEmail.createMany({
+      data: emails.map(e => ({
+        projectId: e.projectId,
+        senderName: e.senderName,
+        senderEmail: e.senderEmail,
+        subject: e.subject,
+        content: e.content,
+        read: e.read,
+        isOutgoing: e.isOutgoing,
+        recipientEmail: e.recipientEmail,
+        recipientName: e.recipientName,
+        attachments: e.attachments || [],
+        isImportant: e.isImportant,
+        isStarred: e.isStarred,
+        label: e.label,
+        originalId: e.id,
+      }))
+    });
+
+    // Delete from Email
+    await prisma.email.deleteMany({
+      where: { id: { in: emailIds }, projectId }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Move to trash error:", error);
+    return { success: false, error: "Failed to move emails to trash" };
+  }
+}
+
+export async function getProjectTrashedEmailsAction(projectId: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+
+  try {
+    const emails = await prisma.trashedEmail.findMany({
+      where: { projectId },
+      orderBy: { deletedAt: "desc" }
+    });
+    return { success: true, data: emails };
+  } catch (error) {
+    return { success: false, error: "Failed to fetch trashed emails" };
+  }
+}
+
+export async function getInboxCountsAction(projectId: string) {
+  try {
+    const [starred, trashed] = await Promise.all([
+      prisma.email.count({ where: { projectId, isStarred: true } }),
+      prisma.trashedEmail.count({ where: { projectId } })
+    ]);
+    return { success: true, data: { starred, trashed } };
+  } catch (error) {
+    return { success: false, error: "Failed to fetch counts" };
+  }
+}
 
 export async function sendProjectEmailAction(
   projectId: string,
   senderName: string,
   senderEmail: string,
   subject: string,
-  content: string
+  content: string,
+  attachments?: { name: string; url: string }[]
 ) {
   try {
     // 2. Find admins/founders for this project
@@ -41,6 +127,7 @@ export async function sendProjectEmailAction(
         content,
         recipientEmail: adminEmails.join(", "),
         isOutgoing: false,
+        attachments: attachments || [],
       },
     });
 
@@ -70,13 +157,35 @@ export async function sendProjectEmailAction(
     // 3. Send email to admins
     const EmailTemplate = () => {
         return React.createElement('div', { style: { fontFamily: 'sans-serif', padding: '20px' } },
-            React.createElement('h2', null, `New Message from ${senderName}`),
+            React.createElement('h2', { style: { color: '#18181b' } }, `New Message from ${senderName}`),
             React.createElement('p', null, React.createElement('strong', null, 'Email: '), senderEmail),
             React.createElement('p', null, React.createElement('strong', null, 'Subject: '), subject),
-            React.createElement('hr', { style: { margin: '20px 0' } }),
-            React.createElement('div', { style: { whiteSpace: 'pre-wrap' } }, content),
-            React.createElement('hr', { style: { margin: '20px 0' } }),
-            React.createElement('p', { style: { fontSize: '12px', color: '#666' } }, 'This message was sent via the Kiwiko Project Mail page.')
+            React.createElement('hr', { style: { margin: '20px 0', border: 'none', borderTop: '1px solid #e4e4e7' } }),
+            React.createElement('div', { style: { whiteSpace: 'pre-wrap', color: '#3f3f46', lineHeight: '1.6' } }, content),
+            attachments && attachments.length > 0 && React.createElement('div', { style: { marginTop: '30px' } },
+                React.createElement('h4', { style: { fontSize: '12px', textTransform: 'uppercase', tracking: '0.1em', color: '#a1a1aa', marginBottom: '10px' } }, 'Attachments'),
+                React.createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '10px' } },
+                    attachments.map((file, i) => 
+                        React.createElement('a', { 
+                            key: i,
+                            href: file.url,
+                            style: { 
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                padding: '8px 12px',
+                                background: '#f4f4f5',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                color: '#18181b',
+                                textDecoration: 'none',
+                                border: '1px solid #e4e4e7'
+                            }
+                        }, file.name)
+                    )
+                )
+            ),
+            React.createElement('hr', { style: { margin: '20px 0', border: 'none', borderTop: '1px solid #e4e4e7' } }),
+            React.createElement('p', { style: { fontSize: '11px', color: '#a1a1aa' } }, 'This message was sent via the Kiwiko Project Mail page.')
         );
     };
 

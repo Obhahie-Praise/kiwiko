@@ -73,8 +73,27 @@ export async function getOverviewMetrics(projectId: string, userId: string) {
       analytics.getOnlineTeamMembers(projectId)
     ]);
 
-    // Handle GitHub Commits
+    // Handle GitHub Commits & Sync
     let commitsPerWeek = project.githubCommitsPerWeek || 0;
+    
+    // Trigger background sync if stale (6 hours) or never synced
+    if (project.githubRepoFullName) {
+      const lastSynced = project.githubLastSyncedAt;
+      const hoursSinceSync = lastSynced ? (now.getTime() - lastSynced.getTime()) / (1000 * 60 * 60) : Infinity;
+      
+      if (hoursSinceSync > 6) {
+        // Trigger background sync - we don't await this to keep the overview page fast
+        (async () => {
+          try {
+            const { syncProjectGithubMetrics } = await import("@/actions/github.actions");
+            await syncProjectGithubMetrics(projectId);
+          } catch (e) {
+            console.error("Background GitHub sync failed:", e);
+          }
+        })();
+      }
+    }
+
     if (commitsPerWeek === 0 && project.githubCommitCount30d) {
       commitsPerWeek = Math.round((project.githubCommitCount30d / 30) * 7 * 10) / 10;
     }

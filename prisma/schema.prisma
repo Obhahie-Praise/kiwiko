@@ -227,6 +227,7 @@ model Project {
   projectMessages ProjectMessage[]
   events          Event[]
   emails          Email[]
+  trashedEmails   TrashedEmail[]
   notifications   Notification[]
   calendarEvents  CalendarEvent[]
   chatMessages    ChatMessage[]
@@ -429,12 +430,41 @@ model Email {
   isOutgoing     Boolean  @default(false)
   recipientEmail String?
   recipientName  String?
+  attachments    Json?
+  isImportant    Boolean  @default(false)
+  isStarred      Boolean  @default(false)
+  label          String?
   createdAt      DateTime @default(now()) @map("created_at")
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
   @@map("emails")
+}
+
+model TrashedEmail {
+  id             String   @id @default(cuid())
+  projectId      String   @map("project_id")
+  senderName     String   @map("sender_name")
+  senderEmail    String   @map("sender_email")
+  subject        String
+  content        String   @db.Text
+  read           Boolean  @default(false)
+  isOutgoing     Boolean  @default(false)
+  recipientEmail String?
+  recipientName  String?
+  attachments    Json?
+  isImportant    Boolean  @default(false)
+  isStarred      Boolean  @default(false)
+  label          String?
+  originalId     String?  @map("original_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  deletedAt      DateTime @default(now()) @map("deleted_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("trashed_emails")
 }
 
 model Notification {
