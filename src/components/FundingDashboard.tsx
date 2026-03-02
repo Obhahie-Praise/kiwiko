@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { X, Plus, AlertTriangle, Banknote, Users, Globe } from "lucide-react";
-import { FundingLineChart } from "./FundingLineChart";
-import { InvestorPieChart } from "./FundingPieChart";
+import { PortfolioPerformanceChart } from "./PortfolioPerformanceChart";
+import { MonthlyTargetGauge } from "./MonthlyTargetGauge";
 
 export default function FundingDashboard() {
   const [showStart, setShowStart] = useState(false);
@@ -89,10 +89,15 @@ export default function FundingDashboard() {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-2 gap-6 mt-6">
-  <FundingLineChart />
-  <InvestorPieChart />
-</div>
+      <div className="space-y-6 mt-6">
+        <div className="w-full">
+            <PortfolioPerformanceChart />
+        </div>
+        <div className="w-full lg:w-1/3">
+            <MonthlyTargetGauge />
+        </div>
+      </div>
+
       {/* ACTIVE ROUND */}
       <div className="border rounded-2xl p-5 space-y-4">
         <div className="flex justify-between">
@@ -140,10 +145,10 @@ export default function FundingDashboard() {
           )}
         </div>
       </div>
+
       {/* HISTORY */}
       <div className="border rounded-2xl p-5">
         <h3 className="font-medium mb-4">Funding History</h3>
-
         <div className="text-sm text-zinc-600">No past rounds yet</div>
       </div>
       {/* START MODAL */}

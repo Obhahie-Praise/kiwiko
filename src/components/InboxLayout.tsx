@@ -756,26 +756,26 @@ export default function InboxLayout() {
             {/* Email Body Area */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
                <div className="mb-6">
-                 <h2 className="text-2xl font-semibold text-zinc-900">{activeEmail.subject}</h2>
+                 <h2 className="text-2xl font-medium text-zinc-900">{activeEmail.subject}</h2>
                </div>
 
                <div className="flex items-start justify-between mb-8">
-                 <div className="flex items-center gap-4">
+                 <div className="flex items-center gap-3">
                    {activeEmail.avatar ? (
-                     <img src={activeEmail.avatar} alt="Sender" className="w-12 h-12 rounded-full object-cover border border-zinc-200" />
+                     <img src={activeEmail.avatar} alt="Sender" className="w-10 h-10 rounded-full object-cover border border-zinc-200" />
                    ) : (
                      <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-lg font-bold border border-blue-200">
                        {activeEmail.sender.charAt(0)}
                      </div>
                    )}
                    <div>
-                     <h2 className="text-base font-bold text-zinc-900">{activeEmail.sender}</h2>
-                     <p className="text-sm font-medium text-zinc-500">
+                     <h2 className="text-base font-medium text-zinc-900">{activeEmail.sender}</h2>
+                     <p className="text-sm text-zinc-500">
                         {activeEmail.email}
                      </p>
                    </div>
                  </div>
-                 <div className="text-sm font-medium text-zinc-400">
+                 <div className="text-sm font-medium text-zinc-500">
                    {activeEmail.date}
                  </div>
                </div>
@@ -786,9 +786,9 @@ export default function InboxLayout() {
 
                 {/* Attachments */}
                {activeEmail.attachments && activeEmail.attachments.length > 0 && (
-                 <div className="mt-10 border border-zinc-200 rounded-2xl p-8 bg-zinc-50/50 max-w-4xl">
-                   <p className="flex items-center gap-2 text-sm font-bold text-zinc-700 mb-6 uppercase tracking-widest opacity-60">
-                     <Paperclip size={16} className="text-zinc-400"/> {activeEmail.attachments.length} {activeEmail.attachments.length === 1 ? 'Attachment' : 'Attachments'}
+                 <div className="mt-20 rounded-2xl p-4 bg-zinc-50 max-w-4xl">
+                   <p className="flex items-center gap-2 text-sm font-semibold text-zinc-700 mb-4 opacity-60">
+                     <Paperclip size={16} className="text-zinc-500"/> {activeEmail.attachments.length} {activeEmail.attachments.length === 1 ? 'Attachment' : 'Attachments'}
                    </p>
                    <div className="flex flex-wrap gap-4">
                      {activeEmail.attachments.map((att: any, i) => (
@@ -798,24 +798,28 @@ export default function InboxLayout() {
                           target="_blank"
                           rel="noopener noreferrer"
                           download={att.name}
-                          className="flex items-center gap-4 bg-white border border-zinc-100 rounded-xl p-4 min-w-[240px] hover:shadow-md hover:border-zinc-300 transition-all group/att relative shadow-sm cursor-pointer"
+                          className="flex items-center gap-3 bg-white border-[0.2px] border-zinc-200 rounded-xl p-3 min-w-[200px] hover:border-zinc-300 transition-all group/att relative cursor-pointer"
                         >
                           <div className="w-10 h-10 bg-zinc-50 rounded-lg flex items-center justify-center shrink-0">
                             {att.name.toLowerCase().endsWith('.pdf') ? (
                                 <div className="flex flex-col items-center">
-                                    <FileText size={18} className="text-red-500" />
-                                    <span className="text-[6px] font-bold text-red-500 mt-0.5">PDF</span>
+                                    <FileText size={18} strokeWidth={1.1} className="text-red-500" />
+                                    <span className="text-[6px] font-medium text-red-500 mt-0.5">PDF</span>
                                 </div>
                             ) : att.type?.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(att.name) ? (
-                                <ImageIcon size={18} className="text-blue-500" />
+                                <ImageIcon size={18} strokeWidth={1.1} className="text-blue-500" />
                             ) : (
-                                <File size={18} className="text-zinc-400" />
+                              <div className="flex flex-col items-center">
+                                <File size={18} strokeWidth={1.1} className="text-blue-500" />
+                                <span className="text-[6px] font-medium text-blue-500 mt-0.5">DOCX</span>
+                                </div>
+
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-zinc-900 truncate">{att.name}</p>
-                            <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-tight">
-                              {att.name.toLowerCase().endsWith('.pdf') ? 'PDF Document' : 'Media Asset'} • {att.size || '3.2 MB'}
+                            <p className="text-xs font-medium text-zinc-900 truncate">{att.name}</p>
+                            <p className="text-[10px] text-zinc-400 font-medium tracking-tight">
+                              {att.name.toLowerCase().endsWith('.pdf') ? 'PDF' : att.name.toLowerCase().endsWith('.docx') ? 'DOCX' : att.name.toLowerCase().endsWith('.xlsx') ? 'XLSX' : 'Media'} • {att.size || '3.2 MB'}
                             </p>
                           </div>
                         </a>
@@ -828,13 +832,13 @@ export default function InboxLayout() {
 
             {/* Footer Actions */}
             <div className="px-8 py-6 border-t border-zinc-100 flex items-center gap-3">
-               <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors">
+               <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
                  <Reply size={16} className="text-zinc-400"/> Reply
                </button>
-               <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors">
+               <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
                  <ReplyAll size={16} className="text-zinc-400"/> Reply all
                </button>
-               <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors">
+               <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
                  <Forward size={16} className="text-zinc-400"/> Forward
                </button>
             </div>
