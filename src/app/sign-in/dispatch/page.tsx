@@ -16,7 +16,16 @@ export default async function SignInDispatchPage() {
     }
 
     const userId = session.user.id;
-    console.log("SignInDispatchPage: Checking memberships for user", userId);
+    console.log("SignInDispatchPage: Updating telemetry for user", userId);
+    
+    // Update login telemetry
+    await prisma.user.update({
+        where: { id: userId },
+        data: {
+            lastLoginAt: new Date(),
+            loginMethod: "standard"
+        }
+    });
     
     // Fetch organizations where the user is a member
     const memberships = await prisma.membership.findMany({

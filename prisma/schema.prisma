@@ -23,6 +23,9 @@ model User {
   updatedAt           DateTime           @updatedAt
   onboardingCompleted Boolean            @default(false)
   role                String?
+  lastLoginAt         DateTime?
+  loginMethod         String?
+  waitlist            Waitlist? // "standard" | "team-invite"
   sessions            Session[]
   accounts            Account[]
   memberships         Membership[]
@@ -527,4 +530,23 @@ model ChatMessage {
   @@index([senderId])
   @@index([receiverId])
   @@map("chat_messages")
+}
+
+model Waitlist {
+  id            String  @id @default(uuid())
+  email         String  @unique
+  emailVerified Boolean @default(false)
+
+  verificationToken     String?
+  verificationExpiresAt DateTime?
+
+  source String?
+
+  convertedToUser Boolean @default(false)
+  convertedUserId String? @unique
+  convertedUser   User?   @relation(fields: [convertedUserId], references: [id])
+
+  joinedAt    DateTime  @default(now())
+  verifiedAt  DateTime?
+  convertedAt DateTime?
 }

@@ -1,6 +1,8 @@
 import ChatLayout from "@/components/teams/chat/ChatLayout";
 import { mockMessages } from "@/constants/index";
 import { getProjectHomeDataAction } from "@/actions/project.actions";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 export default async function TeamsChatPage(
@@ -11,9 +13,14 @@ export default async function TeamsChatPage(
   const res = await getProjectHomeDataAction(orgSlug, projectSlug);
   if (!res.success || !res.data) return notFound();
 
-  const activeMembers = res.data.project.members.map((m: any, idx: number) => {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const currentUserId = session?.user?.id;
+
+  const activeMembers = res.data.project.members
+    .filter((m: any) => m.userId !== currentUserId)
+    .map((m: any, idx: number) => {
       const date = new Date();
-      date.setMinutes(date.getMinutes() - (idx + 1) * 15); // 15, 30, 45 mins ago
+      date.setMinutes(date.getMinutes() - (idx + 1) * 15);
       return {
           id: m.userId,
           name: m.user.name || m.user.email?.split("@")[0] || "Unknown",
@@ -29,7 +36,7 @@ export default async function TeamsChatPage(
       .filter((i: any) => !i.accepted)
       .map((i: any, idx: number) => {
           const date = new Date();
-          date.setDate(date.getDate() - (idx + 1)); // 1, 2, 3 days ago
+          date.setDate(date.getDate() - (idx + 1));
           return {
               id: i.id,
               name: i.email?.split("@")[0] || "Invited User",
@@ -45,6 +52,15 @@ export default async function TeamsChatPage(
   groupChatDate.setMinutes(groupChatDate.getMinutes() - 2);
 
   const contacts = [
+    {
+        id: "ai-agent",
+        name: "Kiwiko Agent",
+        role: "AI Bot",
+        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Kiwiko",
+        isOnline: true,
+        time: "Now",
+        lastMessageAt: Date.now()
+    },
     {
       id: "group",
       name: "Team Group Chat",
@@ -70,6 +86,8 @@ export default async function TeamsChatPage(
         <ChatLayout
           initialMessages={mockMessages}
           contacts={contacts}
+          currentUserId={currentUserId}
+          projectId={res.data.project.id}
         />
       </div>
     </div>

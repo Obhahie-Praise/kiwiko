@@ -104,30 +104,30 @@ const SignInPage = () => {
           </div>
 
           {/* Tab Switcher */}
-          <div className="flex p-1 bg-zinc-100 rounded-2xl border border-zinc-200 shadow-sm relative overflow-hidden group">
+          <div className="flex p-1.5 bg-zinc-100/80 rounded-[1.25rem] border border-zinc-200/60 shadow-inner relative overflow-hidden backdrop-blur-sm">
             <button
               onClick={() => setActiveTab("standard")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all z-10 relative ${
-                activeTab === "standard" ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-600"
+              className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-[0.9rem] text-[11px] font-black uppercase tracking-[0.1em] transition-all duration-300 z-10 relative ${
+                activeTab === "standard" ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-500"
               }`}
             >
-              <Fingerprint size={14} />
+              <Fingerprint size={15} className={`${activeTab === "standard" ? "text-emerald-500" : "text-zinc-400"} transition-colors`} />
               Standard
             </button>
             <button
               onClick={() => setActiveTab("team")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all z-10 relative ${
-                activeTab === "team" ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-600"
+              className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-[0.9rem] text-[11px] font-black uppercase tracking-[0.1em] transition-all duration-300 z-10 relative ${
+                activeTab === "team" ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-500"
               }`}
             >
-              <Users size={14} />
-              Team Member
+              <Users size={15} className={`${activeTab === "team" ? "text-emerald-500" : "text-zinc-400"} transition-colors`} />
+              Team Access
             </button>
             <div 
-              className="absolute top-1 bottom-1 bg-white rounded-xl shadow-sm transition-all duration-300 ease-out z-0"
+              className="absolute top-1.5 bottom-1.5 bg-white rounded-[0.9rem] shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-0"
               style={{ 
-                left: activeTab === "standard" ? "4px" : "50%", 
-                width: "calc(50% - 4px)" 
+                left: activeTab === "standard" ? "6px" : "calc(50% + 1.5px)", 
+                width: "calc(50% - 7.5px)" 
               }}
             />
           </div>
