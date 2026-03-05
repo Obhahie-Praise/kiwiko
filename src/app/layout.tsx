@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, League_Spartan } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Sans, Instrument_Serif, League_Spartan } from "next/font/google";
 import "./globals.css";
 import { ReactLenis } from "../utils/lenis";
 import Script from "next/script";
+import { Toaster } from "@/components/lightswind/toaster";
+
 
 
 
@@ -14,6 +16,18 @@ const geistSans = Geist({
 const leagueSpartan = League_Spartan({
   variable: "--font-league_spartan-sans",
   subsets: ["latin"],
+  weight: "400",
+});
+
+const instrumentSans = Instrument_Sans({
+  variable: "--font-instrument-sans",
+  subsets: ["latin"],
+});
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 const geistMono = Geist_Mono({
@@ -39,10 +53,12 @@ export default function RootLayout({
     <html lang="en">
       <ReactLenis root>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} ${leagueSpartan.variable} antialiased overflow-x-hidden`}
+          className={`${geistSans.variable} ${geistMono.variable} ${leagueSpartan.variable} ${instrumentSans.variable} ${instrumentSerif.variable} antialiased overflow-x-hidden special-scroll-bar`}
         >
           {children}
+          <Toaster />
           <Script
+
             src="http://localhost:3000/api/tracker.js"
             data-project="pk_7a78c55694cfb3564b3742dbeda39ba34f130b27ec16fc28"
             strategy="afterInteractive"

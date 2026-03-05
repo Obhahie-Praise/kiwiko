@@ -155,6 +155,7 @@ interface ChatWindowProps {
   contacts: Contact[];
   currentUserId: string | null;
   projectId: string | null;
+  initialMessages?: any[];
 }
 
 export default function ChatWindow({
@@ -219,7 +220,8 @@ export default function ChatWindow({
         await room.attach();
 
         // Fetch prior messages
-        const { items } = await room.messages.get({ limit: 50 });
+        // Fetch prior messages
+        const { items } = await (room.messages as any).get({ limit: 50 });
 
         if (isMounted) {
           setMessages(

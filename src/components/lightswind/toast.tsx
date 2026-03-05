@@ -52,10 +52,13 @@ export interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "destructive" | "success" | "warning" | "info";
   duration?: number;
   onClose?: () => void;
+  onOpenChange?: (open: boolean) => void;
+  open?: boolean;
+  type?: string;
 }
 
 const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
-  ({ className, variant = "default", duration = 5000, onClose, ...props }, ref) => {
+  ({ className, variant = "default", duration = 5000, onClose, onOpenChange, open, type, ...props }, ref) => {
     const [progress, setProgress] = React.useState(0);
     const [isOpen, setIsOpen] = React.useState(true);
     const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);

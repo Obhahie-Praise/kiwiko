@@ -1,0 +1,63 @@
+﻿
+> kiwiko@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.1 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+npm : Found 2 
+warnings while 
+optimizing generated 
+CSS:
+At line:1 char:1
++ npm run build > 
+build_logs.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (Found 2   
+  warning... gene    
+rated CSS::Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+
+Issue #1:
+[2mΓöé     }[22m
+[2mΓöé   }[22m
+[2mΓöé[22m   
+@property 
+--border-angle {
+[2mΓöå[22m         
+   [33m[2m^--[22m 
+Unknown at rule: 
+@property[39m
+[2mΓöå[22m
+[2mΓöé     syntax: 
+"<angle>";[22m
+[2mΓöé     
+inherits: true;[22m
+
+Issue #2:
+[2mΓöé     animation
+-play-state: 
+paused;[22m
+[2mΓöé   }[22m
+[2mΓöé[22m   
+@property 
+--border-angle {
+[2mΓöå[22m         
+   [33m[2m^--[22m 
+Unknown at rule: 
+@property[39m
+[2mΓöå[22m
+[2mΓöé     syntax: 
+<angle>;[22m
+[2mΓöé     
+inherits: true;[22m
+

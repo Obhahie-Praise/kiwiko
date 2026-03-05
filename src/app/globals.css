@@ -114,6 +114,31 @@ body {
   font-family: var(--font-league_spartan-sans);
 }
 
+.special-font {
+  font-family: var(--font-instrument-serif);
+}
+
+.special-scroll-bar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.special-scroll-bar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.special-scroll-bar::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 10px;
+}
+
+.special-scroll-bar::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+
+.special-scroll-bar {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+}
 
 @theme inline {
   --color-background: var(--background);

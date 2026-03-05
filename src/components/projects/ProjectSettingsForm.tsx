@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Tooltip } from "../lightswind/tooltip";
 import { SignalType } from "@/generated/prisma";
 import { useProjectSlugs } from "@/hooks/useProjectSlugs";
+import { signIn } from "@/lib/auth-client";
 
 interface ProjectSettingsFormProps {
   project: any;

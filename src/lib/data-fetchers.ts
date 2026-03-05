@@ -1,5 +1,7 @@
 import { getProjectRepoDetails } from "@/actions/github.actions";
 import { unstable_cache } from "next/cache";
+import prisma from "@/lib/prisma";
+import { getYouTubeChannelStats } from "@/actions/youtube.actions";
 
 export const getOverviewMetrics = unstable_cache(
   async (projectId: string, userId: string) => {
@@ -100,7 +102,7 @@ export const getOverviewMetrics = unstable_cache(
 
     // Handle YouTube
     let youtubeMetric = null;
-    const youtubeSignal = project.signals.find(s => s.signalType === "YOUTUBE");
+    const youtubeSignal = project.signals.find((s: any) => s.signalType === "YOUTUBE");
     
     // Potentially parallelize these external API calls too if project structure allowed, 
     // but for now let's focus on the bulk of the internal DB/util calls above.

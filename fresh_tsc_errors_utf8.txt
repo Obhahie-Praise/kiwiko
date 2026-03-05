@@ -1,0 +1,22 @@
+﻿scripts/verify-analytics.ts(1,30): error TS2307: Cannot find module './src/generated/prisma' or its corresponding type declarations.
+src/actions/auth.actions.ts(45,21): error TS2353: Object literal may only specify known properties, and 'lastLoginAt' does not exist in type '(Without<UserCreateInput, UserUncheckedCreateInput> & UserUncheckedCreateInput) | (Without<...> & UserCreateInput)'.
+src/actions/auth.actions.ts(54,21): error TS2353: Object literal may only specify known properties, and 'lastLoginAt' does not exist in type '(Without<UserUpdateInput, UserUncheckedUpdateInput> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput)'.
+src/app/sign-in/dispatch/page.tsx(25,13): error TS2353: Object literal may only specify known properties, and 'lastLoginAt' does not exist in type '(Without<UserUpdateInput, UserUncheckedUpdateInput> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput)'.
+src/components/projects/ProjectCalendar.tsx(110,15): error TS2322: Type 'number' is not assignable to type 'never'.
+src/components/projects/ProjectCalendar.tsx(246,27): error TS2322: Type 'number' is not assignable to type 'never'.
+src/components/projects/ProjectCalendar.tsx(246,37): error TS2322: Type 'string' is not assignable to type 'never'.
+src/components/projects/ProjectCalendar.tsx(288,27): error TS2322: Type 'number' is not assignable to type 'never'.
+src/components/projects/ProjectCalendar.tsx(288,37): error TS2322: Type 'string' is not assignable to type 'never'.
+src/components/projects/ProjectSettingsForm.tsx(783,48): error TS2304: Cannot find name 'signIn'.
+src/components/teams/chat/ChatLayout.tsx(20,11): error TS2322: Type '{ initialMessages: any; activeContactId: any; contacts: any; currentUserId: any; projectId: any; }' is not assignable to type 'IntrinsicAttributes & ChatWindowProps'.
+  Property 'initialMessages' does not exist on type 'IntrinsicAttributes & ChatWindowProps'.
+src/components/teams/chat/ChatWindow.tsx(222,17): error TS2339: Property 'items' does not exist on type 'Message'.
+src/components/teams/chat/ChatWindow.tsx(222,51): error TS2345: Argument of type '{ limit: number; }' is not assignable to parameter of type 'string'.
+src/lib/data-fetchers.ts(7,27): error TS2552: Cannot find name 'prisma'. Did you mean 'Prism'?
+src/lib/data-fetchers.ts(51,7): error TS2552: Cannot find name 'prisma'. Did you mean 'Prism'?
+src/lib/data-fetchers.ts(52,7): error TS2552: Cannot find name 'prisma'. Did you mean 'Prism'?
+src/lib/data-fetchers.ts(53,7): error TS2552: Cannot find name 'prisma'. Did you mean 'Prism'?
+src/lib/data-fetchers.ts(54,7): error TS2552: Cannot find name 'prisma'. Did you mean 'Prism'?
+src/lib/data-fetchers.ts(55,7): error TS2552: Cannot find name 'prisma'. Did you mean 'Prism'?
+src/lib/data-fetchers.ts(103,48): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/lib/data-fetchers.ts(114,31): error TS2304: Cannot find name 'getYouTubeChannelStats'.

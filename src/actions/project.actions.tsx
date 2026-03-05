@@ -1,8 +1,8 @@
 "use server";
-
+ 
 import { auth } from "@/lib/auth";
-import prisma, { PrismaClient } from "@/lib/prisma";
-import { SignalType } from "../generated/prisma";
+import prisma from "@/lib/prisma";
+import { PrismaClient, SignalType } from "../generated/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import crypto from "node:crypto";
@@ -289,7 +289,7 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
             publicKey,
             secretKey
         } 
-    };
+    } as ActionResponse<{ projectId: string; slug: string; invites: any[]; publicKey: string; secretKey: string }>;
   } catch (error: any) {
     console.error("Failed to create project:", error);
     if (error.code === 'P2002') {
@@ -575,6 +575,7 @@ export async function inviteProjectMemberAction(projectId: string, email: string
 
     try {
         const token = crypto.randomBytes(32).toString("hex");
+        
         
         // Create invite
         const invite = await prisma.projectInvite.create({
