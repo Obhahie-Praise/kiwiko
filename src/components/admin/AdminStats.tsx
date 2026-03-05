@@ -45,21 +45,21 @@ const AdminStats = ({ stats }: AdminStatsProps) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
       {cards.map((card, i) => {
         const Icon = card.icon;
         return (
           <div
             key={i}
-            className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800 p-6 rounded-2xl hover:border-zinc-700 transition-colors group"
+            className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800 p-4 sm:p-6 rounded-2xl hover:border-zinc-700 transition-colors group"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`${card.bg} p-2.5 rounded-xl group-hover:scale-110 transition-transform`}>
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className={`${card.bg} p-2 sm:p-2.5 rounded-xl group-hover:scale-110 transition-transform`}>
                 <Icon className={`${card.color}`} size={20} />
               </div>
             </div>
-            <p className="text-zinc-500 text-xs font-medium uppercase tracking-wider">{card.label}</p>
-            <h3 className={`text-zinc-100 ${card.isString ? 'text-xl' : 'text-3xl'} font-bold tracking-tight mt-1 capitalize`}>
+            <p className="text-zinc-500 text-[10px] sm:text-xs font-medium uppercase tracking-wider">{card.label}</p>
+            <h3 className={`text-zinc-100 ${card.isString ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'} font-bold tracking-tight mt-1 capitalize truncate`}>
               {card.value}
             </h3>
           </div>

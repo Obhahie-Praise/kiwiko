@@ -67,7 +67,7 @@ const WaitlistPage = () => {
   };
 
   return (
-    <div className="bg-black relative">
+    <div className="bg-black relative overflow-x-hidden w-full min-h-screen">
       {isSuccess && (
         <SuccessModal 
           email={email} 
@@ -78,17 +78,18 @@ const WaitlistPage = () => {
         />
       )
       }
-      <div className="absolute top-5 right-5 flex space-x-4 text-sm z-10">
+      <div className="absolute top-4 right-4 flex space-x-2 md:space-x-4 text-xs md:text-sm z-10">
         <Link
           href="/"
-          className="text-zinc-200 bg-zinc-800/60 font-normal flex items-center gap-2 px-6 py-2 rounded-lg"
+          className="text-zinc-200 bg-zinc-800/60 font-normal flex items-center gap-2 px-3 md:px-6 py-1.5 md:py-2 rounded-lg"
         >
-          <p className="">Engage </p>
+          <p className="hidden sm:inline">Engage </p>
+          <p className="sm:hidden">X</p>
           <Twitter size={14} strokeWidth={1.8} />
         </Link>
         <UpdatesUI />
       </div>
-      <div className="absolute top-0 min-w-screen left-1/2 -translate-1/2">
+      <div className="absolute top-0 w-fit left-1/2 -translate-1/2">
         <Aurora amplitude={2} colorStops={["#f97316", "#ea580c"]} />
         {/* <TopHeaderLights /> */}
       </div>
@@ -105,19 +106,19 @@ const WaitlistPage = () => {
           </div>
         </div>
       </header>
-      <main className="mx-20 pb-10">
+      <main className="px-6 md:px-20 pb-10">
         <div className="relative">
-          <div className="absolute -top-5 left-20">
+          <div className="absolute -top-5 left-20 hidden md:block">
             <div className="relative">
               <div className="absolute -top-20 bg-linear-to-b from-zinc-400 to-black w-px h-150" />
               <div className="absolute -left-20 bg-linear-to-r from-zinc-400 to-black w-150 h-px" />
               <div className="" />
             </div>
           </div>
-          <span className="uppercase flex justify-center text-zinc-400 text-xs font-medium pb-2">
+          <span className="uppercase flex justify-center text-zinc-400 text-[10px] md:text-xs font-medium pb-2">
             Kiwiko startup discovery
           </span>
-          <h1 className="text-center tracking-tighter bg-linear-to-b from-zinc-500 via-zinc-400 to-zinc-100 bg-clip-text text-transparent text-[4.5rem] font-medium leading-none">
+          <h1 className="text-center tracking-tighter bg-linear-to-b from-zinc-500 via-zinc-400 to-zinc-100 bg-clip-text text-transparent text-4xl sm:text-5xl md:text-[4.5rem] font-medium leading-none">
             Join the waitlist for the <br /> the future of{" "}
             <span className="text-transparent bg-clip-text bg-linear-to-b from-orange-500 to-orange-400 special-font italic font-medium">
               Startup discovery!{" "}
@@ -136,20 +137,20 @@ const WaitlistPage = () => {
             </span>{" "}
           </p>
         </div>
-        <div className="space-x-3 flex justify-center pt-6">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-6">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
-            className="font-semibold bg-zinc-200/10 backdrop-blur-md text-zinc-200 px-4.5 py-2.5  border border-transparent rounded-lg outline-zinc-300/40 outline-[0.2px] focus:outline-zinc-100 focus:border-zinc-200 focus:border transition"
+            className="w-full sm:w-auto font-semibold bg-zinc-200/10 backdrop-blur-md text-zinc-200 px-4.5 py-2.5  border border-transparent rounded-lg outline-zinc-300/40 outline-[0.2px] focus:outline-zinc-100 focus:border-zinc-200 focus:border transition"
             placeholder="your@email.com"
             size={35}
           />
           <button 
             onClick={handleJoinWaitlist}
             disabled={isLoading}
-            className="bg-white rounded-lg text-black font-medium py-2 px-4 hover:bg-zinc-200 focus:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto bg-white rounded-lg text-black font-medium py-2.5 px-6 hover:bg-zinc-200 focus:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? "Joining..." : "Join waitlist"}
           </button>
@@ -179,13 +180,13 @@ const WaitlistPage = () => {
           </div>
         </div>
         <div className="relative">
-          <div className="absolute -bottom-20 right-0 bg-linear-to-t from-zinc-400 to-black w-px h-150" />
-          <div className="absolute -right-20 bg-linear-to-l from-zinc-400 to-black w-150 h-px" />
+          <div className="absolute -bottom-20 right-0 bg-linear-to-t from-zinc-400 to-black w-px h-150 hidden md:block" />
+          <div className="absolute -right-20 bg-linear-to-l from-zinc-400 to-black w-150 h-px hidden md:block" />
           <div className="" />
         </div>
-        <div className="w-180 h-px bg-zinc-800 my-20 mx-auto" />
+        <div className="w-full max-w-2xl h-px bg-zinc-800 my-12 md:my-20 mx-auto" />
         <div />
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-zinc-900/50 backdrop-blur-md rounded-xl h-70 border border-zinc-700 p-8 group">
             <CalendarClock
               strokeWidth={1.4}

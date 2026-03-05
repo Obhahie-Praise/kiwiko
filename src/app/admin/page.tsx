@@ -70,7 +70,7 @@ const AdminPage = () => {
 
   return (
     <div className="bg-black min-h-screen">
-      <div className="max-w-7xl mx-auto px-6 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
         <AdminHeader currentTab={currentTab} onTabChange={setCurrentTab} />
         
         {isLoading ? (
@@ -84,7 +84,7 @@ const AdminPage = () => {
               <>
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-zinc-100 text-2xl font-semibold tracking-normal special-font">Platform Overview</h2>
-                  <div className="text-xs text-zinc-500 font-medium bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                  <div className="hidden sm:flex text-xs text-zinc-500 font-medium bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                     Live Metrics
                   </div>
@@ -132,7 +132,7 @@ const AdminPage = () => {
                       <p className="">Export</p>
                       <Download size={18} strokeWidth={1.4} />
                     </div>
-                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-400">
+                     <div className="hidden sm:block bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-400">
                         {stats?.total || 0} total members
                      </div>
                   </div>

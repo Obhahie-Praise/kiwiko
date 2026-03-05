@@ -25,8 +25,8 @@ const WaitlistTable = ({ entries }: WaitlistTableProps) => {
             <tr className="border-b border-zinc-900 bg-zinc-900/60">
               <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider">User</th>
               <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider">Status</th>
-              <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider">Joined At</th>
-              <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider">Source</th>
+              <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider hidden md:table-cell">Joined At</th>
+              <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider hidden md:table-cell">Source</th>
               <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider text-right">Actions</th>
             </tr>
           </thead>
@@ -55,14 +55,14 @@ const WaitlistTable = ({ entries }: WaitlistTableProps) => {
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-zinc-400 text-sm">
+                  <td className="px-6 py-4 text-zinc-400 text-sm hidden md:table-cell">
                     {new Date(entry.joinedAt).toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
                     })}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 hidden md:table-cell">
                     <span className="text-zinc-500 text-xs bg-zinc-800/50 px-2 py-1 rounded border border-zinc-700">
                       {entry.source}
                     </span>
