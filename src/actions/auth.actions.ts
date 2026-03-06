@@ -9,11 +9,10 @@ export async function teamInviteSignInAction(email: string) {
     try {
         console.log(`Team sign-in request for: ${email}`);
 
-        // 1. Check for pending project invite
+        // 1. Check for project invite (any status)
         const invite = await prisma.projectInvite.findFirst({
             where: {
-                email: email.toLowerCase(),
-                accepted: false
+                email: email.toLowerCase()
             },
             include: {
                 project: {
@@ -26,7 +25,7 @@ export async function teamInviteSignInAction(email: string) {
         });
 
         if (!invite) {
-            return { success: false, error: "No pending invite found for this email." };
+            return { success: false, error: "No invite found for this email. Please contact your project lead." };
         }
 
         // 2. Find or create user
@@ -42,7 +41,18 @@ export async function teamInviteSignInAction(email: string) {
                     id: crypto.randomUUID(),
                     email: email.toLowerCase(),
                     name: email.split('@')[0],
-                    emailVerified: true
+                    emailVerified: true,
+                    lastLoginAt: new Date(),
+                    loginMethod: "team-invite"
+                }
+            });
+        } else {
+            // Update existing user's login telemetry
+            await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    lastLoginAt: new Date(),
+                    loginMethod: "team-invite"
                 }
             });
         }
@@ -88,11 +98,13 @@ export async function teamInviteSignInAction(email: string) {
             });
         }
 
-        // 4. Mark invite as accepted
-        await prisma.projectInvite.update({
-            where: { id: invite.id },
-            data: { accepted: true }
-        });
+        // 4. Mark invite as accepted only if it's currently pending
+        if (!invite.accepted) {
+            await prisma.projectInvite.update({
+                where: { id: invite.id },
+                data: { accepted: true }
+            });
+        }
 
         // 5. Create session via better-auth
         // We use the internal adapter to create a session programmatically
@@ -123,9 +135,7 @@ export async function teamInviteSignInAction(email: string) {
         return { 
             success: true, 
             data: { 
-                orgSlug: invite.project.organization.slug, 
-                projectSlug: invite.project.slug,
-                redirectToParticipation: true
+                redirectUrl: "/my-projects"
             } 
         };
     } catch (error) {

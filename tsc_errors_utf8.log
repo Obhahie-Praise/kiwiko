@@ -1,0 +1,18 @@
+﻿.next/types/validator.ts(25,44): error TS2344: Type 'Route' does not satisfy the constraint 'LayoutRoutes'.
+  Type 'import("C:/Users/HP/Desktop/kiwiko/.next/types/routes").LayoutRoutes' is not assignable to type 'import("C:/Users/HP/Desktop/kiwiko/.next/dev/types/routes").LayoutRoutes'.
+    Type '"/[orgSlug]/[projectSlug]/home"' is not assignable to type 'LayoutRoutes'. Did you mean '"/[orgSlug]/[projectSlug]"'?
+.next/types/validator.ts(25,75): error TS2344: Type 'Route' does not satisfy the constraint 'LayoutRoutes'.
+  Type 'import("C:/Users/HP/Desktop/kiwiko/.next/types/routes").LayoutRoutes' is not assignable to type 'import("C:/Users/HP/Desktop/kiwiko/.next/dev/types/routes").LayoutRoutes'.
+    Type '"/[orgSlug]/[projectSlug]/home"' is not assignable to type 'LayoutRoutes'. Did you mean '"/[orgSlug]/[projectSlug]"'?
+.next/types/validator.ts(71,39): error TS2307: Cannot find module '../../src/app/[orgSlug]/[projectSlug]/home/page.js' or its corresponding type declarations.
+.next/types/validator.ts(354,39): error TS2307: Cannot find module '../../src/app/[orgSlug]/[projectSlug]/home/layout.js' or its corresponding type declarations.
+scripts/verify-analytics.ts(1,30): error TS2307: Cannot find module './src/generated/prisma' or its corresponding type declarations.
+src/actions/project.actions.tsx(289,13): error TS2353: Object literal may only specify known properties, and 'publicKey' does not exist in type '{ projectId: string; slug: string; invites: any[]; }'.
+src/app/[orgSlug]/[projectSlug]/notifications/page.tsx(30,26): error TS2322: Type '{ id: string; createdAt: Date; updatedAt: Date; userId: string | null; projectId: string; metadata: JsonValue; type: string; title: string; message: string; read: boolean; }[] | undefined' is not assignable to type 'any[]'.
+  Type 'undefined' is not assignable to type 'any[]'.
+src/components/projects/ProjectCalendar.tsx(109,15): error TS2322: Type 'number' is not assignable to type 'never'.
+src/components/projects/ProjectCalendar.tsx(245,27): error TS2322: Type 'number' is not assignable to type 'never'.
+src/components/projects/ProjectCalendar.tsx(245,37): error TS2322: Type 'string' is not assignable to type 'never'.
+src/components/projects/ProjectCalendar.tsx(287,27): error TS2322: Type 'number' is not assignable to type 'never'.
+src/components/projects/ProjectCalendar.tsx(287,37): error TS2322: Type 'string' is not assignable to type 'never'.
+src/components/projects/ProjectCalendar.tsx(327,19): error TS18048: 'res.data' is possibly 'undefined'.

@@ -7,6 +7,7 @@ import Testimonials from '@/components/sections/Testimonials'
 import Footer from '@/components/sections/Footer'
 import { Metadata } from 'next'
 import About from '@/components/sections/About'
+import WaitlistPage from '@/components/waitlist/WaitlistPage'
 
 export const metadata: Metadata = {
   title: 'Kiwiko - Track startup progress and connect with investors',
@@ -14,6 +15,12 @@ export const metadata: Metadata = {
 }
 
 const HomePage = () => {
+  const appMode = process.env.APP_MODE
+
+  if (appMode === "waitlist") {
+    return <WaitlistPage />
+  }
+
   return (
     <div className='scroll-smooth'>
       <div className="relative">

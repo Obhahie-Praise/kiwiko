@@ -7,6 +7,8 @@ import ChatWindow from "./ChatWindow";
 export default function ChatLayout({
   initialMessages,
   contacts,
+  currentUserId,
+  projectId
 }: any) {
   const [activeContactId, setActiveContactId] = useState(contacts[0]?.id || null);
 
@@ -18,6 +20,8 @@ export default function ChatLayout({
           initialMessages={initialMessages} 
           activeContactId={activeContactId} 
           contacts={contacts} 
+          currentUserId={currentUserId}
+          projectId={projectId}
         />
       </div>
     </div>

@@ -37,7 +37,7 @@ import { getCalendarEventsAction, addCalendarEventAction } from "@/actions/calen
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const KIND_META: Record<EventKind, { label: string; color: string; bg: string; Icon: React.ElementType }> = {
+const KIND_META: Record<EventKind, { label: string; color: string; bg: string; Icon: React.ComponentType<any> }> = {
   achievement: { label: "Achievement", color: "text-amber-600", bg: "bg-amber-50 border-amber-100", Icon: Trophy },
   meeting:     { label: "Meeting",     color: "text-sky-600",   bg: "bg-sky-50 border-sky-100",   Icon: Video },
   milestone:   { label: "Milestone",   color: "text-violet-600",bg: "bg-violet-50 border-violet-100", Icon: Flag },
@@ -70,7 +70,7 @@ function addDays(d: Date, n: number) {
   return copy;
 }
 
-function getEventStyles(event: CalendarEvent) {
+function getEventStyles(event: CalendarEvent): { Icon: React.ComponentType<any>; bgClass: string; colorClass: string; styleBg: React.CSSProperties; styleColor: React.CSSProperties } {
   const meta = KIND_META[event.kind || 'team'];
   if (event.color) {
     return {

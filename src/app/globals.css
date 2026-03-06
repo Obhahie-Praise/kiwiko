@@ -4,29 +4,55 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ::-webkit-scrollbar {
-    display: none;
-  } */
+/* Premium Global Scrollbar for Laptops/Desktops */
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #09090b;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border: 2px solid #09090b;
+    border-radius: 10px;
+    transition: background 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #f97316; /* Orange highlight on hover */
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #27272a #09090b;
+  }
+}
 
 body {
   @apply bg-white text-foreground font-sans scroll-smooth;
 }
 
+
+/* Existing .scroll-mod refined */
 .scroll-mod::-webkit-scrollbar {
-  width: 8px; /* Width of the scrollbar */
+  width: 6px;
 }
 
 .scroll-mod::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Track color */
+  background: transparent;
 }
 
 .scroll-mod::-webkit-scrollbar-thumb {
-  background: #888; /* Thumb color */
-  border-radius: 2px; /* Rounded corners */
+  background: #3f3f46;
+  border-radius: 10px;
 }
 
 .scroll-mod::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Hover color */
+  background: #f97316;
 }
 
 /* Base */
@@ -114,6 +140,31 @@ body {
   font-family: var(--font-league_spartan-sans);
 }
 
+.special-font {
+  font-family: var(--font-instrument-serif);
+}
+
+.special-scroll-bar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.special-scroll-bar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.special-scroll-bar::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 10px;
+}
+
+.special-scroll-bar::-webkit-scrollbar-thumb:hover {
+  background: #f97316;
+}
+
+.special-scroll-bar {
+  scrollbar-width: thin;
+  scrollbar-color: #27272a transparent;
+}
 
 @theme inline {
   --color-background: var(--background);

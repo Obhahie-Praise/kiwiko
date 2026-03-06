@@ -25,10 +25,12 @@ export async function sendEmail({
   from = "Kiwiko <notifications@kiwiko.xyz>",
   replyTo,
 }: SendEmailOptions) {
+  console.log(`[Development Email Override] Redirecting email from ${to} to onboarding@resend.dev`);
+  
   try {
     const { data, error } = await resend.emails.send({
       from,
-      to,
+      to: "onboarding@resend.dev",
       subject,
       react,
       replyTo,

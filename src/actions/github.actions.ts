@@ -487,3 +487,39 @@ async function fetchFromDB(repoFullName: string): Promise<ActionResponse<any[]>>
     return { success: false, error: "Failed to fetch commits from database" };
   }
 }
+
+export async function getRecentCommitsAction() {
+  const owner = process.env.GITHUB_REPO_OWNER;
+  const repo = process.env.GITHUB_REPO_NAME;
+  const token = process.env.GITHUB_PAT;
+
+  if (!owner || !repo) {
+    console.warn("GitHub configuration missing: GITHUB_REPO_OWNER or GITHUB_REPO_NAME");
+    return [];
+  }
+
+  try {
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/commits?per_page=10`, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+        Accept: "application/vnd.github.v3+json",
+      },
+      next: { revalidate: 3600 }, // Cache for 1 hour
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitHub API returned ${response.status}`);
+    }
+
+    const commits = await response.json();
+
+    return commits.map((item: any) => ({
+      date: new Date(item.commit.author.date).toLocaleDateString("en-GB"),
+      commit_message: item.commit.message,
+      sha: item.sha,
+    }));
+  } catch (error) {
+    console.error("Error fetching commits:", error);
+    return [];
+  }
+}

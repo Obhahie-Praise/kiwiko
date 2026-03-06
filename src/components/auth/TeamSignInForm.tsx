@@ -19,12 +19,7 @@ export default function TeamSignInForm() {
         try {
             const res = await teamInviteSignInAction(email);
             if (res.success && res.data) {
-                // Check if we should redirect to participation or overview
-                if ((res.data as any).redirectToParticipation) {
-                    router.push(`/project-participation`);
-                } else {
-                    router.push(`/${res.data.orgSlug}/${res.data.projectSlug}/overview`);
-                }
+                router.push(res.data.redirectUrl);
             } else {
                 setError(res.error || "Failed to sign in. Please check your email.");
                 setIsAuthenticating(false);
@@ -64,23 +59,19 @@ export default function TeamSignInForm() {
             <button
                 type="submit"
                 disabled={isAuthenticating || !email}
-                className="relative w-full group overflow-hidden bg-zinc-900 text-white rounded-2xl py-4 disabled:opacity-50 transition-all active:scale-[0.98]"
+                className="relative w-full group overflow-hidden bg-zinc-900 text-white rounded-2xl py-4 disabled:opacity-50 transition-all active:scale-[0.98] shadow-lg shadow-zinc-200/50"
             >
-                <div className="relative flex items-center justify-center gap-2">
-                    <span className="text-[11px] font-black uppercase tracking-widest">
-                        {isAuthenticating ? "Verifying Invite..." : "Sign in as Team Member"}
+                <div className="relative flex items-center justify-center gap-2.5">
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] ml-1">
+                        {isAuthenticating ? "Verifying Access..." : "Secure Team Login"}
                     </span>
                     {isAuthenticating ? (
                         <LoaderCircle className="animate-spin" size={16} />
                     ) : (
-                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
                     )}
                 </div>
             </button>
-            
-            <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest text-center px-4">
-                This is a development shortcut for invited team members.
-            </p>
         </form>
     );
 }
