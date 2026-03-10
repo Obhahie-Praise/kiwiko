@@ -17,6 +17,7 @@ import { useSearchParams } from "next/navigation";
 const WaitlistPage = () => {
   const [email, setEmail] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isDuplicate, setIsDuplicate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
   const searchParams = useSearchParams();
@@ -47,6 +48,7 @@ const WaitlistPage = () => {
       const result = await joinWaitlistAction(formData);
       if (result.success) {
         setIsSuccess(true);
+        setIsDuplicate(result.isDuplicate || false);
       } else {
         toast({
           title: "Error",
@@ -71,13 +73,14 @@ const WaitlistPage = () => {
       {isSuccess && (
         <SuccessModal 
           email={email} 
+          isDuplicate={isDuplicate}
           onClose={() => {
             setIsSuccess(false);
+            setIsDuplicate(false);
             setEmail("");
           }} 
         />
-      )
-      }
+      )}
       <div className="absolute top-4 right-4 flex space-x-2 md:space-x-4 text-xs md:text-sm z-10">
         <Link
           href="/"
@@ -89,7 +92,7 @@ const WaitlistPage = () => {
         </Link>
         <UpdatesUI />
       </div>
-      <div className="absolute top-0 w-fit left-1/2 -translate-1/2">
+      <div className="absolute top-0 w-full left-1/2 -translate-1/2">
         <Aurora amplitude={2} colorStops={["#f97316", "#ea580c"]} />
         {/* <TopHeaderLights /> */}
       </div>

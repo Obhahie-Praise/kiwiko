@@ -59,7 +59,7 @@ const AddInvestorModal = ({ onClose, onSuccess }: AddInvestorModalProps) => {
           <X size={20} />
         </button>
 
-        <h2 className="text-2xl font-bold text-white mb-6 special-font">Add New Investor</h2>
+        <h2 className="text-xl font-semibold text-white mb-6 special-font">Add New Investor</h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

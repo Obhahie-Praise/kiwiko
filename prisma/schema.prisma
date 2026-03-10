@@ -533,12 +533,8 @@ model ChatMessage {
 }
 
 model Waitlist {
-  id            String  @id @default(uuid())
-  email         String  @unique
-  emailVerified Boolean @default(false)
-
-  verificationToken     String?
-  verificationExpiresAt DateTime?
+  id    String @id @default(uuid())
+  email String @unique
 
   source String?
 
@@ -547,7 +543,6 @@ model Waitlist {
   convertedUser   User?   @relation(fields: [convertedUserId], references: [id])
 
   joinedAt    DateTime  @default(now())
-  verifiedAt  DateTime?
   convertedAt DateTime?
 }
 
