@@ -22,10 +22,10 @@ const Features = () => {
 
       {/* Header */}
       <div className="flex flex-col items-center text-center mb-24 px-6">
-        <div className="px-3 py-1 text-xs font-bold tracking-[0.2em] bg-zinc-900 text-white rounded-full border border-zinc-800 mb-4">
+        <div className="px-3 py-1 text-xs font-bold hero-font tracking-[0.2em] bg-zinc-900 text-white rounded-full border border-zinc-800 mb-4">
           Features
         </div>
-        <h2 className="text-5xl md:text-5xl font-bold tracking-tighter text-zinc-900 mb-4 uppercase hero-font leading-[0.85]">
+        <h2 className="text-5xl md:text-5xl special-font font-bold tracking-tight text-zinc-900 mb-4 uppercase leading-[0.85]">
           What's in it <br /> <span className="text-zinc-400">for you?</span>
         </h2>
         <p className="text-zinc-500 font-semibold max-w-2xl">
@@ -42,10 +42,10 @@ const Features = () => {
                 <div className="w-12 h-12 rounded-2xl bg-zinc-900 flex items-center justify-center text-white mb-8 shadow-xl shadow-zinc-200">
                    <Code2 size={24} />
                 </div>
-                <h3 className="text-3xl font-bold text-zinc-900 mb-4 tracking-tighter uppercase hero-font">
+                <h3 className="text-3xl font-bold special-font text-zinc-900 mb-4 tracking-tight uppercase hero-font">
                   Real-Time <br /> Execution Logs
                 </h3>
-                <p className="text-zinc-500 font-bold max-w-sm mb-8">
+                <p className="text-zinc-600 font-medium max-w-sm mb-8">
                   Verifiable proof of progress. Track git momentum, feature shipping, and technical milestones as they happen.
                 </p>
              </div>
@@ -54,7 +54,7 @@ const Features = () => {
                 <ScrollParallax strength={0.09}>
                    <div className="flex gap-4 mt-4">
                       {["git commits", "deployment", "v2.1 live", "core architecture", "database migration", "auth logic"].map((tag, i) => (
-                        <div key={i} className="whitespace-nowrap px-4 py-2 bg-zinc-50 border border-zinc-200 rounded-xl font-semibold capitalize hero-font tracking-widest text-zinc-500 hover:text-zinc-900 hover:border-zinc-900 transition-all cursor-default">
+                        <div key={i} className="whitespace-nowrap px-4 py-2 bg-zinc-50 border-0.5 border-zinc-200 rounded-xl font-medium capitalize hero-font tracking-wide text-black hover:text-zinc-900 hover:border-zinc-900 transition-all cursor-default">
                           {tag}
                         </div>
                       ))}
@@ -85,21 +85,21 @@ const Features = () => {
                 <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-zinc-900 mb-8">
                    <BarChart3 size={24} />
                 </div>
-                <h3 className="text-3xl font-bold text-white mb-4 tracking-tighter uppercase hero-font">
+                <h3 className="text-3xl font-bold special-font text-white mb-4 tracking-tight uppercase hero-font">
                    Hard <br /> Numbers.
                 </h3>
-                <p className="text-zinc-500 font-semibold">
+                <p className="text-zinc-600 font-medium">
                    User growth, churn rates, and MRR signals verified by agentic analysis.
                 </p>
              </div>
 
              <div className="mt-12">
                 <div className="flex items-end gap-2 h-32">
-                   {[40, 70, 45, 90, 65, 80, 50, 95].map((h, i) => (
+                   {[40, 70, 45, 90, 65, 80, 50, 95, 60, 85, 55, 75].map((h, i) => (
                      <div 
                         key={i} 
                         style={{ height: `${h}%` }} 
-                        className="flex-1 bg-white/10 rounded-t-lg group-hover:bg-emerald-500/50 transition-all duration-700" 
+                        className="flex-1 bg-white/50 rounded-t-lg group-hover:bg-emerald-500/50 transition-all duration-700" 
                      />
                    ))}
                 </div>
@@ -117,10 +117,10 @@ const Features = () => {
                 <div className="w-12 h-12 rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-900 mb-8 border border-zinc-200">
                    <Target size={24} />
                 </div>
-                <h3 className="text-3xl font-bold text-zinc-900 mb-4 tracking-tighter uppercase hero-font">
+                <h3 className="text-3xl font-bold special-font text-zinc-900 mb-4 tracking-tight uppercase hero-font">
                   No Noise. <br /> Just Signal.
                 </h3>
-                <p className="text-zinc-500 font-semibold">
+                <p className="text-zinc-600 font-medium">
                   No engagement farming. No followers. No algorithmic manipulation. Just progress updates from the people building the future.
                 </p>
              </div>
@@ -136,10 +136,10 @@ const Features = () => {
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500 flex items-center justify-center text-white mb-8 shadow-xl shadow-emerald-100">
                    <ShieldCheck size={24} />
                 </div>
-                <h3 className="text-3xl font-bold text-zinc-900 mb-4 tracking-tighter uppercase hero-font">
+                <h3 className="text-3xl font-bold special-font text-zinc-900 mb-4 tracking-tight uppercase hero-font">
                   Cryptographic <br /> Integrity
                 </h3>
-                <p className="text-zinc-500 font-semibold">
+                <p className="text-zinc-600 font-medium">
                   Every update is timestamped and verified. We create a shared reality of execution that investors can trust without the friction of reporting.
                 </p>
              </div>

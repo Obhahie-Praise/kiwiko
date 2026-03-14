@@ -21,9 +21,20 @@ interface SourceStatsChartProps {
 
 const SourceStatsChart = ({ data, onPeriodChange, activePeriod }: SourceStatsChartProps) => {
   const getDateRangeLabel = () => {
-    if (activePeriod === 'Monthly') return "Sep 2025 to Mar 2026";
-    if (activePeriod === 'Quarterly') return "2024 to 2026";
-    return "2021 to 2026";
+    const now = new Date();
+    const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+    
+    if (activePeriod === 'Monthly') {
+      const first = new Date(now.getFullYear(), now.getMonth(), 1);
+      const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      return `${months[first.getMonth()]} 1 to ${months[last.getMonth()]} ${last.getDate()}`;
+    }
+    if (activePeriod === 'Quarterly') {
+      const start = new Date(now);
+      start.setDate(now.getDate() - 90);
+      return `${months[start.getMonth()]} ${start.getDate()} to ${months[now.getMonth()]} ${now.getDate()}`;
+    }
+    return `jan ${now.getFullYear()} to dec ${now.getFullYear()}`;
   };
 
   return (
@@ -53,18 +64,19 @@ const SourceStatsChart = ({ data, onPeriodChange, activePeriod }: SourceStatsCha
           
           <button className="flex items-center gap-2 bg-zinc-950 border border-zinc-800 px-3 py-2 rounded-xl text-zinc-100 text-[10px] font-bold hover:bg-zinc-900 transition-colors">
             <Calendar size={14} className="text-zinc-500" />
-            <span>{getDateRangeLabel()}</span>
+            <span className="capitalize">{getDateRangeLabel()}</span>
             <ChevronDown size={14} className="text-zinc-500" />
           </button>
         </div>
       </div>
 
-      <div className="w-full h-[350px]">
+      <div className="w-full h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data.length === 0 ? [
             { name: "Start", youtube: 0, x: 0, whatsapp: 0, facebook: 0, Direct: 0 },
             { name: "End", youtube: 0, x: 0, whatsapp: 0, facebook: 0, Direct: 0 }
-          ] : data}>
+          ] : data}
+          margin={{ bottom: 50 }}>
               <defs>
                 <linearGradient id="colorYoutube" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
@@ -85,7 +97,11 @@ const SourceStatsChart = ({ data, onPeriodChange, activePeriod }: SourceStatsCha
                 axisLine={false} 
                 tickLine={false} 
                 tick={{ fill: '#71717a', fontSize: 10, fontWeight: 600 }}
-                dy={10}
+                dy={30}
+                interval={activePeriod === 'Annually' ? 0 : 4}
+                height={80}
+                angle={-45}
+                textAnchor="end"
               />
               <YAxis 
                 axisLine={false} 

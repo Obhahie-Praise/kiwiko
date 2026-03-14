@@ -165,20 +165,31 @@ export async function getAdminChartDataAction(period: 'Monthly' | 'Quarterly' | 
     }
 
     // 2. Source Statistics over time
+    const now = new Date();
     let startDate = new Date();
+    let endDate = new Date();
+    const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+    
     if (period === 'Monthly') {
-      startDate.setMonth(startDate.getMonth() - 6);
+      // Current month: 1st to last day
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Last day of month
     } else if (period === 'Quarterly') {
-      startDate.setFullYear(startDate.getFullYear() - 2); // 2 years for quarterly trend
+      // Last 90 days
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 90);
+      endDate = new Date(now);
     } else {
-      startDate.setFullYear(startDate.getFullYear() - 5); // 5 years for annual trend
+      // Annually: Jan to Dec of current year
+      startDate = new Date(now.getFullYear(), 0, 1);
+      endDate = new Date(now.getFullYear(), 11, 31);
     }
-    startDate.setDate(1);
 
     const entries = await prisma.waitlist.findMany({
       where: {
         joinedAt: {
           gte: startDate,
+          lte: endDate,
         },
       },
       select: {
@@ -187,43 +198,61 @@ export async function getAdminChartDataAction(period: 'Monthly' | 'Quarterly' | 
       },
     });
 
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const statsDataMap: Record<string, any> = {};
 
+    // Helper to format date for display
+    const formatDate = (date: Date) => `${months[date.getMonth()]} ${date.getDate()}`;
+
+    // 2a. Initialize with zero data (Zero-filling)
+    if (period === 'Monthly') {
+      const daysInMonth = endDate.getDate();
+      for (let i = 1; i <= daysInMonth; i++) {
+        const d = new Date(startDate.getFullYear(), startDate.getMonth(), i);
+        const key = formatDate(d);
+        statsDataMap[key] = { name: key, youtube: 0, x: 0, whatsapp: 0, facebook: 0, Direct: 0 };
+      }
+    } else if (period === 'Quarterly') {
+      // For 90 days, we'll show every 3rd or 5th day to avoid cluttering, 
+      // OR just show all days if Recharts handled it. Let's do daily but label sparingly in UI.
+      // Actually, for 90 days, daily might be okay if UI handles ticks.
+      for (let i = 0; i <= 90; i++) {
+        const d = new Date(startDate);
+        d.setDate(startDate.getDate() + i);
+        if (d > endDate) break;
+        const key = formatDate(d);
+        statsDataMap[key] = { name: key, youtube: 0, x: 0, whatsapp: 0, facebook: 0, Direct: 0 };
+      }
+    } else {
+      // Annually: All 12 months
+      for (let i = 0; i < 12; i++) {
+        const key = months[i];
+        statsDataMap[key] = { name: key, youtube: 0, x: 0, whatsapp: 0, facebook: 0, Direct: 0 };
+      }
+    }
+
+    // 2b. Aggregate real data
     entries.forEach(entry => {
       const date = new Date(entry.joinedAt);
       let key = "";
       
-      if (period === 'Monthly') {
-        key = months[date.getMonth()];
-      } else if (period === 'Quarterly') {
-        const quarter = Math.floor(date.getMonth() / 3) + 1;
-        key = `Q${quarter} ${date.getFullYear()}`;
+      if (period === 'Monthly' || period === 'Quarterly') {
+        key = formatDate(date);
       } else {
-        key = `${date.getFullYear()}`;
+        key = months[date.getMonth()];
       }
 
-      if (!statsDataMap[key]) {
-        statsDataMap[key] = { name: key, youtube: 0, x: 0, whatsapp: 0, facebook: 0, Direct: 0 };
+      if (statsDataMap[key]) {
+        const source = (entry.source || "Direct").toLowerCase();
+        if (source === 'youtube') statsDataMap[key].youtube++;
+        else if (source === 'x') statsDataMap[key].x++;
+        else if (source === 'whatsapp') statsDataMap[key].whatsapp++;
+        else if (source === 'facebook') statsDataMap[key].facebook++;
+        else statsDataMap[key].Direct++;
       }
-      
-      const source = (entry.source || "Direct").toLowerCase();
-      if (source === 'youtube') statsDataMap[key].youtube++;
-      else if (source === 'x') statsDataMap[key].x++;
-      else if (source === 'whatsapp') statsDataMap[key].whatsapp++;
-      else if (source === 'facebook') statsDataMap[key].facebook++;
-      else statsDataMap[key].Direct++;
     });
 
     // Format final array
-    let sourceStatsData = Object.values(statsDataMap);
-
-    // If data is empty for current period, provide some defaults for UI
-    if (sourceStatsData.length === 0) {
-       sourceStatsData = period === 'Monthly' 
-        ? months.slice(-6).map(m => ({ name: m, youtube: 0, x: 0, whatsapp: 0, facebook: 0, Direct: 0 }))
-        : [];
-    }
+    const sourceStatsData = Object.values(statsDataMap);
 
     // 3. Page Views simulated trend
     const viewsMetric = await prisma.platformMetric.findUnique({
@@ -238,7 +267,7 @@ export async function getAdminChartDataAction(period: 'Monthly' | 'Quarterly' | 
       const base = totalViews / 30;
       const noise = Math.sin(i * 0.5) * (base * 0.4) + (Math.random() * base * 0.2);
       pageViewsData.push({
-        date: `${d.getDate()} ${months[d.getMonth()]}`,
+        date: `${months[d.getMonth()]} ${d.getDate()}`,
         views: Math.max(0, Math.floor(base + noise)),
       });
     }

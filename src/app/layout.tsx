@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Instrument_Sans, Instrument_Serif, League_Spartan } from "next/font/google";
 import "./globals.css";
-import { ReactLenis } from "../utils/lenis";
 import Script from "next/script";
 import { Toaster } from "@/components/lightswind/toaster";
 
@@ -22,6 +21,7 @@ const leagueSpartan = League_Spartan({
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
   subsets: ["latin"],
+  weight: "400"
 });
 
 const instrumentSerif = Instrument_Serif({
@@ -51,9 +51,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <ReactLenis root>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} ${leagueSpartan.variable} ${instrumentSans.variable} ${instrumentSerif.variable} antialiased overflow-x-hidden special-scroll-bar`}
+          className={`${geistSans.variable} ${geistMono.variable} ${leagueSpartan.variable} ${instrumentSans.variable} ${instrumentSerif.variable} ${instrumentSans.className} antialiased overflow-x-hidden special-scroll-bar`}
         >
           {children}
           <Toaster />
@@ -64,7 +63,6 @@ export default function RootLayout({
             strategy="afterInteractive"
           />
         </body>
-      </ReactLenis>
     </html>
   );
 }

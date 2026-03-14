@@ -44,7 +44,7 @@ const FounderCard = ({
             <span className="text-sm font-semibold text-zinc-500 group-hover:text-zinc-900 transition-colors">
               {role}
             </span>
-            <h3 className="text-3xl font-bold text-zinc-900 hero-font tracking-tighter leading-none">{name}</h3>
+            <h3 className="text-3xl font-bold special-font text-zinc-900 hero-font tracking-tight leading-none">{name}</h3>
           </div>
           
           <p className="text-zinc-600 font-semibold max-w-[400px] leading-relaxed italic">
@@ -74,10 +74,10 @@ const About = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
         {/* Standard Centered Header */}
         <div className="flex flex-col items-center text-center mb-20 px-6">
-          <div className="px-4 py-1.5 text-xs font-bold tracking-[0.2em] bg-zinc-900 text-white rounded-full mb-6 shadow-lg shadow-zinc-200">
+          <div className="px-4 py-1.5 text-xs font-bold tracking-[0.2em] bg-zinc-900 text-white rounded-full mb-6 hero-font shadow-lg shadow-zinc-200">
             About
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-zinc-900 mb-6 uppercase hero-font">
+          <h2 className="text-5xl md:text-6xl font-bold tracking-tight text-zinc-900 mb-6 uppercase special-font">
             The minds behind 
           </h2>
           <p className="text-zinc-500 font-semibold max-w-xl leading-relaxed">

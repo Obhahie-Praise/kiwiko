@@ -46,9 +46,21 @@ const PageViewsChart = ({ data }: PageViewsChartProps) => {
                 <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
               </linearGradient>
             </defs>
+            <XAxis 
+              dataKey="date" 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fill: '#71717a', fontSize: 10, fontWeight: 600 }}
+              dy={30}
+              interval={4}
+              height={80}
+              angle={-45}
+              textAnchor="end"
+            />
             <Tooltip
               contentStyle={{ backgroundColor: "#18181b", borderColor: "#27272a", borderRadius: "12px", color: "#f4f4f5" }}
               itemStyle={{ color: "#f97316" }}
+              labelFormatter={(label) => label.toLowerCase()}
             />
             <Area
               type="monotone"

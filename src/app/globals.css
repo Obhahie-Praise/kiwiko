@@ -144,6 +144,10 @@ body {
   font-family: var(--font-instrument-serif);
 }
 
+.font-sans {
+  font-family: var(--font-instrument-sans);
+}
+
 .special-scroll-bar::-webkit-scrollbar {
   width: 6px;
 }

@@ -1,13 +1,16 @@
-import Features from '@/components/sections/Features'
 import Hero from '@/components/sections/Hero'
 import Navbar from '@/components/sections/Navbar'
 import React from 'react'
-import Activity from '@/components/sections/Activity'
-import Testimonials from '@/components/sections/Testimonials'
-import Footer from '@/components/sections/Footer'
+import dynamic from 'next/dynamic'
 import { Metadata } from 'next'
-import About from '@/components/sections/About'
 import WaitlistPage from '@/components/waitlist/WaitlistPage'
+import { ReactLenis } from "../utils/lenis";
+
+const About = dynamic(() => import('@/components/sections/About'))
+const Activity = dynamic(() => import('@/components/sections/Activity'))
+const Features = dynamic(() => import('@/components/sections/Features'))
+const Testimonials = dynamic(() => import('@/components/sections/Testimonials'))
+const Footer = dynamic(() => import('@/components/sections/Footer'))
 
 export const metadata: Metadata = {
   title: 'Kiwiko - Track startup progress and connect with investors',
@@ -15,7 +18,7 @@ export const metadata: Metadata = {
 }
 
 const HomePage = () => {
-  const appMode = process.env.APP_MODE
+  const appMode = process.env.NEXT_PUBLIC_APP_MODE
 
   if (appMode === "waitlist") {
     return <WaitlistPage />

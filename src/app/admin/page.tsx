@@ -3,12 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import AdminHeader, { AdminTab } from "@/components/waitlist/AdminHeader";
 import AdminStats from "@/components/admin/AdminStats";
-import WaitlistTable from "@/components/admin/WaitlistTable";
-import InvestorList from "@/components/admin/InvestorList";
-import AddInvestorModal from "@/components/admin/AddInvestorModal";
-import PageViewsChart from "@/components/admin/PageViewsChart";
-import SourceRatioChart from "@/components/admin/SourceRatioChart";
-import SourceStatsChart, { ChartPeriod } from "@/components/admin/SourceStatsChart";
+import dynamic from "next/dynamic";
 import AdminAuthGuard from "@/components/admin/AdminAuthGuard";
 import { 
   getWaitlistStatsAction, 
@@ -17,6 +12,14 @@ import {
   getAdminChartDataAction
 } from "@/actions/admin.actions";
 import { Loader2, Plus, Users, Landmark, Download } from "lucide-react";
+
+const WaitlistTable = dynamic(() => import("@/components/admin/WaitlistTable"))
+const InvestorList = dynamic(() => import("@/components/admin/InvestorList"))
+const AddInvestorModal = dynamic(() => import("@/components/admin/AddInvestorModal"))
+const PageViewsChart = dynamic(() => import("@/components/admin/PageViewsChart"))
+const SourceRatioChart = dynamic(() => import("@/components/admin/SourceRatioChart"))
+const SourceStatsChart = dynamic(() => import("@/components/admin/SourceStatsChart"))
+import type { ChartPeriod } from "@/components/admin/SourceStatsChart";
 
 interface WaitlistStats {
   total: number;

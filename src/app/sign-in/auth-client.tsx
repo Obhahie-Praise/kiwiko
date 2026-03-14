@@ -73,7 +73,7 @@ const AuthClient = () => {
 
       <button
         type="submit"
-        className="text-center w-full py-3 font-medium mt-4 bg-black text-white rounded-lg flex items-center justify-center"
+        className="text-center w-full py-2 font-medium mt-4 bg-black text-white rounded-lg flex items-center justify-center"
         disabled={isAuthenticating}
       >
         {isAuthenticating ? (

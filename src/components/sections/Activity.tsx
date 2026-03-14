@@ -16,10 +16,10 @@ const Activity = async () => {
     <section id="activity" className="w-full py-20">
       {/* Header */}
       <div className="flex flex-col items-center text-center mb-12 px-6">
-        <div className="px-3 py-1 text-xs font-bold tracking-[0.09em] bg-black text-white rounded-full border border-zinc-200 mb-4">
+        <div className="px-3 py-1 text-xs hero-font font-bold tracking-[0.09em] bg-black text-white rounded-full border border-zinc-200 mb-4">
           Startups
         </div>
-        <h2 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase text-zinc-900 mb-4 hero-font">
+        <h2 className="text-4xl md:text-5xl special-font font-bold tracking-tight uppercase text-zinc-900 mb-4 hero-font">
           A lot is going down.
         </h2>
         <p className="text-zinc-500 font-semibold max-w-lg">
@@ -35,19 +35,19 @@ const Activity = async () => {
               <Link
                 href={s.profileLink}
                 key={index}
-                className="group bg-white border border-zinc-200 rounded-4xl pb-7 hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 flex flex-col h-full overflow-hidden relative"
+                className="group bg-white border border-zinc-200 rounded-xl pb-7 hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 flex flex-col h-full overflow-hidden relative"
               >
                 {/* Background Decoration */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-zinc-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 
                 {/* Image Section */}
-                <div className="relative h-44 w-full rounded-t-3xl rounded-b-xl overflow-hidden mb-8 shadow-sm">
+                <div className="relative h-44 w-full rounded-t-xl rounded-b-xl overflow-hidden mb-8 shadow-sm">
                    <img
                       src={s.logo}
                       alt={s.name}
                       className="h-full w-full object-cover group-hover:scale-110 transition duration-700"
                    />
-                   <div className="absolute top-4 right-4 text-[9px] font-black bg-zinc-900/80 text-white backdrop-blur-md px-3 py-1.5 rounded-full uppercase tracking-widest">
+                   <div className="absolute top-4 right-4 text-[9px] hero-font font-semibold bg-zinc-900/80 text-white backdrop-blur-md px-4 py-1.5 rounded-lg tracking-widest">
                       {s.stage}
                    </div>
                 </div>
@@ -55,11 +55,11 @@ const Activity = async () => {
                 {/* Content */}
                 <div className="flex-1 relative z-10 px-7">
                   <div className="flex items-center gap-1 mb-3">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{s.niche}</span>
+                    <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">{s.niche}</span>
                     {/* Removed Verified Signal */}
                   </div>
                   
-                  <h3 className="text-2xl font-black text-zinc-900 mb-3 tracking-tighter uppercase italic group-hover:text-black transition-colors flex items-center gap-2">
+                  <h3 className="text-2xl font-bold special-font text-zinc-900 mb-3 tracking-wide group-hover:text-black transition-colors flex items-center gap-2">
                      <img 
                         src={s.logo || "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=100&auto=format&fit=crop"} 
                         alt="" 
@@ -68,7 +68,7 @@ const Activity = async () => {
                     {s.name}
                   </h3>
                   
-                  <p className="text-sm text-zinc-500 leading-relaxed font-bold line-clamp-2">
+                  <p className="text-sm text-zinc-500 leading-relaxed font-semi line-clamp-2">
                     {s.tagline}
                   </p>
                 </div>
@@ -77,12 +77,12 @@ const Activity = async () => {
                 <div className="mt-2 pt-4 px-7 border-t border-zinc-50 flex items-center justify-between relative z-10">
                    <div className="flex items-center gap-4">
                       <div className="flex flex-col">
-                         <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Funding</span>
-                         <span className="text-xs font-black text-zinc-900 uppercase italic">{s.funding}</span>
+                         <span className="text-[8px] font-black text-zinc-400">Funding</span>
+                         <span className="text-xs font-bold text-black">{s.funding}</span>
                       </div>
                       <div className="flex flex-col">
-                         <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Traction</span>
-                         <span className="text-xs font-black text-zinc-900 uppercase italic">{s.traction}</span>
+                         <span className="text-[8px] font-black text-zinc-400">Traction</span>
+                         <span className="text-xs font-bold text-black">{s.traction}</span>
                       </div>
                    </div>
                    <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 group-hover:bg-zinc-900 group-hover:text-white transition-all scale-75 group-hover:scale-100 duration-500 shadow-sm shadow-zinc-100">
@@ -98,7 +98,7 @@ const Activity = async () => {
         <div className="flex justify-center mt-20">
           <Link
             href="/discover"
-            className="group flex items-center gap-3 px-8 py-4 bg-zinc-900 text-white rounded-2xl text-xs font-bold tracking-[0.15em] shadow-2xl shadow-zinc-300 hover:bg-black transition-all active:scale-95"
+            className="group flex items-center gap-3 px-6 py-2 bg-zinc-900 text-white rounded-lg text-xs font-semibold shadow-2xl shadow-zinc-300 hover:bg-black transition-all active:scale-95"
           >
             See more
             <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />

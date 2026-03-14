@@ -39,23 +39,23 @@ const SignInPage = () => {
   return (
     <div className="flex h-screen w-full bg-white overflow-hidden">
       {/* Left Panel: Institutional Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-zinc-900 overflow-hidden relative flex-col justify-between p-16">
+      <div className="hidden lg:flex lg:w-3/4 bg-zinc-900 overflow-hidden relative flex-col justify-between p-16">
         {/* Background Decorative Elements */}
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-zinc-800 rounded-full blur-[140px] -z-10 opacity-50" />
-        <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-emerald-900/20 rounded-full blur-[120px] -z-10 opacity-30" />
+        <div className="absolute -top-70 -right-70 w-[500px] h-[500px] bg-orange-800/80 rounded-full blur-[180px] z-1 opacity-50" />
+        <div className="absolute -top-40 left-40 w-[500px] h-[500px] bg-emerald-800/80 rounded-full blur-[120px] z-1 opacity-30" />
         
         {/* Top Section */}
         <div className="relative z-10 flex items-center gap-2 group">
-           <Image src="/neutral-logo.svg" alt="logo" width={32} height={32} className="invert group-hover:rotate-12 transition-transform duration-500" />
-           <p className="text-2xl font-black italic tracking-tighter uppercase text-white">Kiwiko</p>
+           <Image src="/neutral-logo.svg" alt="logo" width={28} height={28} className="invert group-hover:rotate-12 transition-transform duration-500" />
+           <p className="text-xl font-semibold italic tracking-wide special-font text-white">Kiwiko</p>
         </div>
 
         {/* Center Content */}
         <div className="relative z-10 space-y-8 max-w-lg">
-          <h2 className="text-6xl font-black text-white leading-[0.85] uppercase italic tracking-tighter">
+          <h2 className="text-6xl font-semibold text-white leading-[0.9] special-font tracking-tight">
             Welcome back to <br /> <span className="text-zinc-500">Kiwiko.</span>
           </h2>
-          <p className="text-zinc-400 font-bold text-xl leading-relaxed">
+          <p className="text-zinc-400 font-semibold text-lg leading-relaxed">
             Access the global network of high-momentum builders. Your execution is your only credential.
           </p>
           
@@ -79,17 +79,17 @@ const SignInPage = () => {
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 relative">
         <Link
           href="/"
-          className="absolute top-10 left-10 p-3 bg-zinc-50 border border-zinc-200 rounded-2xl hover:bg-zinc-100 transition-all active:scale-95 text-zinc-900 group"
+          className="absolute top-10 left-10 p-2 bg-zinc-50 border border-zinc-300 rounded-lg hover:bg-zinc-100 transition-all active:scale-95 text-black group"
         >
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
         </Link>
 
         <div className="w-full max-w-md space-y-10">
           <div className="space-y-4">
-            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter leading-none">
+            <h1 className="text-4xl font-semibold special-font text-black tracking-tight leading-none">
               {activeTab === "standard" ? "Welcome Back." : "Team Access."}
             </h1>
-            <p className="font-bold text-zinc-500">
+            <p className="font-medium text-zinc-500">
               {activeTab === "standard" ? (
                 <>
                   Don't have an account?{" "}
@@ -104,10 +104,10 @@ const SignInPage = () => {
           </div>
 
           {/* Tab Switcher */}
-          <div className="flex p-1.5 bg-zinc-100/80 rounded-[1.25rem] border border-zinc-200/60 shadow-inner relative overflow-hidden backdrop-blur-sm">
+          <div className="flex bg-zinc-100 rounded-lg border-0.5 border-zinc-200 relative overflow-hidden backdrop-blur-sm">
             <button
               onClick={() => setActiveTab("standard")}
-              className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-[0.9rem] text-[11px] font-black uppercase tracking-[0.1em] transition-all duration-300 z-10 relative ${
+              className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-lg text-sm font-semibold tracking-wide hero-fon transition-all duration-300 z-10 relative ${
                 activeTab === "standard" ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-500"
               }`}
             >
@@ -116,7 +116,7 @@ const SignInPage = () => {
             </button>
             <button
               onClick={() => setActiveTab("team")}
-              className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-[0.9rem] text-[11px] font-black uppercase tracking-[0.1em] transition-all duration-300 z-10 relative ${
+              className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-lg text-sm font-semibold tracking-wide hero-fon transition-all duration-300 z-10 relative ${
                 activeTab === "team" ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-500"
               }`}
             >
@@ -124,7 +124,7 @@ const SignInPage = () => {
               Team Access
             </button>
             <div 
-              className="absolute top-1.5 bottom-1.5 bg-white rounded-[0.9rem] shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-0"
+              className="absolute top-1.5 bottom-1.5 bg-white rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-0"
               style={{ 
                 left: activeTab === "standard" ? "6px" : "calc(50% + 1.5px)", 
                 width: "calc(50% - 7.5px)" 
@@ -141,9 +141,9 @@ const SignInPage = () => {
                   onClick={() => handleSocial("github")}
                 >
                   <div className="absolute inset-0 bg-zinc-900 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                  <div className="relative flex items-center justify-center gap-3 py-4 border-2 border-zinc-900 rounded-2xl transition-all group-hover:text-white">
+                  <div className="relative flex items-center justify-center gap-3 py-3 border-2 border-zinc-900 rounded-lg transition-all group-hover:text-white">
                     <GithubIcon size={20} />
-                    <span className="text-[11px] font-black uppercase tracking-widest">Continue with Github</span>
+                    <span className="text-sm font-semibold tracking-wide">Continue with Github</span>
                     {isGithubAuthenticating && <LoaderCircle className="animate-spin" size={16} />}
                   </div>
                 </button>
@@ -153,9 +153,9 @@ const SignInPage = () => {
                   disabled={isGithubAuthenticating || isGoogleAuthenticating}
                   onClick={() => handleSocial("google")}
                 >
-                  <div className="relative flex items-center justify-center gap-3 py-4 border-2 border-zinc-200 rounded-2xl hover:border-zinc-900 hover:bg-zinc-50 transition-all">
+                  <div className="relative flex items-center justify-center gap-3 py-3 border-2 border-zinc-200 rounded-lg hover:border-zinc-900 hover:bg-zinc-50 transition-all">
                     <Image src="/google.png" alt="google" width={20} height={20} />
-                    <span className="text-[11px] font-black uppercase tracking-widest text-zinc-900">Continue with Google</span>
+                    <span className="text-sm font-semibold tracking-wide text-zinc-900">Continue with Google</span>
                     {isGoogleAuthenticating && <LoaderCircle className="animate-spin" size={16} />}
                   </div>
                 </button>
@@ -163,7 +163,7 @@ const SignInPage = () => {
 
               <div className="flex items-center gap-4">
                  <div className="h-px bg-zinc-100 flex-1" />
-                 <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">or continue with</span>
+                 <span className="text-xs font-medium text-zinc-400 tracking-wide">or continue with</span>
                  <div className="h-px bg-zinc-100 flex-1" />
               </div>
 

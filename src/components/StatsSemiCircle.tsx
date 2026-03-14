@@ -5,7 +5,7 @@ const StatsSemiCircle = () => {
     <div className="absolute inset-x-0 bottom-0 -z-10 pointer-events-none flex justify-center items-end h-full">
       <div className="relative w-full max-w-[1400px] h-full flex justify-between px-10">
         {/* Left Side Arc */}
-        <div className="absolute left-0 bottom-0 w-[800px] h-[800px] -translate-x-1/3 translate-y-1/2">
+        <div className="absolute bg-orange-400 left-0 bottom-0 w-[800px] h-[800px] -translate-x-1/3 translate-y-1/2">
           <svg
             viewBox="0 0 100 100"
             className="w-full h-full transform -rotate-45 opacity-60"
@@ -33,7 +33,7 @@ const StatsSemiCircle = () => {
         </div>
 
         {/* Right Side Arc */}
-        <div className="absolute right-0 bottom-0 w-[800px] h-[800px] translate-x-1/3 translate-y-1/2">
+        <div className="absolute right-0 bg-orange-400 bottom-0 w-[800px] h-[800px] translate-x-1/3 translate-y-1/2">
           <svg
             viewBox="0 0 100 100"
             className="w-full h-full transform rotate-45 opacity-60"
