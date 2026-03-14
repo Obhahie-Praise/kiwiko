@@ -4,7 +4,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Only apply restrictions if in waitlist mode
-  if (process.env.APP_MODE === "waitlist") {
+  if (process.env.NEXT_PUBLIC_APP_MODE === "waitlist") {
     // 1. Always allow the root path /
     if (pathname === "/") {
       return NextResponse.next();

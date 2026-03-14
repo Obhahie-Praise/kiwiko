@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 interface WaitlistEntry {
   id: string;
   email: string;
-  emailVerified: boolean;
   joinedAt: string;
   source: string;
 }
@@ -24,7 +23,6 @@ const WaitlistTable = ({ entries }: WaitlistTableProps) => {
           <thead>
             <tr className="border-b border-zinc-900 bg-zinc-900/60">
               <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider">User</th>
-              <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider">Status</th>
               <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider hidden md:table-cell">Joined At</th>
               <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider hidden md:table-cell">Source</th>
               <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider text-right">Actions</th>
@@ -41,19 +39,6 @@ const WaitlistTable = ({ entries }: WaitlistTableProps) => {
                       </div>
                       <span className="text-zinc-200 text-sm font-medium">{entry.email}</span>
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    {entry.emailVerified ? (
-                      <div className="flex items-center gap-1.5 text-green-400 text-xs font-medium bg-green-400/10 px-2 py-1 rounded-full w-fit">
-                        <CheckCircle2 size={12} />
-                        Verified
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 text-zinc-500 text-xs font-medium bg-zinc-500/10 px-2 py-1 rounded-full w-fit">
-                        <Clock size={12} />
-                        Pending
-                      </div>
-                    )}
                   </td>
                   <td className="px-6 py-4 text-zinc-400 text-sm hidden md:table-cell">
                     {new Date(entry.joinedAt).toLocaleDateString("en-GB", {
@@ -76,7 +61,7 @@ const WaitlistTable = ({ entries }: WaitlistTableProps) => {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-6 py-20 text-center text-zinc-500 italic">
+                <td colSpan={4} className="px-6 py-20 text-center text-zinc-500 italic">
                   No waitlist entries found yet.
                 </td>
               </tr>
