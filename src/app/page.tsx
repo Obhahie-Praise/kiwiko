@@ -1,6 +1,6 @@
 import Hero from '@/components/sections/Hero'
 import Navbar from '@/components/sections/Navbar'
-import React from 'react'
+import React, { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import { Metadata } from 'next'
 import WaitlistPage from '@/components/waitlist/WaitlistPage'
@@ -21,7 +21,11 @@ const HomePage = () => {
   const appMode = process.env.NEXT_PUBLIC_APP_MODE
 
   if (appMode === "waitlist") {
-    return <WaitlistPage />
+    return (
+      <Suspense fallback={null}>
+        <WaitlistPage />
+      </Suspense>
+    )
   }
 
   return (
