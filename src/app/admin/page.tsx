@@ -9,8 +9,11 @@ import {
   getWaitlistStatsAction, 
   getWaitlistEntriesAction, 
   getInvestorsAction,
-  getAdminChartDataAction
+  getAdminChartDataAction,
+  getWaitlistUpdatesAction,
+  createWaitlistUpdateAction
 } from "@/actions/admin.actions";
+import { exportWaitlistToPdf } from "@/utils/exportPdf";
 import { Loader2, Plus, Users, Landmark, Download } from "lucide-react";
 
 const WaitlistTable = dynamic(() => import("@/components/admin/WaitlistTable"))
@@ -26,6 +29,9 @@ interface WaitlistStats {
   views: number;
   recent: number;
   topSource: string;
+  signupTrend: string;
+  commitTrend: string;
+  viewsTrend: string;
 }
 
 interface WaitlistEntry {
@@ -50,6 +56,9 @@ const AdminPage = () => {
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [chartData, setChartData] = useState<any>(null);
+  const [waitlistUpdates, setWaitlistUpdates] = useState<{id: string, message: string, createdAt: string}[]>([]);
+  const [newUpdateMessage, setNewUpdateMessage] = useState("");
+  const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
   const [activePeriod, setActivePeriod] = useState<ChartPeriod>('Monthly');
   const [isLoading, setIsLoading] = useState(true);
   const [isChartsLoading, setIsChartsLoading] = useState(false);
@@ -58,16 +67,18 @@ const AdminPage = () => {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [statsData, entriesData, investorsData, charts] = await Promise.all([
+      const [statsData, entriesData, investorsData, charts, updatesData] = await Promise.all([
         getWaitlistStatsAction(),
-        getWaitlistEntriesAction(),
+        getWaitlistEntriesAction(1, 10000),
         getInvestorsAction(),
         getAdminChartDataAction(activePeriod),
+        getWaitlistUpdatesAction()
       ]);
       setStats(statsData);
       setEntries(entriesData);
       setInvestors(investorsData);
       setChartData(charts);
+      setWaitlistUpdates(updatesData);
     } catch (error) {
       console.error("Failed to load admin data:", error);
     } finally {
@@ -88,6 +99,30 @@ const AdminPage = () => {
     }
   };
 
+  const handleExportPdf = () => {
+    if (entries.length > 0) {
+      exportWaitlistToPdf(entries);
+    }
+  };
+
+  const handleAddUpdate = async () => {
+    if (!newUpdateMessage.trim()) return;
+    setIsSubmittingUpdate(true);
+    try {
+      const formData = new FormData();
+      formData.append("message", newUpdateMessage);
+      const res = await createWaitlistUpdateAction(formData);
+      if (res.success) {
+        setNewUpdateMessage("");
+        fetchData();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSubmittingUpdate(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -102,7 +137,7 @@ const AdminPage = () => {
             {currentTab === "home" && (
               <>
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-zinc-100 text-xl font-semibold tracking-normal special-font">Waitlist Overview</h2>
+                  <h2 className="text-zinc-100 text-xl font-semibold tracking-wide special-font">Waitlist Overview</h2>
                   {/* <div className="hidden sm:flex text-xs text-zinc-500 font-medium bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                     Live Metrics
@@ -139,7 +174,8 @@ const AdminPage = () => {
                     <p className="text-zinc-500 text-sm font-medium">Updating activity...</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2">
                       <h3 className="text-zinc-200 text-xl font-semibold special-font mb-4 flex items-center gap-3">
                         {/* <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400">
@@ -151,11 +187,13 @@ const AdminPage = () => {
                     </div>
                     
                     <div className="space-y-6">
-                      <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 h-fit">
+                      <div className="bg-zinc-900/40 border border-zinc-900/60 rounded-2xl p-6 h-fit">
                         <h3 className="text-zinc-200 text-xl special-font font-semibold mb-4">Dashboard Actions</h3>
                         <div className="space-y-3">
-                          <button className="w-full text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 py-2.5 rounded-xl transition-colors border border-zinc-700 flex items-center justify-center gap-2">
-                            Export Waitlist CSV
+                          <button 
+                            onClick={handleExportPdf}
+                            className="w-full text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 py-2.5 rounded-xl transition-colors border border-zinc-700 flex items-center justify-center gap-2">
+                            Export Waitlist PDF
                           </button>
                           <button 
                             onClick={() => setCurrentTab("users")}
@@ -167,6 +205,46 @@ const AdminPage = () => {
                       </div>
                     </div>
                   </div>
+
+                  <div className="mt-12 bg-zinc-900/40 border border-zinc-900/60 rounded-2xl p-6 mb-8">
+                    <h3 className="text-zinc-200 text-xl special-font font-semibold mb-6 flex items-center gap-3">Waitlist Updates</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div>
+                        <h4 className="text-zinc-400 text-sm font-medium mb-4">Add New Update</h4>
+                        <div className="flex flex-col gap-3">
+                          <textarea 
+                            value={newUpdateMessage}
+                            onChange={(e) => setNewUpdateMessage(e.target.value)}
+                            className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl p-4 text-zinc-200 text-sm focus:outline-none focus:border-orange-500/50 min-h-[120px] resize-none"
+                            placeholder="Enter update message to display on the waitlist page..."
+                          />
+                          <button 
+                            onClick={handleAddUpdate}
+                            disabled={isSubmittingUpdate || !newUpdateMessage.trim()}
+                            className="bg-orange-500/50 hover:bg-orange-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed w-fit"
+                          >
+                            {isSubmittingUpdate ? "Submitting..." : "Submit Update"}
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-zinc-400 text-sm font-medium mb-4">Recent Updates</h4>
+                        <div className="space-y-3 max-h-[300px] overflow-y-auto special-scroll-bar pr-2">
+                          {waitlistUpdates.length > 0 ? (
+                            waitlistUpdates.map((update) => (
+                              <div key={update.id} className="p-4 rounded-xl bg-zinc-800/30 border border-zinc-800">
+                                <p className="font-medium text-xs text-zinc-500 mb-1">{new Date(update.createdAt).toLocaleDateString()}</p>
+                                <p className="text-zinc-300 text-sm">{update.message}</p>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-zinc-500 text-center py-6 text-sm">No updates recorded yet.</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  </>
                 )}
               </>
             )}
@@ -182,8 +260,10 @@ const AdminPage = () => {
                   <div className="flex items-center justify-between mb-8">
                     <h2 className="text-zinc-100 text-2xl font-semibold tracking-wide special-font">Waitlist</h2>
                     <div className="flex gap-3">
-                      <div className="text-white cursor-pointer hover:bg-orange-500/60 transition-colors flex items-center gap-3 py-2 px-5 text-sm rounded-lg border border-zinc-800 bg-orange-500/50">
-                        <p className="">Export</p>
+                      <div 
+                        onClick={handleExportPdf}
+                        className="text-white cursor-pointer hover:bg-orange-500/60 transition-colors flex items-center gap-3 py-2 px-5 text-sm rounded-lg border border-zinc-800 bg-orange-500/50">
+                        <p className="">Export PDF</p>
                         <Download size={18} strokeWidth={1.6} />
                       </div>
                       <div className="hidden sm:block bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-400">

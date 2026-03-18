@@ -76,13 +76,13 @@ const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4 relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-[120px] pointer-events-none" />
+      {/* <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-[120px] pointer-events-none" /> */}
       
-      <div className="w-full max-w-md animate-in fade-in zoom-in duration-500">
-        <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-900 p-8 rounded-xl shadow-2xl relative z-10 group">
+      <div className="w-full max-w-sm animate-in fade-in zoom-in duration-500">
+        <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-900 p-8 rounded-lg shadow-2xl relative z-10 group">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-15 h-15 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex items-center justify-center text-orange-500 mb-4">
-              <Lock size={20} strokeWidth={1.4} className="group-hover:rotate-20 group-hover:scale-110 duration-300" />
+            <div className="w-14 h-14 bg-orange-500/10 border border-orange-500/20 rounded-lg flex items-center justify-center text-orange-500 mb-4">
+              <Lock size={20} strokeWidth={1.5} className="group-hover:rotate-20 group-hover:scale-110 duration-300" />
             </div>
             <h1 className="text-xl font-semibold text-white special-font tracking-wide">Admin Access</h1>
             <p className="text-zinc-500 text-xs mt-2 text-center">
@@ -97,7 +97,7 @@ const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="w-full bg-zinc-950/50 border placeholder:text-zinc-700 border-zinc-900 focus:border-orange-900/40 outline-none text-zinc-100 px-5 py-2 rounded-xl transition-all group-hover:border-zinc-700"
+                className="w-full bg-zinc-950/50 border placeholder:text-zinc-700 border-zinc-900 focus:border-orange-900/40 outline-none text-zinc-100 px-5 py-2 rounded-lg transition-all group-hover:border-zinc-700"
                 autoFocus
               />
               <button
@@ -118,7 +118,7 @@ const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
             <button
               type="submit"
               disabled={isVerifying || !password}
-              className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 rounded-xl transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
+              className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm py-2 rounded-lg transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
             >
               {isVerifying ? (
                 <>

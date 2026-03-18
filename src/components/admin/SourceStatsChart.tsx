@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Calendar, ChevronDown } from "lucide-react";
 
@@ -38,7 +37,7 @@ const SourceStatsChart = ({ data, onPeriodChange, activePeriod }: SourceStatsCha
   };
 
   return (
-    <div className="bg-zinc-900/50 backdrop-blur-md border border-zinc-800 p-6 rounded-2xl w-full">
+    <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-900/60 px-6 pt-6 rounded-2xl w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h3 className="text-zinc-100 text-lg font-bold special-font tracking-tight">Source Statistics</h3>
@@ -70,7 +69,7 @@ const SourceStatsChart = ({ data, onPeriodChange, activePeriod }: SourceStatsCha
         </div>
       </div>
 
-      <div className="w-full h-[400px]">
+      <div className="w-full h-[500px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data.length === 0 ? [
             { name: "Start", youtube: 0, x: 0, whatsapp: 0, facebook: 0, Direct: 0 },

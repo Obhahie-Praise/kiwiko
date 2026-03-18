@@ -17,11 +17,11 @@ interface WaitlistTableProps {
 
 const WaitlistTable = ({ entries }: WaitlistTableProps) => {
   return (
-    <div className="bg-zinc-900/60 backdrop-blur-md border border-zinc-900 rounded-xl overflow-hidden">
+    <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-900/60 rounded-xl overflow-hidden">
       <div className="overflow-x-auto special-scroll-bar">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-zinc-900 bg-zinc-900/60">
+            <tr className="border-b border-zinc-900/80 bg-zinc-900/50">
               <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider">User</th>
               <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider hidden md:table-cell">Joined At</th>
               <th className="px-6 py-4 text-xs font-medium text-zinc-400 tracking-wider hidden md:table-cell">Source</th>

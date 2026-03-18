@@ -12,9 +12,20 @@ const Features = dynamic(() => import('@/components/sections/Features'))
 const Testimonials = dynamic(() => import('@/components/sections/Testimonials'))
 const Footer = dynamic(() => import('@/components/sections/Footer'))
 
-export const metadata: Metadata = {
-  title: 'Kiwiko - Track startup progress and connect with investors',
-  description: 'A platform for founders to share their startup progress and for investors to discover high-momentum ventures. Track execution, verify traction, and connect with the right people.',
+export async function generateMetadata(): Promise<Metadata> {
+  const appMode = process.env.NEXT_PUBLIC_APP_MODE;
+
+  if (appMode === "waitlist") {
+    return {
+      title: 'Kiwiko Waitlist - Join the Future of Startup Discovery',
+      description: 'Join the Kiwiko waitlist to get early access to our exclusive startup discovery platform. Sign up now to receive early beta access and a free year of Pro account upon launch.',
+    };
+  }
+
+  return {
+    title: 'Kiwiko - Track startup progress and connect with investors',
+    description: 'A platform for founders to share their startup progress and for investors to discover high-momentum ventures. Track execution, verify traction, and connect with the right people.',
+  };
 }
 
 const HomePage = () => {

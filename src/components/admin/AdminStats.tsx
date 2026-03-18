@@ -7,6 +7,9 @@ interface AdminStatsProps {
     views: number;
     recent: number;
     topSource: string;
+    signupTrend: string;
+    commitTrend: string;
+    viewsTrend: string;
   } | null;
 }
 
@@ -21,28 +24,28 @@ const AdminStats = ({ stats }: AdminStatsProps) => {
   const cards = [
     {
       label: "Total Signups",
-      value: stats ? formatNumber(stats.total) : "...",
-      trend: "+12%",
+      value: stats ? formatNumber(stats.total) : "0",
+      trend: stats ? stats.signupTrend : "+0%",
       color: "text-green-400",
       bg: "bg-green-400/10",
     },
     {
       label: "Git Commits/Week",
-      value: stats ? formatNumber(stats.recent) : "...",
-      trend: "+5%",
+      value: stats ? formatNumber(stats.recent) : "0",
+      trend: stats ? stats.commitTrend : "+0%",
       color: "text-blue-400",
       bg: "bg-blue-400/10",
     },
     {
       label: "Waitlist Page Views",
-      value: stats ? formatNumber(stats.views) : "...",
-      trend: "+18%",
+      value: stats ? formatNumber(stats.views) : "0",
+      trend: stats ? stats.viewsTrend : "+0%",
       color: "text-orange-400",
       bg: "bg-orange-400/10",
     },
     {
       label: "Top Acquisition Source",
-      value: stats ? (stats.topSource || "Direct") : "...",
+      value: stats ? (stats.topSource || "Direct") : "Direct",
       trend: null,
       color: "text-purple-400",
       bg: "bg-purple-400/10",
@@ -56,12 +59,12 @@ const AdminStats = ({ stats }: AdminStatsProps) => {
         return (
           <div
             key={i}
-            className="bg-zinc-900/50 backdrop-blur-md border border-zinc-800/60 p-6 rounded-2xl hover:border-zinc-700/50 transition-colors group relative overflow-hidden"
+            className="bg-zinc-900/40 backdrop-blur-md border border-zinc-900/60 p-6 rounded-2xl hover:border-zinc-700/50 transition-colors group relative overflow-hidden"
           >
             <p className="text-zinc-400 text-sm font-semibold special-font tracking-wider mb-2">{card.label}</p>
             
             <div className="flex items-baseline gap-3">
-              <h3 className={`text-zinc-100 ${card.isString ? 'text-lg' : 'text-3xl'} font-bold tracking-tight truncate`}>
+              <h3 className={`text-zinc-100 ${card.isString ? 'text-lg' : 'text-3xl'} font-medium tracking-tight truncate`}>
                 {card.value}
               </h3>
               

@@ -31,13 +31,13 @@ const UpdatesUI = () => {
       {!isDroped ? (
         <button
           onClick={() => setIsDroped(!isDroped)}
-          className="text-zinc-200 bg-zinc-800/60 flex items-center gap-2 px-6 py-2 rounded-lg transition-all"
+          className="text-zinc-200 bg-zinc-800/60 flex items-center gap-2 px-6 py-2 rounded-lg transition-all cursor-pointer"
         >
           <p className="">Updates</p>
           <InboxIcon size={14} strokeWidth={1.8} />
         </button>
       ) : (
-        <div className="text-zinc-200 bg-neutral-800 relative flex items-center gap-2 p-3 rounded-lg transition-all">
+        <div className="text-zinc-200 bg-neutral-900 relative flex items-center gap-2 p-3 rounded-lg transition-all">
           <X
             strokeWidth={1.8}
             size={18}
@@ -46,15 +46,15 @@ const UpdatesUI = () => {
           />
           <Triangle
             size={14}
-            fill="#262626"
-            className="absolute -bottom-[10px] -z-10 left-1/2 -translate-x-1/2 rotate-180 text-neutral-800"
+            fill="#171717"
+            className="absolute -bottom-[10px] -z-10 left-1/2 -translate-x-1/2 rotate-180 text-neutral-900"
           />
         </div>
       )}
 
       {isDroped && (
         <div
-          className={`absolute -bottom-140 -left-80 w-90 h-fit bg-zinc-800/40 backdrop-blur-lg border border-zinc-800 rounded-xl py-5 px-4 overflow-hidden z-50`}
+          className={`absolute top-15 -left-80 w-90 h-fit bg-zinc-800/40 backdrop-blur-lg border border-zinc-800 rounded-xl py-5 px-4 overflow-hidden z-50`}
         >
           <div className="relative">
             <h3 className="text-zinc-200 flex items-center gap-3 rounded-lg text-xl pb-5">
@@ -88,9 +88,9 @@ const UpdatesUI = () => {
                 <p className="text-zinc-500 text-center py-10 font-medium">No updates found.</p>
               )}
             </ul>
-            <button className="py-3 rounded-lg text-lg relative border border-neutral-700 bg-neutral-600 font-semibold text-white w-full">
+            <button className="py-2 rounded-lg text-sm relative border border-zinc-900 bg-zinc-800 font-medium text-white w-full">
                 <p className="">See All</p>
-                <ArrowRight className="top-1/2 -translate-y-1/2 right-4 absolute" />
+                <ArrowRight strokeWidth={1.4} size={20} className="top-1/2 -translate-y-1/2 right-4 absolute" />
             </button>
           </div>
         </div>

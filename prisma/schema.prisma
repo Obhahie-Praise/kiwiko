@@ -538,12 +538,23 @@ model Waitlist {
 
   source String?
 
+  emailVerified         Boolean   @default(false)
+  verificationToken     String?
+  verificationExpiresAt DateTime?
+  verifiedAt            DateTime?
+
   convertedToUser Boolean @default(false)
   convertedUserId String? @unique
   convertedUser   User?   @relation(fields: [convertedUserId], references: [id])
 
   joinedAt    DateTime  @default(now())
   convertedAt DateTime?
+}
+
+model WaitlistUpdate {
+  id        String   @id @default(uuid())
+  message   String   @db.Text
+  createdAt DateTime @default(now())
 }
 
 model Investor {

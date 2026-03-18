@@ -15,7 +15,7 @@ const SourceRatioChart = ({ data }: SourceRatioChartProps) => {
   const chartData = hasData ? data : data.map(entry => ({ ...entry, renderValue: 1 }));
 
   return (
-    <div className="bg-zinc-900/50 backdrop-blur-md border border-zinc-800 p-6 rounded-2xl h-full flex flex-col">
+    <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-900/60 p-6 rounded-2xl h-full flex flex-col">
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-zinc-100 text-lg font-bold special-font tracking-tight">Source Ratio</h3>
         <button className="text-zinc-500 hover:text-zinc-300 transition-colors">
