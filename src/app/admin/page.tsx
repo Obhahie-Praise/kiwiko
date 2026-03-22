@@ -192,12 +192,12 @@ const AdminPage = () => {
                         <div className="space-y-3">
                           <button 
                             onClick={handleExportPdf}
-                            className="w-full text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 py-2.5 rounded-xl transition-colors border border-zinc-700 flex items-center justify-center gap-2">
+                            className="w-full text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 py-2 rounded-xl transition-colors border border-zinc-700 flex items-center justify-center gap-2">
                             Export Waitlist PDF
                           </button>
                           <button 
                             onClick={() => setCurrentTab("users")}
-                            className="w-full text-xs font-medium bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 py-2.5 rounded-xl transition-colors border border-orange-500/20"
+                            className="w-full text-xs font-medium bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 py-2 rounded-xl transition-colors border border-orange-500/20"
                           >
                             View Full Waitlist
                           </button>
@@ -253,26 +253,15 @@ const AdminPage = () => {
               isLoading ? (
                 <div className="flex flex-col items-center justify-center py-40 gap-4">
                   <Loader2 className="text-orange-500 animate-spin" size={40} />
-                  <p className="text-zinc-500 font-medium">Loading waitlist...</p>
+                  <p className="text-zinc-500 font-medium font-sans">Loading waitlist...</p>
                 </div>
               ) : (
-                <>
-                  <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-zinc-100 text-2xl font-semibold tracking-wide special-font">Waitlist</h2>
-                    <div className="flex gap-3">
-                      <div 
-                        onClick={handleExportPdf}
-                        className="text-white cursor-pointer hover:bg-orange-500/60 transition-colors flex items-center gap-3 py-2 px-5 text-sm rounded-lg border border-zinc-800 bg-orange-500/50">
-                        <p className="">Export PDF</p>
-                        <Download size={18} strokeWidth={1.6} />
-                      </div>
-                      <div className="hidden sm:block bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-400">
-                          {stats?.total || 0} total members
-                      </div>
-                    </div>
-                  </div>
-                  <WaitlistTable entries={entries} />
-                </>
+                <WaitlistTable 
+                  entries={entries} 
+                  totalSignups={stats?.total || 0}
+                  onReload={fetchData}
+                  onDownloadPdf={handleExportPdf}
+                />
               )
             )}
 

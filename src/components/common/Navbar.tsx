@@ -103,7 +103,7 @@ const Navbar = ({
           {/* Org Dropdown */}
           {isOrgMenuOpen && (
             <div className="absolute top-8 left-0 w-64 bg-white border border-zinc-200 rounded-lg shadow-xl z-20 p-1 flex flex-col animate-in fade-in zoom-in-95 duration-100">
-              <div className="px-2 py-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+              <div className="px-2 py-1.5 text-xs font-medium text-zinc-500">
                 Switch Organization
               </div>
               

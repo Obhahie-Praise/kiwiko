@@ -79,21 +79,21 @@ export default function PitchDeck({ url }: PitchDeckProps) {
       return (
         <div className="w-full">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-zinc-900 tracking-tight">Pitch Deck</h3>
+            <h3 className="text-xl font-semibold text-zinc-900 tracking-wide special-font">Pitch Deck</h3>
             <a 
                 href={url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-all active:scale-95 shadow-lg shadow-zinc-200"
+                className="flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white rounded-lg text-sm font-bold hover:bg-zinc-800 transition-all active:scale-95 shadow-lg shadow-zinc-200"
             >
-              <FileDown size={14} />
+              <FileDown size={16} />
               Download PDF
             </a>
           </div>
     
           <div 
             ref={containerRef} 
-            className={`relative aspect-video bg-zinc-900 rounded-[2.5rem] overflow-hidden shadow-2xl group border-8 border-zinc-100 flex flex-col items-center justify-center ${isFullscreen ? 'fixed inset-0 z-50 rounded-none border-0 h-screen w-screen aspect-auto' : ''}`}
+            className={`relative aspect-video bg-zinc-900 rounded-lg overflow-hidden group border border-zinc-100 flex flex-col items-center justify-center ${isFullscreen ? 'fixed inset-0 z-50 rounded-none border-0 h-screen w-screen aspect-auto' : ''}`}
           >
             <Document
                 file={url}
@@ -123,16 +123,16 @@ export default function PitchDeck({ url }: PitchDeckProps) {
                 {/* Bottom Controls */}
                 {numPages > 0 && (
                     <div className="pointer-events-auto w-full flex items-center justify-center gap-6">
-                         <button onClick={prev} disabled={pageNumber <= 1} className="p-3 rounded-full bg-black/50 text-white hover:bg-black/70 disabled:opacity-30 backdrop-blur-md transition-all">
-                            <ChevronLeft size={24} />
+                         <button onClick={prev} disabled={pageNumber <= 1} className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 disabled:opacity-30 backdrop-blur-md transition-all">
+                            <ChevronLeft size={20} />
                          </button>
                          
-                         <span className="px-4 py-2 bg-black/50 backdrop-blur-md rounded-xl text-white font-mono text-sm font-bold">
+                         <span className="px-4 py-2 bg-black/50 backdrop-blur-md rounded-lg text-white font-mono text-xs font-semibold">
                             {pageNumber} / {numPages}
                          </span>
 
-                         <button onClick={next} disabled={pageNumber >= numPages} className="p-3 rounded-full bg-black/50 text-white hover:bg-black/70 disabled:opacity-30 backdrop-blur-md transition-all">
-                            <ChevronRight size={24} />
+                         <button onClick={next} disabled={pageNumber >= numPages} className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 disabled:opacity-30 backdrop-blur-md transition-all">
+                            <ChevronRight size={20} />
                          </button>
                     </div>
                 )}

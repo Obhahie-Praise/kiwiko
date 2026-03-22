@@ -194,9 +194,9 @@ export default function RecentActivityTable() {
   };
 
   return (
-    <div className="bg-white border-[0.2px] border-zinc-200 rounded-2xl p-6 h-full">
+    <div className="bg-white border-[0.2px] border-zinc-200 rounded-lg p-6 h-full">
       <div className="flex items-center justify-between mb-8">
-        <h3 className="text-xl font-semibold text-zinc-900 hero-font">Recent Activity</h3>
+        <h3 className="text-xl font-semibold text-zinc-900 special-font tracking-wide">Recent Activity</h3>
         <div className="flex items-center gap-3">
           <div className="relative">
             <button 
@@ -209,7 +209,7 @@ export default function RecentActivityTable() {
             </button>
             
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-zinc-200 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-zinc-300 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="py-1">
                   {["Most Recent", "Meetings", "Milestones", "Achievements", "External Activity", "Emails", "Team", "Chat"].map((option) => (
                     <button
@@ -227,7 +227,7 @@ export default function RecentActivityTable() {
           
           <Link 
             href={`/${orgSlug}/${projectSlug}/notifications`}
-            className="px-4 py-1.5 border border-zinc-200 rounded-lg text-sm font-medium text-zinc-900 hover:bg-zinc-50 transition-colors"
+            className="px-4 py-1.5 border border-zinc-300 rounded-lg text-sm font-medium text-zinc-900 hover:bg-zinc-50 transition-colors"
           >
             See all
           </Link>

@@ -4,7 +4,7 @@ import React from "react";
 
 export default function ProjectLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen hero-font bg-zinc-50 relative">
+    <div className="flex min-h-screen bg-zinc-50 relative">
       <aside className="sticky top-0 h-screen shrink-0 z-40">
         <Sidebar />
       </aside>

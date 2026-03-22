@@ -44,18 +44,18 @@ export function PortfolioPerformanceChart() {
   const data = dataSets[activeRange];
 
   return (
-    <div className="bg-white border-[0.2px] border-zinc-200 rounded-3xl p-8 shadow-none flex flex-col min-h-[450px]">
+    <div className="bg-white border-[0.2px] border-zinc-200 rounded-lg p-8 shadow-none flex flex-col min-h-[450px]">
       <div className="flex items-start justify-between mb-10">
         <div>
-          <h3 className="text-xl font-semibold text-zinc-900 hero-font tracking-tight">Portfolio Performance</h3>
+          <h3 className="text-xl font-semibold text-zinc-900 special-font tracking-wide">Portfolio Performance</h3>
           <p className="text-sm text-zinc-500 font-medium mt-1">Tracks funds wired into your account over time</p>
         </div>
-        <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-xl border border-zinc-200 shadow-inner">
+        <div className="flex items-center gap-1 bg-zinc-100 p-0.5 rounded-lg border border-zinc-200 shadow-inner">
           {["Monthly", "Quarterly", "Annually"].map((range) => (
             <button
               key={range}
               onClick={() => setActiveRange(range as keyof typeof dataSets)}
-              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+              className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
                 activeRange === range
                   ? "bg-white text-zinc-900 shadow-sm"
                   : "text-zinc-500 hover:text-zinc-700"

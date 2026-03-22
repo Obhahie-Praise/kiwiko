@@ -215,6 +215,8 @@ export default function InboxLayout() {
   const [draftsCount, setDraftsCount] = useState(0);
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteMode, setDeleteMode] = useState<"trash" | "permanent">("trash");
+  const [pendingDeleteIds, setPendingDeleteIds] = useState<string[]>([]);
 
   // Fetch Project and Emails
   const fetchData = React.useCallback(async () => {
@@ -415,37 +417,48 @@ export default function InboxLayout() {
     toast({ title: "Refreshed", description: "Inbox is up to date." });
   };
 
-  const handleDelete = async () => {
-    if (selectedEmails.size === 0) return;
-    
-    if (activeFolder === "Trash") {
-        setIsDeleteDialogOpen(true);
-        return;
+  const handleDelete = () => {
+    let ids = Array.from(selectedEmails);
+    if (ids.length === 0 && selectedEmailId) {
+      ids = [selectedEmailId];
     }
-
-    const ids = Array.from(selectedEmails);
-    setIsLoading(true);
-    const res = await moveEmailsToTrashAction(ids, projectId);
     
-    if (res.success) {
-        toast({ title: "Deleted", description: `${ids.length} emails moved to trash.` });
-        setSelectedEmails(new Set());
-        fetchData();
-    } else {
-        toast({ title: "Error", description: res.error || "Failed to delete emails", variant: "destructive" });
-        setIsLoading(false);
-    }
+    if (ids.length === 0) return;
+    
+    setPendingDeleteIds(ids);
+    setDeleteMode(activeFolder === "Trash" ? "permanent" : "trash");
+    setIsDeleteDialogOpen(true);
   };
 
-  const handlePermanentDelete = async () => {
-    const ids = Array.from(selectedEmails);
+  const handleConfirmDelete = async () => {
+    const ids = pendingDeleteIds;
     setIsLoading(true);
-    const res = await permanentlyDeleteEmailsAction(ids, projectId);
+    setIsDeleteDialogOpen(false);
+    
+    let res;
+    if (deleteMode === "permanent") {
+        res = await permanentlyDeleteEmailsAction(ids, projectId);
+    } else {
+        res = await moveEmailsToTrashAction(ids, projectId);
+    }
     
     if (res.success) {
-        toast({ title: "Permanently Deleted", description: `${ids.length} emails removed.` });
-        setSelectedEmails(new Set());
-        setIsDeleteDialogOpen(false);
+        toast({ 
+            title: deleteMode === "permanent" ? "Permanently Deleted" : "Deleted", 
+            description: deleteMode === "permanent" ? `${ids.length} emails removed.` : `${ids.length} emails moved to trash.` 
+        });
+        
+        // Clear selection if deleted emails were selected
+        const newSelected = new Set(selectedEmails);
+        ids.forEach(id => newSelected.delete(id));
+        setSelectedEmails(newSelected);
+        
+        // Close detail view if active email was deleted
+        if (selectedEmailId && ids.includes(selectedEmailId)) {
+            setSelectedEmailId(null);
+        }
+        
+        setPendingDeleteIds([]);
         fetchData();
     } else {
         toast({ title: "Error", description: res.error || "Failed to delete emails", variant: "destructive" });
@@ -498,12 +511,12 @@ export default function InboxLayout() {
       {/* --- LEFT SIDEBAR --- */}
       <div className="w-64 shrink-0 flex flex-col pt-4 pr-6">
         <div className="mb-6">
-          <h1 className="text-xl font-bold text-zinc-900 mb-6 tracking-tight">Inbox</h1>
+          <h1 className="text-xl font-semibold text-zinc-900 mb-6 tracking-wide special-font">Inbox</h1>
           <button 
             onClick={() => setIsComposeOpen(true)}
-            className="flex items-center justify-center gap-2 w-full bg-zinc-900 hover:bg-zinc-800 text-white py-3 rounded-2xl font-semibold transition-all shadow-md active:scale-[0.98] tracking-wide"
+            className="flex items-center justify-center gap-2 w-full bg-zinc-900 hover:bg-zinc-800 text-white py-2 rounded-lg text-sm font-medium transition-all shadow-md active:scale-[0.98] tracking-wide"
           >
-            <PenLine size={16} /> Compose
+            <PenLine size={16} strokeWidth={1.5} /> Compose
           </button>
         </div>
 
@@ -522,10 +535,10 @@ export default function InboxLayout() {
                 <button
                   key={folder}
                   onClick={() => handleSelectFolder(folder)}
-                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-colors ${isActive ? 'bg-zinc-100 text-zinc-900 font-semibold' : 'text-zinc-600 hover:bg-zinc-100 font-medium'}`}
+                  className={`w-full flex items-center justify-between px-4 py-2 text-sm rounded-lg transition-colors ${isActive ? 'bg-zinc-100 text-zinc-900 font-semibold' : 'text-zinc-600 hover:bg-zinc-100 font-medium'}`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon size={18} className={isActive ? 'text-zinc-600' : 'text-zinc-500'} />
+                    <Icon size={16} className={isActive ? 'text-zinc-600' : 'text-zinc-500'} />
                     <span>{folder}</span>
                   </div>
                   {(() => {
@@ -542,11 +555,11 @@ export default function InboxLayout() {
 
           {/* Filters */}
           <div>
-            <p className="px-4 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">Filter</p>
+            <p className="px-4 text-xs font-bold text-zinc-500 uppercase tracking-wide mb-3">Filter</p>
             <div className="space-y-1">
               <button
                 onClick={() => handleSelectFilter("Starred")}
-                className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-colors ${activeFilter === "Starred" ? 'bg-zinc-100 text-zinc-900 font-semibold' : 'text-zinc-600 hover:bg-zinc-100 font-medium'}`}
+                className={`w-full text-sm flex items-center justify-between px-4 py-2.5 rounded-xl transition-colors ${activeFilter === "Starred" ? 'bg-zinc-100 text-zinc-900 font-semibold' : 'text-zinc-600 hover:bg-zinc-100 font-medium'}`}
               >
                 <div className="flex items-center gap-3">
                   <Star size={18} className="text-zinc-500" /> Starred
@@ -566,13 +579,13 @@ export default function InboxLayout() {
 
           {/* Labels */}
           <div>
-            <p className="px-4 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">Label</p>
+            <p className="px-4 text-xs font-bold text-zinc-500 uppercase tracking-wide mb-3">Label</p>
             <div className="space-y-1">
               {LABELS.map(lbl => (
                 <button
                   key={lbl.id}
                   onClick={() => handleSelectLabel(lbl.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors ${activeLabel === lbl.id ? 'bg-zinc-100 text-zinc-900 font-semibold' : 'text-zinc-600 hover:bg-zinc-100 font-medium'}`}
+                  className={`w-full flex items-center text-sm gap-3 px-4 py-2.5 rounded-xl transition-colors ${activeLabel === lbl.id ? 'bg-zinc-100 text-zinc-900 font-semibold' : 'text-zinc-600 hover:bg-zinc-100 font-medium'}`}
                 >
                   <div className="w-3 h-3 rounded-[3px] shadow-sm ml-0.5" style={{ backgroundColor: lbl.color }}></div>
                   <span>{lbl.id}</span>
@@ -584,7 +597,7 @@ export default function InboxLayout() {
       </div>
 
       {/* --- RIGHT MAIN VIEW --- */}
-      <div className="flex-1 flex flex-col bg-white rounded-t-3xl border border-zinc-200 shadow-sm overflow-hidden mb-[-1px] relative">
+      <div className="flex-1 flex flex-col bg-white rounded-t-lg border border-zinc-200 shadow-sm overflow-hidden mb-[-1px] relative">
         
         {/* ACTION LOADING OVERLAY */}
         {isLoading && (
@@ -611,30 +624,30 @@ export default function InboxLayout() {
               <div className="flex items-center gap-4">
                 <button 
                   onClick={handleToggleSelectAll}
-                  className={`w-5 h-5 rounded border transition-colors flex items-center justify-center 
+                  className={`w-4 h-4 rounded border transition-colors flex items-center justify-center 
                     ${isAllSelected ? "bg-blue-600 border-blue-600 text-white" : isSomeSelected ? "bg-blue-600 border-blue-600 text-white" : "border-zinc-300 text-transparent hover:border-zinc-500"}`}
                 >
                   <ChevronRight size={12} className={isSomeSelected && !isAllSelected ? "hidden" : "rotate-90"}/>
                   {isSomeSelected && !isAllSelected && <div className="w-2.5 h-0.5 bg-white rounded-full"></div>}
                 </button>
                 <div className="h-5 w-px bg-zinc-200"></div>
-                <button onClick={handleReload} className="text-zinc-500 hover:text-zinc-800 transition-colors"><RotateCw size={18} /></button>
-                <button onClick={handleDelete} className="text-red-500 hover:text-red-800 transition-colors" title={activeFolder === "Trash" ? "Delete Permanently" : "Move to Trash"}><Trash2 size={18} /></button>
+                <button onClick={handleReload} className="text-zinc-500 hover:text-zinc-800 transition-colors"><RotateCw size={16} /></button>
+                <button onClick={handleDelete} className="text-red-500 hover:text-red-800 transition-colors" title={activeFolder === "Trash" ? "Delete Permanently" : "Move to Trash"}><Trash2 size={16} /></button>
                 {activeFolder === "Trash" && (
-                  <button onClick={handleRecover} className="text-blue-500 hover:text-blue-800 transition-colors" title="Recover Email"><Undo2 size={18} /></button>
+                  <button onClick={handleRecover} className="text-blue-500 hover:text-blue-800 transition-colors" title="Recover Email"><Undo2 size={16} /></button>
                 )}
                 {/* <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><Mail size={18} /></button>
                 <button className="text-zinc-500 hover:text-zinc-800 transition-colors"><MoreVertical size={18} /></button> */}
               </div>
               
               <div className="relative">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
                 <input 
                   type="text" 
                   placeholder="Search..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-4 py-2 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400/20 w-64 transition-all"
+                  className="pl-9 pr-4 py-2 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring focus:ring-zinc-400/20 w-64 transition-all"
                 />
               </div>
             </div>
@@ -654,11 +667,11 @@ export default function InboxLayout() {
                     <div 
                       key={email.id}
                       onClick={() => setSelectedEmailId(email.id)}
-                      className={`group flex items-center gap-4 px-6 py-4 hover:shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:z-10 relative transition-all cursor-pointer border-l-4 ${isSelected ? "bg-blue-50/50 border-l-blue-600" : "bg-white border-transparent hover:border-l-blue-500"}`}
+                      className={`group flex text-sm items-center gap-4 px-6 py-4 hover:shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:z-10 relative transition-all cursor-pointer border-l-4 ${isSelected ? "bg-blue-50/50 border-l-blue-600" : "bg-white border-transparent hover:border-l-blue-500"}`}
                     >
                       <button 
                         onClick={(e) => handleToggleEmailSelect(e, email.id)}
-                        className={`shrink-0 w-5 h-5 rounded border transition-colors flex items-center justify-center
+                        className={`shrink-0 w-4 h-4 rounded border transition-colors flex items-center justify-center
                           ${isSelected ? "bg-blue-600 border-blue-600 text-white" : "border-zinc-300 text-transparent group-hover:border-zinc-500 text-transparent hover:border-zinc-500"}`}
                       >
                          <ChevronRight size={12} className="rotate-90"/>
@@ -666,12 +679,12 @@ export default function InboxLayout() {
                       
                       <button 
                         onClick={(e) => handleToggleStar(e, email.id)}
-                        className={`shrink-0 transition-colors ${email.isStarred ? 'text-yellow-400' : 'text-zinc-300 hover:text-zinc-500'}`}
+                        className={`shrink-0 transition-colors ${email.isStarred ? 'text-yellow-500' : 'text-zinc-300 hover:text-zinc-500'}`}
                       >
-                        <Star size={18} className={email.isStarred ? 'fill-yellow-400' : ''} />
+                        <Star size={18} className={email.isStarred ? 'fill-yellow-500' : ''} />
                       </button>
                       
-                      <div className={`w-48 shrink-0 font-medium truncate pr-4 ${!email.isStarred && !isSelected ? "text-zinc-900" : "text-zinc-900"}`}>
+                      <div className={`w-48 shrink-0 font-semibold truncate pr-4 ${!email.isStarred && !isSelected ? "text-zinc-900" : "text-zinc-900"}`}>
                         {email.sender}
                       </div>
                       
@@ -684,7 +697,7 @@ export default function InboxLayout() {
                           <span className="shrink-0 px-2.5 py-1 rounded-md bg-red-100 text-red-700 text-[10px] font-bold uppercase tracking-wider">Important</span>
                         )}
                         {email.label && LABELS.find(l=>l.id===email.label) && (
-                           <span className={`shrink-0 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${LABELS.find(l=>l.id===email.label)?.labelClass}`}>
+                           <span className={`shrink-0 px-2.5 py-1 rounded-md text-xs font-semibold tracking-wide ${LABELS.find(l=>l.id===email.label)?.labelClass}`}>
                              {email.label}
                            </span>
                         )}
@@ -756,7 +769,7 @@ export default function InboxLayout() {
             {/* Email Body Area */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
                <div className="mb-6">
-                 <h2 className="text-2xl font-medium text-zinc-900">{activeEmail.subject}</h2>
+                 <h2 className="text-xl font-medium text-zinc-900">{activeEmail.subject}</h2>
                </div>
 
                <div className="flex items-start justify-between mb-8">
@@ -764,7 +777,7 @@ export default function InboxLayout() {
                    {activeEmail.avatar ? (
                      <img src={activeEmail.avatar} alt="Sender" className="w-10 h-10 rounded-full object-cover border border-zinc-200" />
                    ) : (
-                     <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-lg font-bold border border-blue-200">
+                     <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-lg font-bold border border-blue-200">
                        {activeEmail.sender.charAt(0)}
                      </div>
                    )}
@@ -832,13 +845,13 @@ export default function InboxLayout() {
 
             {/* Footer Actions */}
             <div className="px-8 py-6 border-t border-zinc-100 flex items-center gap-3">
-               <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
+               <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
                  <Reply size={16} className="text-zinc-400"/> Reply
                </button>
-               <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
+               <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
                  <ReplyAll size={16} className="text-zinc-400"/> Reply all
                </button>
-               <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
+               <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
                  <Forward size={16} className="text-zinc-400"/> Forward
                </button>
             </div>
@@ -850,49 +863,49 @@ export default function InboxLayout() {
       {/* --- COMPOSE MODAL --- */}
       {isComposeOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-           <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+           <div className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 bg-zinc-50/50">
-                 <h2 className="text-lg font-bold text-zinc-900">New Message</h2>
+                 <h2 className="text-xl font-semibold special-font tracking-wide text-zinc-900">New Message</h2>
                  <button onClick={() => setIsComposeOpen(false)} className="p-2 hover:bg-zinc-200 rounded-full transition-colors">
                     <X size={20} className="text-zinc-500" />
                  </button>
               </div>
               <div className="p-6 space-y-4">
                  <div>
-                    <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 ml-1">Recipient Email</label>
+                    <label className="block text-sm font-medium text-zinc-400 mb-1.5 ml-1">Recipient Email</label>
                     <input 
                        type="email" 
                        placeholder="Enter email address..."
                        value={composeData.to}
                        onChange={(e) => setComposeData({...composeData, to: e.target.value})}
-                       className="w-full px-4 py-3 rounded-2xl border border-zinc-200 focus:outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all text-sm font-medium"
+                       className="w-full px-4 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all text-sm font-medium"
                     />
                  </div>
                  <div>
-                    <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 ml-1">Subject</label>
+                    <label className="block text-sm font-medium text-zinc-400 mb-1.5 ml-1">Subject</label>
                     <input 
                        type="text" 
                        placeholder="Enter subject..."
                        value={composeData.subject}
                        onChange={(e) => setComposeData({...composeData, subject: e.target.value})}
-                       className="w-full px-4 py-3 rounded-2xl border border-zinc-200 focus:outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all text-sm font-medium"
+                       className="w-full px-4 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all text-sm font-medium"
                     />
                  </div>
                  <div>
-                    <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5 ml-1">Message</label>
+                    <label className="block text-sm font-medium text-zinc-400 mb-1.5 ml-1">Message</label>
                     <textarea 
                        rows={8}
                        placeholder="Type your message here..."
                        value={composeData.body}
                        onChange={(e) => setComposeData({...composeData, body: e.target.value})}
-                       className="w-full px-4 py-3 rounded-2xl border border-zinc-200 focus:outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all text-sm font-medium resize-none"
+                       className="w-full px-4 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all text-sm font-medium resize-none"
                     ></textarea>
                  </div>
               </div>
               <div className="px-6 py-4 bg-zinc-50 border-t border-zinc-100 flex justify-end items-center gap-3">
                  <button 
                    onClick={() => setIsComposeOpen(false)}
-                   className="px-6 py-2.5 rounded-2xl text-sm font-bold text-zinc-600 hover:bg-zinc-200 transition-colors"
+                   className="px-6 py-2 rounded-lg text-sm font-semibold text-zinc-600 hover:bg-zinc-200 transition-colors"
                  >
                     Cancel
                  </button>
@@ -915,7 +928,7 @@ export default function InboxLayout() {
                         setIsLoading(false);
                       }
                    }}
-                   className="px-8 py-2.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold transition-all shadow-md active:scale-95"
+                   className="px-8 py-2 rounded-lg bg-black hover:bg-zinc-800 text-white text-sm font-semibold transition-all shadow-md active:scale-95"
                  >
                     Send Email
                  </button>
@@ -924,30 +937,40 @@ export default function InboxLayout() {
         </div>
       )}
 
-      {/* --- DELETE CONFIRMATION MODAL --- */}
       {isDeleteDialogOpen && (
-        <div className="fixed inset-0 z-110 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-           <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 p-8">
+        <div 
+          className="fixed inset-0 z-110 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300"
+          onClick={() => setIsDeleteDialogOpen(false)}
+        >
+           <div 
+             className="bg-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 p-8"
+             onClick={(e) => e.stopPropagation()}
+           >
               <div className="flex flex-col items-center text-center">
                  <div className="w-16 h-16 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-6">
                     <Trash2 size={32} />
                  </div>
-                 <h2 className="text-2xl font-semibold text-zinc-900 mb-2">Permanent Deletion</h2>
-                 <p className="text-zinc-500 mb-8">
-                    Are you sure you would like to permanently delete {selectedEmails.size === 1 ? "this email" : `these ${selectedEmails.size} emails`}? This action cannot be undone.
+                 <h2 className="text-2xl tracking-wide special-font font-semibold text-zinc-900 mb-2">
+                   {deleteMode === "permanent" ? "Permanent Deletion" : "Move to Trash"}
+                 </h2>
+                  <p className="text-zinc-500 mb-8">
+                    {deleteMode === "permanent" 
+                      ? `Are you sure you would like to permanently delete ${pendingDeleteIds.length === 1 ? "this email" : `these ${pendingDeleteIds.length} emails`}? This action cannot be undone.`
+                      : `Are you sure you want to move ${pendingDeleteIds.length === 1 ? "this email" : `these ${pendingDeleteIds.length} emails`} to the trash?`
+                    }
                  </p>
                  <div className="flex items-center gap-3 w-full">
                     <button 
                       onClick={() => setIsDeleteDialogOpen(false)}
-                      className="flex-1 px-6 py-3 rounded-xl text-sm font-semibold text-zinc-600 hover:bg-zinc-100 transition-colors border border-zinc-200"
+                      className="flex-1 px-6 py-2 rounded-lg text-xs font-semibold text-zinc-600 hover:bg-zinc-100 transition-colors border border-zinc-200"
                     >
                        Cancel
                     </button>
                     <button 
-                      onClick={handlePermanentDelete}
-                      className="flex-1 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-all shadow-md active:scale-[0.98]"
+                      onClick={handleConfirmDelete}
+                      className="flex-1 px-6 py-2 rounded-lg text-xs font-semibold text-white bg-red-600 hover:bg-red-700 transition-all shadow-md active:scale-[0.98]"
                     >
-                       Delete
+                       {deleteMode === "permanent" ? "Delete Permanently" : "Move to Trash"}
                     </button>
                  </div>
               </div>

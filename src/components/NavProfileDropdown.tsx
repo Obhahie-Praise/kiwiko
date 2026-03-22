@@ -36,12 +36,12 @@ const NavProfileDropdown = ({ session, orgSlug }: NavProfileDropdownProps) => {
           alt="Avatar" 
         />
         <div className="flex flex-col items-start md:flex">
-          <span className="text- font-semibold hero-font text-zinc-900 leading-none mb-0.5">{user?.name || "Member"}</span>
+          <span className="text-sm font-semibold text-zinc-900 leading-none mb-0.5">{user?.name || "Member"}</span>
         </div>
       </button>
 
       {isOpen && (
-        <div className="absolute top-12 right-0 w-64 bg-white border border-zinc-200 rounded-xl shadow-2xl p-1 animate-in fade-in slide-in-from-top-2 duration-200 z-[100]">
+        <div className="absolute top-12 right-0 w-64 bg-white border border-zinc-200 rounded-lg shadow-2xl p-1 animate-in fade-in slide-in-from-top-2 duration-200 z-[100]">
           <div className="px-3 py-3 border-b border-zinc-100 mb-1">
              <div className="flex items-center gap-3 mb-2">
                 <img 
@@ -56,7 +56,7 @@ const NavProfileDropdown = ({ session, orgSlug }: NavProfileDropdownProps) => {
              </div>
              <div className="flex items-center gap-2">
                 <div className="px-2 py-0.5 rounded-md bg-zinc-50 border border-zinc-100 inline-block">
-                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{user?.role || "Founder"}</span>
+                    <span className="text-xs capitalize font-semibold text-zinc-500">{user?.role || "Founder"}</span>
                 </div>
                 {account?.provider && (
                   <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-zinc-50 border border-zinc-100">

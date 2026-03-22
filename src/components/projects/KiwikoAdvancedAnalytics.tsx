@@ -160,9 +160,9 @@ const KiwikoAdvancedAnalytics = ({ data }: KiwikoAdvancedAnalyticsProps) => {
       </div>
 
       {/* Right side: Large Active Users Chart */}
-      <div className="col-span-12 lg:col-span-7 bg-white border-[0.2px] border-zinc-200 shadow-sm rounded-2xl p-6 h-full flex flex-col">
+      <div className="col-span-12 lg:col-span-7 bg-white border-[0.2px] border-zinc-200 shadow-sm rounded-lg p-6 h-full flex flex-col">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-semibold text-zinc-900 hero-font">Active Users</h3>
+          <h3 className="text-xl font-semibold text-zinc-900 special-font tracking-wide">Active Users</h3>
         </div>
 
         <div className="flex items-center gap-2 mb-4">

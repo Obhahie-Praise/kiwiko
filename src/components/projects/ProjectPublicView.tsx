@@ -73,17 +73,17 @@ const ProjectPublicView = ({
                 )}
             </div>
             <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 leading-none mb-1">{organization?.name || "Independent"}</p>
-                <h2 className="text-sm font-bold tracking-tight leading-none text-zinc-900">{project.name}</h2>
+                <p className="text-xs font-bold tracking-wide text-zinc-400 leading-none mb-1">{organization?.name || "Independent"}</p>
+                <h2 className="text-sm font-bold leading-none text-zinc-900">{project.name}</h2>
             </div>
         </div>
 
         <Link 
           href={`/${orgSlug}/mail`}
-          className="flex items-center gap-2 p-3 md:px-5 md:py-2 bg-zinc-900 text-white rounded-full text-xs font-bold hover:shadow-xl hover:-translate-y-0.5 transition-all shadow-zinc-200 group active:scale-95"
+          className="flex items-center gap-2 p-3 md:px-5 md:py-2 bg-zinc-900 text-white rounded-lg text-sm font-semibold hover:shadow-xl hover:-translate-y-0.5 transition-all shadow-zinc-200 group active:scale-95"
         >
-          <Mail size={14} className="group-hover:rotate-12 transition-transform" />
-          <span className="hidden md:inline" >Connect with Founders</span>
+          <Mail size={16} className="group-hover:rotate-12 transition-transform" />
+          <span className="hidden md:inline" >Email Founders</span>
         </Link>
       </header>
 
@@ -102,14 +102,15 @@ const ProjectPublicView = ({
           </div>
 
           {/* Tagline Overlay - Bottom Left */}
-          <div className="absolute bottom-0 left-0 z-10 w-full max-w-4xl">
-            <div className="bg-white/70 p-10 md:p-14 rounded-tr-[4rem] shadow-2xl border-t border-r border-white/30">
-               <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 text-white rounded-full mb-8 shadow-xl italic">
+          <div className="absolute bottom-0 left-0 z-10 w-full max-w-2xl">
+            <div className="p-10 md:p-14 relative">
+            <div className="absolute top-0 right-0 w-full h-full bg-black/90 -z-10 blur-[50px] rounded-tr-xl"></div>
+               <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 text-white rounded-full mb-8 shadow-xl">
                 {/* <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" /> */}
-                <span className="text-[10px] font-extrabold uppercase tracking-widest">{project.stage || "Growth"}</span>
+                <span className="text-sm font-bold">{project.stage || "Growth"}</span>
               </div>
               
-              <h1 className="text-5xl md:text-[5.5rem] font-black tracking-tighter text-zinc-900 leading-[0.85] italic uppercase">
+              <h1 className="text-5xl md:text-[5rem] font-bold capitalize text-zinc-900 leading-[0.85] special-font">
                 {(project.tagline || project.description) ? (
                   <>
                     {(project.tagline || project.description).split(" ").slice(0, 3).join(" ")} <br />
@@ -133,33 +134,33 @@ const ProjectPublicView = ({
             <div className="lg:col-span-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-zinc-900">
                 <div>
-                  <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 flex items-center gap-2">
+                  <h3 className="text-sm font-semibold special-font tracking-wide text-zinc-600 mb-6 flex items-center gap-2">
                     <span className="w-4 h-px bg-zinc-300" />
                     The Problem
                   </h3>
-                  <p className="text-xl font-bold leading-relaxed italic">
+                  <p className="text-lg font-medium leading-relaxed">
                     {project.problem || "Venture data is siloed, fragmented, and lacks real-time verification. Investors fly blind while founders drown in reporting."}
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 flex items-center gap-2">
+                  <h3 className="text-sm font-semibold special-font tracking-wide text-zinc-600 mb-6 flex items-center gap-2">
                     <span className="w-4 h-px bg-zinc-300" />
                     The Solution
                   </h3>
-                  <p className="text-xl font-bold leading-relaxed">
+                  <p className="text-lg font-medium leading-relaxed">
                     {project.solution || "A verifiable, agent-driven infrastructure that provides ground-truth metrics of execution at every stage of the lifecycle."}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="lg:col-span-4 flex flex-col justify-between p-8 bg-zinc-50 rounded-[3rem] border border-zinc-200/60 shadow-inner">
+            <div className="lg:col-span-4 flex flex-col justify-between p-6 bg-zinc-50/50 rounded-lg border-[0.2px] border-zinc-200/60">
               <div>
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-8 flex items-center gap-2">
+                <h3 className="text-sm font-semibold special-font tracking-wide text-zinc-500 mb-8 flex items-center gap-2">
                   Current Valuation <ShieldCheck size={12} className="text-emerald-500" />
                 </h3>
                 <p className="text-6xl font-black text-zinc-900 tracking-tighter mb-2">{project.postMoneyValuation ? `$${project.postMoneyValuation}` : "$10M"}</p>
-                <p className="text-sm font-bold text-zinc-400 uppercase tracking-tight">Post-Money Market Signal</p>
+                <p className="text-sm font-bold text-zinc-500">Post-Money Market Signal</p>
               </div>
               <div className="mt-12 flex gap-2 overflow-x-auto no-scrollbar">
                   <span className="px-3 py-1.5 bg-white border border-zinc-200 rounded-xl text-[10px] font-black text-zinc-800 whitespace-nowrap shadow-sm lowercase tracking-tight">bootstrapped</span>
@@ -182,7 +183,7 @@ const ProjectPublicView = ({
           <div className="flex flex-col md:flex-row gap-16">
             <div className="flex-1 min-w-0">
                 <div>
-                    <h2 className="text-3xl font-black text-zinc-900 tracking-tighter italic capitalize mb-12">Proof of Execution</h2>
+                    <h2 className="text-xl font-semibold text-zinc-900 tracking-wide special-font capitalize mb-12">Proof of Execution</h2>
                 </div>
 
                 {project.githubRepoFullName ? (
@@ -211,7 +212,7 @@ const ProjectPublicView = ({
             <div className="md:w-1/3">
                 <div className="p-8 bg-zinc-900 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group">
                     <Gem className="absolute -top-10 -right-10 w-48 h-48 opacity-5 text-white group-hover:scale-110 transition-transform duration-700" />
-                    <h3 className="text-2xl font-black mb-6 uppercase italic tracking-tighter">Execution Signal</h3>
+                    <h3 className="text-xl font-semibold mb-6 tracking-wide special-font">Execution Signal</h3>
                     <p className="text-zinc-400 font-medium mb-12 text-sm leading-relaxed">
                         Continuous verification of venture growth through real-time development activity and team contribution metrics.
                     </p>

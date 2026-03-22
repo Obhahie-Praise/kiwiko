@@ -87,7 +87,6 @@ const WaitlistPage = () => {
           className="text-zinc-200 bg-zinc-800/60 font-normal flex items-center gap-2 px-3 md:px-6 py-1.5 md:py-2 rounded-lg"
         >
           <p className="hidden sm:inline">Engage </p>
-          <p className="sm:hidden">X</p>
           <Twitter size={14} strokeWidth={1.8} />
         </Link>
         <UpdatesUI />

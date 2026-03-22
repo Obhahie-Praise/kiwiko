@@ -9,83 +9,94 @@ interface PageViewsChartProps {
 }
 
 const PageViewsChart = ({ data }: PageViewsChartProps) => {
-  // Calculate stats
-  const total = data.reduce((acc, curr) => acc + curr.views, 0);
-  const avgDaily = Math.round(total / data.length);
-  const avgWeekly = Math.round(total / (data.length / 7));
-  const avgMonthly = total; // Mocking monthly as total for 30 days
+  // Calculate stats securely
+  const total = data && data.length > 0 ? data.reduce((acc, curr) => acc + curr.views, 0) : 0;
+  const count = data && data.length > 0 ? data.length : 1;
+  
+  const avgDaily = Math.round(total / count);
+  const avgWeekly = Math.round(total / (count / 7 || 1));
+  const avgMonthly = total; // Assuming total is for 30 days
 
   const formatNumber = (num: number) => {
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+    if (isNaN(num)) return "0";
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
     return num.toString();
   };
 
   return (
-    <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-900/60 p-6 rounded-2xl h-full flex flex-col">
-      <div className="flex items-center justify-between mb-8">
-        <h3 className="text-zinc-100 text-lg font-bold special-font tracking-tight">Page Views</h3>
-        <button className="text-zinc-500 hover:text-zinc-300 transition-colors">
+    <div className="bg-[#12141c] border border-white/5 p-8 rounded-[2rem] h-full flex flex-col shadow-2xl">
+      <div className="flex items-center justify-between mb-10">
+        <h3 className="text-white text-xl font-bold tracking-tight font-sans">Active Users</h3>
+        <button className="text-zinc-600 hover:text-white transition-colors">
           <MoreVertical size={20} />
         </button>
       </div>
 
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-        <span className="text-zinc-100 text-2xl font-bold tracking-tight">
-          {formatNumber(data[data.length - 1]?.views || 0)}
-        </span>
-        <span className="text-zinc-500 text-sm font-medium">Daily visitors</span>
+      <div className="flex items-center gap-4 mb-8">
+        <div className="relative flex h-3 w-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+        </div>
+        <div className="flex items-baseline gap-2">
+          <span className="text-white text-4xl font-bold tracking-tighter font-sans">
+            {formatNumber(data && data.length > 0 ? data[data.length - 1].views : 0)}
+          </span>
+          <span className="text-zinc-400 text-base font-medium font-sans">Live visitors</span>
+        </div>
       </div>
 
-      <div className="flex-1 w-full min-h-[200px]">
+      <div className="flex-1 w-full min-h-[220px] mb-8">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <defs>
               <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
               </linearGradient>
             </defs>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff05" />
             <XAxis 
               dataKey="date" 
-              axisLine={false} 
-              tickLine={false} 
-              tick={{ fill: '#71717a', fontSize: 10, fontWeight: 600 }}
-              dy={30}
-              interval={4}
-              height={80}
-              angle={-45}
-              textAnchor="end"
+              hide={true}
             />
+            <YAxis hide={true} domain={['dataMin - 5', 'dataMax + 5']} />
             <Tooltip
-              contentStyle={{ backgroundColor: "#18181b", borderColor: "#27272a", borderRadius: "12px", color: "#f4f4f5" }}
-              itemStyle={{ color: "#f97316" }}
-              labelFormatter={(label) => label.toLowerCase()}
+              contentStyle={{ 
+                backgroundColor: "#1a1c26", 
+                border: "1px solid rgba(255,255,255,0.05)", 
+                borderRadius: "16px", 
+                color: "#fff",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
+              }}
+              itemStyle={{ color: "#3b82f6" }}
+              cursor={{ stroke: '#3b82f633', strokeWidth: 1 }}
             />
             <Area
               type="monotone"
               dataKey="views"
-              stroke="#f97316"
-              strokeWidth={3}
+              stroke="#3b82f6"
+              strokeWidth={4}
+              strokeLinecap="round"
               fillOpacity={1}
               fill="url(#colorViews)"
+              animationDuration={2000}
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-zinc-800/50">
-        <div className="text-center">
-          <p className="text-zinc-100 text-lg font-bold">{formatNumber(avgDaily)}</p>
-          <p className="text-zinc-500 text-[10px] uppercase font-semibold tracking-wider">Avg. Daily</p>
+      <div className="grid grid-cols-3 gap-0 mt-auto pt-8 border-t border-white/5">
+        <div className="flex flex-col items-center">
+          <p className="text-white text-2xl font-bold font-sans mb-1">{formatNumber(avgDaily)}</p>
+          <p className="text-zinc-500 text-[11px] font-semibold font-sans tracking-wide">Avg, Daily</p>
         </div>
-        <div className="text-center border-x border-zinc-800/50">
-          <p className="text-zinc-100 text-lg font-bold">{formatNumber(avgWeekly)}</p>
-          <p className="text-zinc-500 text-[10px] uppercase font-semibold tracking-wider">Avg. Weekly</p>
+        <div className="flex flex-col items-center border-x border-white/5">
+          <p className="text-white text-2xl font-bold font-sans mb-1">{formatNumber(avgWeekly)}</p>
+          <p className="text-zinc-500 text-[11px] font-semibold font-sans tracking-wide">Avg, Weekly</p>
         </div>
-        <div className="text-center">
-          <p className="text-zinc-100 text-lg font-bold">{formatNumber(avgMonthly)}</p>
-          <p className="text-zinc-500 text-[10px] uppercase font-semibold tracking-wider">Avg. Monthly</p>
+        <div className="flex flex-col items-center">
+          <p className="text-white text-2xl font-bold font-sans mb-1">{formatNumber(avgMonthly)}</p>
+          <p className="text-zinc-500 text-[11px] font-semibold font-sans tracking-wide">Avg, Monthly</p>
         </div>
       </div>
     </div>

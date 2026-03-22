@@ -82,7 +82,7 @@ export default async function OrgProjectsPage({ params }: PageProps) {
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
                {/* Logo + Text Header */}
-               <div className="w-12 h-12 bg-white rounded-xl border border-zinc-200 shadow-sm flex items-center justify-center overflow-hidden shrink-0">
+               <div className="w-12 h-12 bg-white rounded-lg border border-zinc-200 shadow-sm flex items-center justify-center overflow-hidden shrink-0">
                    {currentOrg.logoUrl ? (
                        <img src={currentOrg.logoUrl} alt={currentOrg.name} className="w-full h-full object-cover" />
                    ) : (
@@ -90,7 +90,7 @@ export default async function OrgProjectsPage({ params }: PageProps) {
                    )}
                </div>
                <div>
-                  <h1 className="text-2xl font-black text-zinc-900 tracking-tight flex items-center gap-2 capitalize">
+                  <h1 className="text-2xl font-bold special-font text-zinc-900 tracking-wide flex items-center gap-2 capitalize">
                       {currentOrg.name + "'s"}  
                       <span className="text-zinc-500 font-medium">projects</span>
                   </h1>
@@ -110,11 +110,11 @@ export default async function OrgProjectsPage({ params }: PageProps) {
           </div>
           
           {mappedProjects.length > 0 ? (
-            <div className="w-full p-0 border border-zinc-200 rounded-2xl bg-white shadow-xl overflow-visible">
+            <div className="w-full p-0 border border-zinc-200 rounded-lg bg-white shadow-xl overflow-visible">
               <ProjectsTable projects={mappedProjects} />
             </div>
           ) : (
-            <div className="w-full py-20 border-2 border-dashed border-zinc-200 rounded-3xl bg-white/50 flex flex-col items-center justify-center text-center px-10">
+            <div className="w-full py-20 border-2 border-dashed border-zinc-200 rounded-lg bg-white/50 flex flex-col items-center justify-center text-center px-10">
               <div className="w-16 h-16 bg-zinc-100 rounded-2xl flex items-center justify-center mb-6 text-zinc-400">
                 <FolderPlus size={32} />
               </div>

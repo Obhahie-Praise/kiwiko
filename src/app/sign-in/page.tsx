@@ -79,9 +79,9 @@ const SignInPage = () => {
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 relative">
         <Link
           href="/"
-          className="absolute top-10 left-10 p-2 bg-zinc-50 border border-zinc-300 rounded-lg hover:bg-zinc-100 transition-all active:scale-95 text-black group"
+          className="absolute top-6 left-6 p-2 bg-zinc-50 border border-zinc-300 rounded-lg hover:bg-zinc-100 transition-all active:scale-95 text-black group"
         >
-          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
         </Link>
 
         <div className="w-full max-w-md space-y-10">
@@ -173,7 +173,7 @@ const SignInPage = () => {
             </div>
           ) : (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <div className="bg-white p-6 rounded-[2rem] border-0.5 border-zinc-200 shadow-sm">
+              <div className="bg-white p-6 rounded-lg border-0.5 border-zinc-200 shadow-sm">
                 <TeamSignInForm />
               </div>
             </div>

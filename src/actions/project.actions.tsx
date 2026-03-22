@@ -939,7 +939,12 @@ export async function getProjectViewAnalyticsAction(
         let startDate = new Date();
 
         if (range === "weekly") {
-            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            const startOfWeek = new Date(now);
+            const day = startOfWeek.getDay();
+            const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+            startOfWeek.setDate(diff);
+            startOfWeek.setHours(0, 0, 0, 0);
+            startDate = startOfWeek;
         } else if (range === "monthly") {
             startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         } else if (range === "quarterly") {
@@ -961,11 +966,12 @@ export async function getProjectViewAnalyticsAction(
         
         // Initialize buckets chronologically
         if (range === "weekly") {
-            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            for (let i = 29; i >= 0; i--) {
-                const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-                const dateKey = d.toISOString().split('T')[0]; // Unique YYYY-MM-DD
-                const label = `${days[d.getDay()]} ${d.getDate()}`;
+            const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(startDate);
+                d.setDate(startDate.getDate() + i);
+                const dateKey = d.toISOString().split('T')[0];
+                const label = days[i];
                 buckets.push({ dateKey, label, value: 0 });
             }
         } else if (range === "monthly") {

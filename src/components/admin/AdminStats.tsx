@@ -15,8 +15,9 @@ interface AdminStatsProps {
 
 const AdminStats = ({ stats }: AdminStatsProps) => {
   const formatNumber = (num: number) => {
+    if (isNaN(num)) return "0";
     if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "K";
+      return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
     }
     return num.toString();
   };
@@ -70,7 +71,7 @@ const AdminStats = ({ stats }: AdminStatsProps) => {
               
               {card.trend && (
                 <div className="flex items-center gap-1.5 min-w-fit">
-                  <span className={`text-[10px] font-medium ${card.color} ${card.bg} px-1.5 py-0.5 rounded-full`}>
+                   <span className={`text-[10px] font-medium ${card.color} ${card.bg} px-1.5 py-0.5 rounded-full`}>
                     {card.trend}
                   </span>
                   <span className="text-zinc-500 text-[10px] hidden xl:inline">vs last week</span>

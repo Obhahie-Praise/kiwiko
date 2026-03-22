@@ -63,13 +63,13 @@ export default function FundingDashboard() {
         {metrics.map((m) => (
           <div
             key={m.label}
-            className="bg-white border-[0.1px] border-zinc-200 rounded-2xl p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden shadow-none hover:shadow-md transition-shadow"
+            className="bg-white border-[0.1px] border-zinc-200 rounded-lg p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden shadow-none hover:shadow-md transition-shadow"
           >
             {/* Top row: label + icon */}
             <div className="flex items-start justify-between">
-                <p className="text-sm text-zinc-600 font-medium tracking-wider hero-font">{m.label}</p>
-                <div className="p-1.5 bg-zinc-100 rounded-lg border border-zinc-100">
-                <m.icon className="w-3.5 h-3.5 text-zinc-500" strokeWidth={1.5} />
+                <p className="text-zinc-700 font-semibold tracking-wide special-font">{m.label}</p>
+                <div className="p-1.5 bg-zinc-100 rounded-sm border border-zinc-100">
+                <m.icon size={14} className="text-zinc-500" strokeWidth={1.5} />
                 </div>
             </div>
 

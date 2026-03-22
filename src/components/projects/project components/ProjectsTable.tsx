@@ -61,7 +61,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
                 placeholder="Search projects by name, stage, valuation..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 transition-all placeholder:text-zinc-400" 
+                className="w-full pl-9 pr-4 py-2 bg-white border border-zinc-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 transition-all placeholder:text-zinc-400" 
               />
           </div>
       </div>
@@ -105,7 +105,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-zinc-900 group-hover:text-black transition-colors">{project.name}</p>
+                    <p className="text-sm font-semibold text-zinc-900 group-hover:text-black transition-colors">{project.name}</p>
                     <div className="flex items-center gap-1 text-xs text-zinc-500">
                       <GitBranch size={10} />
                       <span>{project.branch}</span>

@@ -105,14 +105,14 @@ function EventPill({ event }: { event: CalendarEvent }) {
   const Icon = s.Icon;
 
   return (
-    <div className={`flex items-start gap-3 p-4 rounded-xl border ${s.bgClass} transition-all hover:shadow-sm`} style={s.styleBg}>
+    <div className={`flex items-start gap-3 p-4 rounded-lg border ${s.bgClass} transition-all hover:shadow-sm`} style={s.styleBg}>
       <div className={`mt-0.5 shrink-0 ${s.colorClass}`} style={s.styleColor}>
         <Icon size={16} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
           <p className="font-semibold text-zinc-900 truncate">{event.title}</p>
-          <span className={`text-xs font-bold uppercase tracking-widest ${s.colorClass} shrink-0`} style={s.styleColor}>
+          <span className={`text-sm font-semibold tracking-wide special-font ${s.colorClass} shrink-0`} style={s.styleColor}>
             {event.kind ? KIND_META[event.kind].label : "Event"}
           </span>
         </div>
@@ -419,12 +419,12 @@ export default function ProjectCalendar({ projectId }: { projectId: string }) {
 
   return (
     <>
-      <div className="bg-white border-[0.1px] border-zinc-200 rounded-2xl p-5 h-full flex flex-col overflow-hidden shadow-none hover:shadow-md transition-shadow">
+      <div className="bg-white border-[0.1px] border-zinc-200 rounded-lg p-5 h-full flex flex-col overflow-hidden shadow-none hover:shadow-md transition-shadow">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <h3 className="text-xl font-semibold text-zinc-900">Event Calendar</h3>
+            <h3 className="text-xl font-semibold text-zinc-900 special-font tracking-wide">Event Calendar</h3>
           </div>
           <div className="flex items-center gap-2">
             {/* View switcher */}
@@ -433,7 +433,7 @@ export default function ProjectCalendar({ projectId }: { projectId: string }) {
                 <button
                   key={v}
                   onClick={() => setView(v)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold capitalize tracking-widest transition-all ${
+                  className={`px-3 py-1.5 rounded-md text-[10px] font-semibold capitalize tracking-wide transition-all ${
                     view === v ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
                   }`}
                 >
@@ -443,7 +443,7 @@ export default function ProjectCalendar({ projectId }: { projectId: string }) {
             </div>
             <button
               onClick={goToday}
-              className="px-4 py-1.5 text-xs font-bold text-zinc-600 border border-zinc-200 rounded-lg hover:border-zinc-300 hover:bg-zinc-50 transition-all"
+              className="px-4 py-1.5 text-[10px] font-semibold text-zinc-600 border border-zinc-200 rounded-lg hover:border-zinc-300 hover:bg-zinc-50 transition-all"
             >
               Today
             </button>
@@ -478,7 +478,7 @@ export default function ProjectCalendar({ projectId }: { projectId: string }) {
                 <button
                   key={k}
                   onClick={() => setFilter(k)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-widest transition-all border ${
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold tracking-wide transition-all border ${
                     filter === k ? `${bg} ${color} border-current ring-1 ring-current ring-offset-1` : "text-zinc-500 bg-zinc-50 border-zinc-100 hover:border-zinc-300 hover:bg-zinc-100"
                   }`}
                 >
@@ -505,7 +505,7 @@ export default function ProjectCalendar({ projectId }: { projectId: string }) {
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`px-4 py-1.5 rounded-md text-sm font-semibold tracking-[0.5px] transition-all ${
+                  className={`px-4 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-all ${
                     tab === t ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
                   }`}
                 >
@@ -515,9 +515,9 @@ export default function ProjectCalendar({ projectId }: { projectId: string }) {
             </div>
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-sm focus:ring-4 focus:ring-blue-500/20"
+              className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-black rounded-lg hover:bg-black/60 transition-all shadow-sm focus:ring-4 focus:ring-blue-500/20"
             >
-              <Plus size={14} /> Add Event
+              <Plus size={14} strokeWidth={3} /> Add Event
             </button>
           </div>
 
@@ -531,12 +531,12 @@ export default function ProjectCalendar({ projectId }: { projectId: string }) {
             className={`space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar select-none ${isDragging ? 'cursor-grabbing' : 'cursor-default'}`}
           >
             {tabList.length === 0 ? (
-              <div className="py-12 flex flex-col items-center gap-3 text-center border border-dashed border-zinc-200 rounded-2xl bg-zinc-50">
-                <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-zinc-400">
+              <div className="py-12 flex flex-col items-center gap-3 text-center border border-dashed border-zinc-200 rounded-lg bg-zinc-50">
+                <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-black">
                   <Calendar size={20} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-zinc-700">No {tab} events</p>
+                  <p className="font-semibold text-zinc-700 special-font">No {tab} events</p>
                   <p className="text-xs text-zinc-500 mt-1">Events you add will appear here.</p>
                 </div>
               </div>

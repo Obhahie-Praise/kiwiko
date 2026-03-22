@@ -102,11 +102,11 @@ const ProjectInnerNav = () => {
           title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {isSidebarCollapsed
-            ? <PanelLeftOpen size={20} strokeWidth={1.5} />
-            : <PanelLeftClose size={20} strokeWidth={1.5} />}
+            ? <PanelLeftOpen size={16} strokeWidth={1.5} />
+            : <PanelLeftClose size={16} strokeWidth={1.5} />}
         </button>
 
-        <div className="h-4 w-px bg-zinc-200" />
+        <div className="h-10 w-px bg-zinc-200" />
 
         {/* Org selector */}
         <div className="relative" ref={orgMenuRef}>
@@ -114,14 +114,14 @@ const ProjectInnerNav = () => {
             onClick={() => setIsOrgMenuOpen(!isOrgMenuOpen)}
             className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-zinc-50 transition-colors text-zinc-500 font-medium"
           >
-            <Building2 size={13} strokeWidth={1.5} className="text-zinc-400" />
-            <span className="max-w-[100px] truncate">{currentOrg?.name || orgSlug}</span>
-            <ChevronDown size={11} className={`text-zinc-400 transition-transform duration-150 ${isOrgMenuOpen ? "rotate-180" : ""}`} />
+            <Building2 size={16} strokeWidth={1.5} className="text-zinc-600" />
+            <span className="max-w-[100px] font-semibold text-xs truncate capitalize">{currentOrg?.name || orgSlug}</span>
+            <ChevronDown size={14} className={`text-zinc-600 transition-transform duration-150 ${isOrgMenuOpen ? "rotate-180" : ""}`} />
           </button>
 
           {isOrgMenuOpen && (
-            <div className="absolute top-9 left-0 w-56 bg-white border border-zinc-200 rounded-xl shadow-xl p-1.5 animate-in fade-in zoom-in-95 duration-100 z-50">
-              <div className="px-3 py-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest border-b border-zinc-50 mb-1">
+            <div className="absolute top-9 left-0 w-56 bg-white border border-zinc-200 rounded-lg shadow-xl p-1.5 animate-in fade-in zoom-in-95 duration-100 z-50">
+              <div className="px-3 py-1.5 text-xs font-medium text-zinc-600 tracking-wide border-b border-zinc-50 mb-1">
                 Organizations
               </div>
               <div className="space-y-0.5">
@@ -145,7 +145,7 @@ const ProjectInnerNav = () => {
                   onClick={() => setIsOrgMenuOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
                 >
-                  <Plus size={12} />
+                  <Plus size={14} />
                   New Organization
                 </Link>
               </div>
@@ -165,16 +165,16 @@ const ProjectInnerNav = () => {
               {currentProject?.logoUrl ? (
                 <img src={currentProject.logoUrl} className="w-full h-full object-cover rounded" alt="" />
               ) : (
-                <span className="text-[9px] font-black">{(currentProject?.name || projectSlug || "?").charAt(0).toUpperCase()}</span>
+                <span className="text-[9px] font-bold">{(currentProject?.name || projectSlug || "?").charAt(0).toUpperCase()}</span>
               )}
             </div>
-            <span className="max-w-[140px] truncate">{currentProject?.name || projectSlug || "Project"}</span>
+            <span className="max-w-[140px] text-xs truncate">{currentProject?.name || projectSlug || "Project"}</span>
             <ChevronDown size={11} className={`text-zinc-400 transition-transform duration-150 ${isProjectMenuOpen ? "rotate-180" : ""}`} />
           </button>
 
           {isProjectMenuOpen && (
-            <div className="absolute top-9 left-0 w-56 bg-white border border-zinc-200 rounded-xl shadow-xl p-1.5 animate-in fade-in zoom-in-95 duration-100 z-50">
-              <div className="px-3 py-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest border-b border-zinc-50 mb-1">
+            <div className="absolute top-9 left-0 w-56 bg-white border border-zinc-200 rounded-lg shadow-xl p-1.5 animate-in fade-in zoom-in-95 duration-100 z-50">
+              <div className="px-3 py-1.5 text-xs font-medium text-zinc-600 tracking-wide border-b border-zinc-50 mb-1">
                 Ventures
               </div>
               <div className="space-y-0.5">
@@ -205,7 +205,7 @@ const ProjectInnerNav = () => {
                   onClick={() => setIsProjectMenuOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
                 >
-                  <Plus size={12} />
+                  <Plus size={14} />
                   New Venture
                 </Link>
               </div>
@@ -217,7 +217,7 @@ const ProjectInnerNav = () => {
       {/* Right: actions */}
       <div className="flex items-center gap-1">
         {/* Theme Switcher */}
-        <div className="flex items-center bg-zinc-50 border border-zinc-100 rounded-lg p-0.5 mr-1">
+        <div className="flex items-center bg-zinc-50 border border-zinc-100 rounded-lg p-px mr-1">
           {themes.map(({ id, icon: Icon }) => (
             <button
               key={id}
@@ -228,7 +228,7 @@ const ProjectInnerNav = () => {
                   : "text-zinc-400 hover:text-zinc-600"
               }`}
             >
-              <Icon size={14} strokeWidth={activeTheme === id ? 2 : 1.5} />
+              <Icon size={16} strokeWidth={activeTheme === id ? 2 : 1.5} />
             </button>
           ))}
         </div>

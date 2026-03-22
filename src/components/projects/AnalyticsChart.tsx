@@ -42,7 +42,7 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
       return (
         <div className="bg-white p-3 border-[0.2px] border-zinc-200 rounded-xl">
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1">
-            {range === "weekly" ? "Date" : range === "monthly" ? "Date" : range === "quarterly" ? "Week Starting" : "Month"}
+            {range === "weekly" ? "Day" : range === "monthly" ? "Date" : range === "quarterly" ? "Week Starting" : "Month"}
           </p>
           <p className="text-sm font-bold text-zinc-900">{payload[0].value} Views</p>
         </div>
@@ -52,12 +52,12 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
   };
 
   return (
-    <div className="bg-white border-[0.2px] border-zinc-200 shadow-sm rounded-2xl p-6 w-full">
+    <div className="bg-white border-[0.2px] border-zinc-200 shadow-sm rounded-lg p-6 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h3 className="text-xl font-semibold text-zinc-900 hero-font tracking-tight">Profile Analytics</h3>
+          <h3 className="text-xl font-semibold text-zinc-900 special-font tracking-wide">Profile Analytics</h3>
           <p className="text-sm text-zinc-500 font-medium">
-            Visitor analytics {range === "weekly" ? "(Last 7 Days)" : range === "monthly" ? "(Last 30 Days)" : range === "quarterly" ? "(Last 90 Days)" : "(Last 12 Months)"}
+            Visitor analytics {range === "weekly" ? "(Current Week)" : range === "monthly" ? "(Last 30 Days)" : range === "quarterly" ? "(Last 90 Days)" : "(Last 12 Months)"}
           </p>
         </div>
 
@@ -111,7 +111,7 @@ const AnalyticsChart = ({ projectId }: AnalyticsChartProps) => {
               dataKey="value"
               fill="#4f46e5"
               radius={[4, 4, 0, 0]}
-              barSize={range === "weekly" ? 4 : range === "monthly" ? 20 : range === "quarterly" ? 60 : 60}
+              barSize={range === "weekly" ? 50 : range === "monthly" ? 20 : range === "quarterly" ? 60 : 60}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={data.length > 20 ? "#4f46e5" : "#4f46e5"} />

@@ -103,11 +103,11 @@ const SocialAnalyticsChart = ({ projectId }: SocialAnalyticsChartProps) => {
   };
 
   return (
-    <div className="bg-white border-[0.2px] border-zinc-200 shadow-sm rounded-2xl p-6 w-full">
+    <div className="bg-white border-[0.2px] border-zinc-200 shadow-sm rounded-lg p-6 w-full">
       {/* Header Section */}
       <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-4 mb-8">
         <div>
-          <h3 className="text-xl font-semibold text-zinc-900 hero-font tracking-tight">Social Media Statistics</h3>
+          <h3 className="text-xl font-semibold text-zinc-900 special-font tracking-wide">Social Media Statistics</h3>
           <p className="text-sm text-zinc-500 font-medium mt-1">
             Historical stats for the selected period
           </p>

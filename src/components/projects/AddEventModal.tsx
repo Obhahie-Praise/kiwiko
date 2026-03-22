@@ -63,12 +63,12 @@ export default function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalP
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl w-full max-w-xl p-8 shadow-2xl relative border-[0.5px] border-zinc-200">
+      <div className="bg-white rounded-lg w-full max-w-xl p-8 shadow-2xl relative border-[0.5px] border-zinc-200">
         <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-500 rounded-full transition-colors">
           <X size={16} />
         </button>
 
-        <h2 className="text-xl font-semibold text-zinc-800 hero-font">Add Event</h2>
+        <h2 className="text-xl font-semibold text-zinc-800 tracking-wide special-font">Add Event</h2>
         <p className="text-sm text-zinc-500 mt-1 mb-6">Plan your next big moment: schedule or edit an event to stay on track</p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -78,7 +78,7 @@ export default function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalP
               type="text" 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 focus:border-zinc-500 transition-all text-sm"
+              className="w-full px-3 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 focus:border-zinc-500 transition-all text-sm"
               required
             />
           </div>
@@ -89,7 +89,7 @@ export default function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalP
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 focus:border-zinc-500 transition-all text-sm resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:ring focus:ring-zinc-500/20 focus:border-zinc-500 transition-all text-sm resize-none"
             />
           </div>
 
@@ -108,7 +108,7 @@ export default function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalP
                       className="peer sr-only"
                     />
                     <div 
-                      className={`w-4 h-4 rounded-full border-2 transition-all block ${category === c.id ? "border-slate-800 ring-2 ring-white" : "border-transparent"}`}
+                      className={`w-4 h-4 rounded-full border-2 transition-all block ${category === c.id ? "border-slate-800 ring ring-white" : "border-transparent"}`}
                       style={{ backgroundColor: c.value }}
                     />
                   </div>
@@ -125,7 +125,7 @@ export default function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalP
                  type="datetime-local"
                  value={startDate}
                  onChange={(e) => setStartDate(e.target.value)}
-                 className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 text-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 focus:border-zinc-500 transition-all text-sm uppercase"
+                 className="w-full px-3 py-2 rounded-lg border border-zinc-200 text-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 focus:border-zinc-500 transition-all text-sm uppercase"
                  required
                />
             </div>
@@ -136,19 +136,19 @@ export default function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalP
                  type="datetime-local"
                  value={endDate}
                  onChange={(e) => setEndDate(e.target.value)}
-                 className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 text-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 focus:border-zinc-500 transition-all text-sm uppercase"
+                 className="w-full px-3 py-2 rounded-lg border border-zinc-200 text-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 focus:border-zinc-500 transition-all text-sm uppercase"
                />
             </div>
           </div>
 
           <div className="flex gap-4 pt-4 justify-end items-center mt-2">
-            <button type="button" onClick={onClose} className="px-5 py-2.5 text-sm font-bold text-zinc-700 border border-zinc-200 rounded-xl hover:bg-zinc-50 transition-colors">
+            <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-bold text-zinc-700 border border-zinc-200 rounded-lg hover:bg-zinc-50 transition-colors">
               Close
             </button>
             <button 
               type="submit" 
               disabled={!title || !description || !startDate || !endDate}
-              className={`px-5 py-2.5 text-sm font-bold text-white rounded-xl transition-all shadow-sm ${
+              className={`px-5 py-2 text-sm font-bold text-white rounded-lg transition-all shadow-sm ${
                 title && description && startDate && endDate 
                   ? "bg-zinc-900 hover:bg-zinc-800"
                   : "bg-zinc-300 cursor-not-allowed text-zinc-500"

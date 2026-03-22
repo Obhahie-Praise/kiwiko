@@ -180,7 +180,7 @@ const ProjectMailPage = () => {
       {/* Back Button */}
       <Link 
         href={`/${orgSlug}`}
-        className="fixed top-8 left-8 flex items-center gap-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 transition-colors group z-50 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full border border-zinc-100 shadow-sm"
+        className="fixed top-8 left-8 flex items-center gap-2 text-xs font-medium text-black hover:text-zinc-900 transition-colors group z-50 px-4 py-2 bg-white/80 backdrop-blur-md rounded-lg border border-zinc-100 shadow-sm"
       >
         <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
         Back to Profile
@@ -192,7 +192,7 @@ const ProjectMailPage = () => {
             {/* Professional Header */}
             <div className="flex items-center justify-between mb-10 pb-6 border-b border-zinc-200/60">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-white border border-zinc-200 rounded-2xl flex items-center justify-center overflow-hidden shadow-sm">
+                    <div className="w-12 h-12 bg-white border border-zinc-200 rounded-lg flex items-center justify-center overflow-hidden shadow-sm">
                         {project.logoUrl && project.logoUrl.startsWith('http') ? (
                             <img src={project.logoUrl} alt={project.name} className="w-full h-full object-cover" />
                         ) : (
@@ -202,22 +202,22 @@ const ProjectMailPage = () => {
                         )}
                     </div>
                     <div>
-                        <h1 className="text-xl font-semibold tracking-tight text-zinc-900">Reach out to {project.name}</h1>
-                        <p className="text-xs font-medium text-zinc-500 tracking-widest">Official Venture Outreach</p>
+                        <h1 className="text-xl special-font font-semibold tracking-wide text-zinc-900">Reach out to {project.name}</h1>
+                        <p className="text-xs font-medium text-zinc-600">Official Venture Outreach</p>
                     </div>
                 </div>
-                <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-zinc-100 rounded-full">
+                <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-zinc-100 rounded-lg">
                     <ShieldCheck size={12} className="text-emerald-500" />
-                    <span className="text-xs font-medium text-zinc-500">Encrypted</span>
+                    <span className="text-xs font-medium text-zinc-700">Encrypted</span>
                 </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Header Inputs */}
-              <div className="bg-white p-8 rounded-2xl border border-zinc-200 space-y-6">
+              <div className="bg-white p-8 rounded-lg border border-zinc-200 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-2">
-                        <label className="text-xs font-medium tracking-widest text-zinc-600 ml-1">Your Name</label>
+                        <label className="text-xs font-medium tracking-wide text-zinc-600 ml-1">Your Name</label>
                         <input 
                             required
                             type="text" 
@@ -228,7 +228,7 @@ const ProjectMailPage = () => {
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-xs font-medium tracking-widest text-zinc-600 ml-1">Email</label>
+                        <label className="text-xs font-medium tracking-wide text-zinc-600 ml-1">Email</label>
                         <input 
                             required
                             type="email" 
@@ -241,7 +241,7 @@ const ProjectMailPage = () => {
                 </div>
                 
                 <div className="space-y-2">
-                    <label className="text-xs font-medium tracking-widest text-zinc-600 ml-1">Subject</label>
+                    <label className="text-xs font-medium tracking-wide text-zinc-600 ml-1">Subject</label>
                     <input 
                         required
                         type="text" 
@@ -255,7 +255,7 @@ const ProjectMailPage = () => {
 
               {/* Message Container */}
               <div className="group/container">
-                <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm focus-within:ring-4 focus-within:ring-zinc-900/5 transition-all flex flex-col min-h-[400px]">
+                <div className="bg-white border border-zinc-200 rounded-lg overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-zinc-900/5 transition-all flex flex-col min-h-[400px]">
                     <textarea 
                         required
                         placeholder="Compose your message here..."
@@ -312,7 +312,7 @@ const ProjectMailPage = () => {
                     <div className="px-8 pb-6 flex justify-end items-center gap-3" ref={dropdownRef}>
                         <button 
                             type="button"
-                            className="flex items-center gap-2 px-3 py-1.5 bg-zinc-50 border border-zinc-300 rounded-2xl text-xs font-medium text-zinc-400 cursor-not-allowed opacity-60"
+                            className="flex items-center gap-2 px-3 py-1.5 bg-zinc-50 border border-zinc-300 rounded-lg text-xs font-medium text-zinc-400 cursor-not-allowed opacity-60"
                         >
                             <Sparkles size={14} />
                             <span>AI Review</span>
@@ -323,7 +323,7 @@ const ProjectMailPage = () => {
                                 type="button"
                                 disabled={isUploading || attachments.length >= 5}
                                 onClick={() => setShowAttachments(!showAttachments)}
-                                className="flex items-center gap-2 px-3 py-1.5 bg-zinc-50 border border-zinc-300 rounded-2xl text-xs font-medium text-zinc-600 hover:bg-zinc-100 transition-all active:scale-95 group disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex items-center gap-2 px-3 py-1.5 bg-zinc-50 border border-zinc-300 rounded-lg text-xs font-medium text-zinc-600 hover:bg-zinc-100 transition-all active:scale-95 group disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isUploading ? (
                                     <Loader2 size={14} className="animate-spin text-zinc-400" />
@@ -336,7 +336,7 @@ const ProjectMailPage = () => {
 
                             {/* Attachment Dropdown */}
                             {showAttachments && (
-                                <div className="absolute bottom-full right-0 mb-3 w-48 bg-white border border-zinc-200 rounded-2xl shadow-xl p-2 animate-in slide-in-from-bottom-2 duration-200 z-10">
+                                <div className="absolute bottom-full right-0 mb-3 w-48 bg-white border border-zinc-200 rounded-lg shadow-xl p-2 animate-in slide-in-from-bottom-2 duration-200 z-10">
                                     <button 
                                         type="button" 
                                         onClick={() => {
@@ -344,7 +344,7 @@ const ProjectMailPage = () => {
                                             setShowAttachments(false);
                                             setTimeout(() => fileInputRef.current?.click(), 100);
                                         }}
-                                        className="w-full flex items-center gap-3 px-3 py-2 hover:bg-zinc-50 rounded-xl text-xs font-medium text-zinc-600 tracking-widest transition-colors"
+                                        className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-50 rounded-xl text-xs font-medium text-zinc-600 tracking-widest transition-colors"
                                     >
                                         <FileText size={14} className="text-zinc-400" /> PDF Document
                                     </button>
@@ -355,7 +355,7 @@ const ProjectMailPage = () => {
                                             setShowAttachments(false);
                                             setTimeout(() => fileInputRef.current?.click(), 100);
                                         }}
-                                        className="w-full flex items-center gap-3 px-3 py-2 hover:bg-zinc-50 rounded-xl text-xs font-medium text-zinc-600 tracking-widest transition-colors"
+                                        className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-50 rounded-xl text-xs font-medium text-zinc-600 tracking-widest transition-colors"
                                     >
                                         <ImageIcon size={14} className="text-zinc-400" /> Image
                                     </button>
@@ -366,7 +366,7 @@ const ProjectMailPage = () => {
                                             setShowAttachments(false);
                                             setTimeout(() => fileInputRef.current?.click(), 100);
                                         }}
-                                        className="w-full flex items-center gap-3 px-3 py-2 hover:bg-zinc-50 rounded-xl text-xs font-medium text-zinc-600 tracking-widest transition-colors"
+                                        className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-50 rounded-xl text-xs font-medium text-zinc-600 tracking-widest transition-colors"
                                     >
                                         <FileIcon size={14} className="text-zinc-400" /> Other Formats
                                     </button>
@@ -397,7 +397,7 @@ const ProjectMailPage = () => {
                 <button 
                     type="submit"
                     disabled={!isFormValid || isSubmitting || isUploading}
-                    className="bg-zinc-900 text-white px-6 py-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-3 hover:bg-black transition-all shadow-xl shadow-zinc-200 active:scale-[0.98] group disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                    className="bg-zinc-900 text-white px-8 py-3 rounded-lg font-semibold text-xs flex items-center justify-center gap-3 hover:bg-black transition-all shadow-xl shadow-zinc-200 active:scale-[0.98] group disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                 >
                     {isSubmitting ? (
                       <Loader2 size={16} className="animate-spin" />
@@ -409,7 +409,7 @@ const ProjectMailPage = () => {
               </div>
             </form>
 
-            <div className="mt-20 flex items-center justify-center gap-12 text-zinc-400">
+            {/* <div className="mt-20 flex items-center justify-center gap-12 text-zinc-400">
                 <div className="flex items-center gap-2">
                     <Lock size={16} strokeWidth={1.5} />
                     <span className="text-[10px] font-semibold uppercase tracking-widest">End-to-End</span>
@@ -418,20 +418,20 @@ const ProjectMailPage = () => {
                     <MessageSquare size={16} strokeWidth={1.5} />
                     <span className="text-[10px] font-semibold uppercase tracking-widest">Venture Signal</span>
                 </div>
-            </div>
+            </div> */}
           </div>
         ) : (
           <div className="text-center animate-in zoom-in-95 duration-500 py-20">
             <div className="w-24 h-24 bg-emerald-500 text-white rounded-[3rem] flex items-center justify-center mx-auto mb-10 shadow-2xl shadow-emerald-200">
                 <CheckCircle2 size={48} strokeWidth={1} />
             </div>
-            <h2 className="text-5xl font-semibold text-zinc-900 tracking-tighter hero-font  leading-[0.9] mb-6">Email <br /><span className="text-zinc-300">Sent</span></h2>
+            <h2 className="text-5xl font-semibold text-zinc-900 tracking-wide leading-[0.9] mb-6 special-font">Email <br /><span className="text-zinc-300">Sent</span></h2>
             <p className="text-zinc-500 font-medium max-w-sm mx-auto mb-12">
                 Your message has been encrypted and prioritized. Someone from the {project.name} founding team will reach out to you via email.
             </p>
             <button 
               onClick={() => router.push(`/${orgSlug}`)}
-              className="px-8 py-3 bg-zinc-900 text-white rounded-xl font-semibold text-xs hover:bg-black transition-all active:scale-95 shadow-2xl shadow-zinc-200"
+              className="px-8 py-2 bg-zinc-900 text-white rounded-lg font-semibold text-xs hover:bg-black transition-all active:scale-95 shadow-2xl shadow-zinc-200"
             >
                 Return to Venture Profile
             </button>

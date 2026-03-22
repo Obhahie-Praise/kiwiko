@@ -84,14 +84,14 @@ e.preventDefault()
         </div>
       </div>
 
-      <button className="text-center w-full py-3 font-medium mt-4 bg-black text-white rounded-lg flex items-center justify-center">
+      <button className="text-center w-full py-2 font-medium mt-4 bg-black text-white rounded-lg flex items-center justify-center">
         {isAuthenticating ? (
             <LoaderCircle className="animate-spin" width={30} height={30} />
         ) : "Create Account"}
       </button>
       <div className="w-full relative text-center">
               {error && (
-                <p className="absolute w-full top-7 text-red-500 bg-red-500/20 py-1.5 border border-red-500 rounded-lg">
+                <p className="absolute w-full top-10 text-red-500 bg-red-500/20 py-1.5 border border-red-500 rounded-lg">
                   {error}
                 </p>
               )}

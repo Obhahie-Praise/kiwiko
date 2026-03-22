@@ -95,12 +95,12 @@ async function OverviewContent({ project, userId, orgSlug, projectSlug }: any) {
         {displayMetrics.map((item) => (
           <div
             key={item.id}
-            className="bg-white border-[0.1px] border-zinc-200 rounded-2xl p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden shadow-none hover:shadow-md transition-shadow"
+            className="bg-white border-[0.1px] border-zinc-200 rounded-lg p-5 flex flex-col justify-between min-h-[110px] relative overflow-hidden shadow-none hover:shadow-md transition-shadow"
           >
             <div className="flex items-start justify-between">
-              <p className="text-sm text-zinc-600 font-medium tracking-wider hero-font">{item.label}</p>
+              <p className="text-zinc-700 font-semibold tracking-wide special-font">{item.label}</p>
               <div className="p-1.5 bg-zinc-100 rounded-lg border border-zinc-100">
-                <item.icon className="w-3.5 h-3.5 text-zinc-500" strokeWidth={1.5} />
+                <item.icon size={14} className="text-zinc-500" strokeWidth={1.5} />
               </div>
             </div>
 
@@ -130,9 +130,9 @@ async function OverviewContent({ project, userId, orgSlug, projectSlug }: any) {
         </div>
       )}
 
-      <div className="bg-white border-[0.2px] border-zinc-200 rounded-2xl col-span-4 p-5 h-full">
+      <div className="bg-white border-[0.2px] border-zinc-200 rounded-lg col-span-4 p-5 h-full">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold text-zinc-900">Team</h3>
+          <h3 className="text-xl font-semibold text-zinc-900 special-font tracking-wide">Team</h3>
           <Link href={`/${orgSlug}/${projectSlug}/teams`} className="text-sm text-zinc-500 hover:text-zinc-900 transition">
             Manage
           </Link>

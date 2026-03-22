@@ -8,52 +8,64 @@ interface SourceRatioChartProps {
   data: { name: string, value: number }[];
 }
 
-const COLORS = ["#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", "#ec4899", "#71717a"];
+const COLORS = ["#f97316", "#fb923c", "#fdba74", "#fed7aa", "#ffedd5"];
 
 const SourceRatioChart = ({ data }: SourceRatioChartProps) => {
-  const hasData = data.some(entry => entry.value > 0);
-  const chartData = hasData ? data : data.map(entry => ({ ...entry, renderValue: 1 }));
+  const hasData = data && data.length > 0 && data.some(entry => entry.value > 0);
+  const chartData = hasData ? data : [
+    { name: "Desktop", value: 1 },
+    { name: "Mobile", value: 1 },
+    { name: "Tablet", value: 1 }
+  ];
 
   return (
-    <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-900/60 p-6 rounded-2xl h-full flex flex-col">
+    <div className="bg-[#12141c] border border-white/5 p-8 rounded-[2rem] h-full flex flex-col shadow-2xl">
       <div className="flex items-center justify-between mb-8">
-        <h3 className="text-zinc-100 text-lg font-bold special-font tracking-tight">Source Ratio</h3>
-        <button className="text-zinc-500 hover:text-zinc-300 transition-colors">
+        <h3 className="text-white text-xl font-bold tracking-tight font-sans">Sessions By Device</h3>
+        <button className="text-zinc-600 hover:text-white transition-colors">
           <MoreVertical size={20} />
         </button>
       </div>
 
-      <div className="flex-1 w-full min-h-[250px] relative">
+      <div className="flex-1 w-full min-h-[250px] relative mt-4">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={chartData}
-              innerRadius={60}
-              outerRadius={80}
-              paddingAngle={5}
-              dataKey={hasData ? "value" : "renderValue"}
+              innerRadius={70}
+              outerRadius={95}
+              paddingAngle={0}
+              dataKey="value"
               nameKey="name"
+              stroke="none"
+              animationDuration={1500}
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
             <Tooltip
-              contentStyle={{ backgroundColor: "#18181b", borderColor: "#27272a", borderRadius: "12px", color: "#f4f4f5" }}
-              formatter={(value: any, name: any, props: any) => [props.payload.value, name]}
+              contentStyle={{ 
+                backgroundColor: "#1a1c26", 
+                border: "none", 
+                borderRadius: "16px", 
+                color: "#fff",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.5)" 
+              }}
+              formatter={(value: any, name: any) => [hasData ? value : "0", name]}
             />
           </PieChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-4 mt-6">
-        {data.map((entry, index) => (
+      <div className="flex flex-wrap justify-center gap-6 mt-8 font-sans">
+        {(hasData ? data : chartData).map((entry, index) => (
           <div key={entry.name} className="flex items-center gap-2">
             <div 
-              className="w-2 h-2 rounded-full" 
+              className="w-3 h-3 rounded-full" 
               style={{ backgroundColor: COLORS[index % COLORS.length] }} 
             />
-            <span className="text-zinc-400 text-xs font-medium capitalize">{entry.name}</span>
+            <span className="text-zinc-400 text-sm font-medium">{entry.name}</span>
           </div>
         ))}
       </div>

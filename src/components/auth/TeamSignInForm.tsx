@@ -33,7 +33,7 @@ export default function TeamSignInForm() {
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-                <label htmlFor="team-email" className="text-sm font-black uppercase tracking-widest text-zinc-500">
+                <label htmlFor="team-email" className="text-sm font-semibold text-zinc-900">
                     Invited Email
                 </label>
                 <div className="relative group">
@@ -44,14 +44,14 @@ export default function TeamSignInForm() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="yourname@invited-email.com"
-                        className="w-full pl-12 pr-4 py-4 bg-zinc-50 border-2 border-zinc-100 rounded-2xl focus:border-zinc-900 focus:bg-white transition-all outline-none text-sm font-bold placeholder:text-zinc-400"
+                        className="w-full pl-10 pr-4 py-2 bg-zinc-50 border-2 border-zinc-100 rounded-lg focus:border-zinc-900 focus:bg-white transition-all outline-none text-sm font-medium placeholder:text-zinc-400"
                         required
                     />
                 </div>
             </div>
 
             {error && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-xs font-bold text-red-600 animate-in fade-in slide-in-from-top-1">
+                <div className="px-4 py-2 bg-red-50 border border-red-100 rounded-lg text-xs font-medium text-red-600 animate-in fade-in slide-in-from-top-1">
                     {error}
                 </div>
             )}
@@ -59,11 +59,11 @@ export default function TeamSignInForm() {
             <button
                 type="submit"
                 disabled={isAuthenticating || !email}
-                className="relative w-full group overflow-hidden bg-zinc-900 text-white rounded-2xl py-4 disabled:opacity-50 transition-all active:scale-[0.98] shadow-lg shadow-zinc-200/50"
+                className="relative w-full group overflow-hidden bg-zinc-900 text-white rounded-lg py-2 disabled:opacity-50 transition-all active:scale-[0.98] shadow-lg shadow-zinc-200/50"
             >
                 <div className="relative flex items-center justify-center gap-2.5">
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em] ml-1">
-                        {isAuthenticating ? "Verifying Access..." : "Secure Team Login"}
+                    <span className="text-sm font-medium ml-1">
+                        {isAuthenticating ? "Verifying Access..." : "Sign In"}
                     </span>
                     {isAuthenticating ? (
                         <LoaderCircle className="animate-spin" size={16} />

@@ -61,17 +61,17 @@ const Sidebar = () => {
       className={`${isCollapsed ? "w-[54px]" : "w-56"} border-r border-zinc-200 h-screen transition-all duration-200 flex flex-col bg-white shrink-0`}
     >
       {/* Logo */}
-      <div className={`flex items-center gap-2.5 px-3 py-4 border-b border-zinc-100 ${isCollapsed ? "justify-center" : ""}`}>
+      <div className={`flex items-center gap-2 px-3 py-3 border-b border-zinc-100 ${isCollapsed ? "justify-center" : ""}`}>
         <Image
           src="/neutral-logo.svg"
-          width={28}
-          height={28}
+          width={22}
+          height={22}
           alt="Kiwiko"
           className="rounded-md shrink-0"
         />
         {!isCollapsed && (
-          <div>
-            <span className="font-black text-base tracking-tight text-zinc-900 leading-none">Kiwiko</span>
+          <div className="flex items-baseline justify-between w-full">
+            <span className="font-semibold special-font text-base tracking-wide text-black leading-none">Kiwiko</span>
             {(user as any)?.role && (
               <p className="text-xs text-zinc-500 capitalize leading-tight mt-px">{(user as any).role.toLowerCase()}</p>
             )}
@@ -82,7 +82,7 @@ const Sidebar = () => {
       {/* Search Bar - Only show when not collapsed */}
       {!isCollapsed && (
         <div className="px-3 py-2 mb-1">
-          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-zinc-50 border border-zinc-100 hover:border-zinc-200 transition-colors group">
+          <div className="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-zinc-100 border border-zinc-100 hover:border-zinc-200 transition-colors group">
             <Search size={14} strokeWidth={1.5} className="text-zinc-400 group-focus-within:text-zinc-600" />
             <input
               type="text"
@@ -121,17 +121,17 @@ const Sidebar = () => {
                 href={linkHref}
                 key={item.label}
                 title={isCollapsed ? item.label : undefined}
-                className={`relative flex items-center ${isCollapsed ? "justify-center px-2 py-2.5" : "px-3 py-2"} gap-2.5 rounded-lg transition-all group ${
+                className={`relative flex items-center ${isCollapsed ? "justify-center px-2 py-2.5" : "px-3 py-2"} gap-2 rounded-lg transition-all group ${
                   isActive
                     ? "bg-zinc-900 text-white"
-                    : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800"
+                    : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-800"
                 }`}
               >
-                <div className={`transition-colors shrink-0 ${isActive ? "text-white" : "text-zinc-500 group-hover:text-zinc-600"}`}>
-                  <item.icon className="w-4.5 h-4.5" strokeWidth={1.5} />
+                <div className={`transition-colors shrink-0 ${isActive ? "text-white" : "text-zinc-600 group-hover:text-zinc-600"}`}>
+                  <item.icon size={16} strokeWidth={1.6} />
                 </div>
                 {!isCollapsed && (
-                  <span className="">{item.label}</span>
+                  <span className="text-sm font-medium">{item.label}</span>
                 )}
                 {item.badge && !isCollapsed && (
                   <span className="ml-auto text-[10px] px-1.5 py-0.5 flex items-center justify-center text-white font-bold rounded-full bg-red-500">

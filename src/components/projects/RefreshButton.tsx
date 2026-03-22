@@ -31,11 +31,11 @@ export default function RefreshButton({ path }: RefreshButtonProps) {
         <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="absolute top-4 left-6 z-40 p-2 bg-white/80 backdrop-blur-sm border border-zinc-200 rounded-xl shadow-sm hover:bg-white hover:border-zinc-300 transition-all text-zinc-500 hover:text-zinc-900 group active:scale-95 disabled:opacity-50"
+            className="absolute top-2 left-2 z-40 p-1.5 bg-white/80 backdrop-blur-sm border-[0.2px] border-zinc-200 rounded-md shadow-sm hover:bg-white hover:border-zinc-300 transition-all text-zinc-500 hover:text-zinc-900 group active:scale-95 disabled:opacity-50"
             title="Refresh dashboard data"
         >
-            <RefreshCw 
-                className={`w-4 h-4 ${isRefreshing ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}`} 
+            <RefreshCw size={12}
+                className={`${isRefreshing ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}`} 
             />
         </button>
     );

@@ -16,11 +16,11 @@ export function MonthlyTargetGauge() {
   const target = 150000;
   
   return (
-    <div className="bg-white border-[0.2px] border-zinc-200 rounded-3xl overflow-hidden shadow-none flex flex-col min-h-[450px]">
+    <div className="bg-white border-[0.2px] border-zinc-200 rounded-lg overflow-hidden shadow-none flex flex-col min-h-[450px]">
       <div className="p-8 pb-4">
         <div className="flex items-start justify-between mb-2">
             <div>
-                <h3 className="text-xl font-semibold text-zinc-900 hero-font tracking-tight">Monthly Target</h3>
+                <h3 className="text-xl font-semibold text-zinc-900 special-font tracking-wide">Monthly Target</h3>
                 <p className="text-sm text-zinc-500 font-medium mt-1">Funding goal for current period</p>
             </div>
             <button className="text-zinc-400 hover:text-zinc-600 transition-colors">
@@ -68,7 +68,7 @@ export function MonthlyTargetGauge() {
 
       <div className="mt-auto bg-zinc-50/80 border-t border-zinc-100 p-6 flex items-center justify-between">
         <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Target</span>
+            <span className="text-xs font-medium text-zinc-500 tracking-wide">Target</span>
             <div className="flex items-center gap-1.5">
                 <span className="text-lg font-bold text-zinc-900">$150K</span>
                 <TrendingUp size={14} className="text-emerald-500" />
@@ -76,7 +76,7 @@ export function MonthlyTargetGauge() {
         </div>
         <div className="w-px h-8 bg-zinc-200"></div>
         <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Revenue</span>
+            <span className="text-xs font-medium text-zinc-500 tracking-wide">Revenue</span>
             <div className="flex items-center gap-1.5">
                 <span className="text-lg font-bold text-zinc-900">$128K</span>
                 <TrendingUp size={14} className="text-emerald-500" />
@@ -84,7 +84,7 @@ export function MonthlyTargetGauge() {
         </div>
         <div className="w-px h-8 bg-zinc-200"></div>
         <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Left</span>
+            <span className="text-xs font-medium text-zinc-500 tracking-wide">Left</span>
             <div className="flex items-center gap-1.5">
                 <span className="text-lg font-bold text-zinc-900">$22K</span>
                 <TrendingDown size={14} className="text-red-500" />

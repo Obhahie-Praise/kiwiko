@@ -27,7 +27,7 @@ const UpdatesUI = () => {
   };
 
   return (
-    <div className="relative transition-all">
+    <div className="relative transition-all hidden md:inline">
       {!isDroped ? (
         <button
           onClick={() => setIsDroped(!isDroped)}
