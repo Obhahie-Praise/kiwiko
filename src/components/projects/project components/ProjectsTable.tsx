@@ -4,6 +4,7 @@ import { MoreHorizontal, ExternalLink, GitBranch, Clock, Search, Plus, Instagram
 import React, { useState, useRef } from "react";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import DeleteProjectModal from "../DeleteProjectModal";
 import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 
@@ -86,13 +87,18 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
             return (
               <div
                 key={project.id}
-                onClick={() => handleRowClick(project)}
-                className={`grid grid-cols-12 gap-4 px-4 py-3 items-center text-sm border-b hover:bg-zinc-50/50 transition-colors cursor-pointer group ${
+                className={`relative grid grid-cols-12 gap-4 px-4 py-3 items-center text-sm border-b hover:bg-zinc-50/50 transition-colors group ${
                   index === filteredProjects.length - 1 ? "border-b-0" : ""
                 }`}
               >
+                {/* Phantom Link for row click */}
+                <Link 
+                  href={`/${project.orgSlug || orgSlug}/${project.slug}/overview`}
+                  className="absolute inset-0 z-0"
+                  aria-label={`View ${project.name} overview`}
+                />
                 {/* Project Name */}
-                <div className="col-span-4 flex items-center gap-3 pl-2">
+                <div className="col-span-4 flex items-center gap-3 pl-2 relative z-10 pointer-events-none">
                   <div className="w-8 h-8 rounded-lg bg-zinc-100 border border-zinc-200 flex items-center justify-center overflow-hidden shrink-0">
                     {project.logoUrl ? (
                          <img
@@ -114,7 +120,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
                 </div>
 
                 {/* Domain */}
-                <div className="col-span-2">
+                <div className="col-span-2 relative z-10">
                   <a
                     href={`/${project.slug}`} // Changed: Public profile is /slug
                     target="_blank"
@@ -128,7 +134,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
                 </div>
 
                  {/* Stage */}
-                 <div className="col-span-1">
+                 <div className="col-span-1 relative z-10">
                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-zinc-100 text-zinc-600 border border-zinc-200">
                     {project.stage}
                    </span>
@@ -140,7 +146,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
                 </div>
 
                 {/* Status */}
-                <div className="col-span-2">
+                <div className="col-span-2 relative z-10">
                   <span
                     className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${
                       project.status === "Active" || project.status === "Live"
@@ -166,7 +172,7 @@ const ProjectsTable = ({ projects }: { projects: any[] }) => {
                 </div>
 
                 {/* Actions */}
-                <div className="col-span-1 flex justify-end relative" onClick={(e) => e.stopPropagation()}>
+                <div className="col-span-1 flex justify-end relative z-10">
                   <ActionMenu 
                     projectId={project.id} 
                     isOpen={openMenuId === project.id} 

@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import crypto from "crypto";
+import { getSession, getOrgMembership } from "@/lib/dal";
 
 export type ActionResponse<T = any> = 
   | { success: true; data: T }
@@ -15,9 +16,7 @@ export type ActionResponse<T = any> =
 const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 export async function createOrganizationAction(formData: FormData): Promise<ActionResponse<{ orgId: string }>> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
@@ -146,9 +145,7 @@ function mapRole(uiRole: string): string {
 }
 
 export async function inviteTeamMembersAction(orgId: string, invites: { email: string, role: string }[]): Promise<ActionResponse<boolean>> {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) {
         return { success: false, error: "Unauthorized" };
@@ -157,14 +154,7 @@ export async function inviteTeamMembersAction(orgId: string, invites: { email: s
     const userId = session.user.id;
 
     // Validate requester has permissions (Owner or Admin) - for now just check membership
-    const membership = await prisma.membership.findUnique({
-        where: {
-            userId_orgId: {
-                userId,
-                orgId
-            }
-        }
-    });
+    const membership = await getOrgMembership(orgId);
 
     if (!membership) {
         return { success: false, error: "Membership not found" };
@@ -232,9 +222,7 @@ export async function inviteTeamMembersAction(orgId: string, invites: { email: s
 }
 
 export async function acceptInviteAction(token: string): Promise<ActionResponse<string>> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized. Please sign in first." };
@@ -338,9 +326,7 @@ export async function acceptInviteAction(token: string): Promise<ActionResponse<
 
 
 export async function updateOrganizationSettingsAction(orgId: string, formData: FormData): Promise<ActionResponse<boolean>> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
@@ -400,9 +386,7 @@ export async function updateOrganizationSettingsAction(orgId: string, formData: 
 }
 
 export async function deleteOrganizationAction(orgId: string): Promise<ActionResponse<boolean>> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };

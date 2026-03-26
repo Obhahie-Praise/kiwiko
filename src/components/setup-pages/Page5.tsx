@@ -45,17 +45,16 @@ const Page5 = ({
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black">
             P5
           </div>
-          <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
-            COncept <br /> <span className="text-zinc-500">proof.</span>
+          <h2 className="text-4xl font-semibold text-white special-font tracking-tight leading-tight">
+            Concept <br /> <span className="text-zinc-500">Proof.</span>
           </h2>
-          <p className="text-zinc-400 font-bold text-lg leading-relaxed">
-            Show that your product isn't just another service, its some thing
-            people would actually use.{" "}
+          <p className="text-zinc-400 font-medium text-lg leading-relaxed">
+            Show that your product isn't just another service, it's something people would actually use.
           </p>
         </div>
 
         <div className="space-y-6 relative z-10">
-          <div className="flex items-center gap-3 text-zinc-500 uppercase text-[10px] font-black tracking-widest">
+          <div className="flex items-center gap-3 text-zinc-500 uppercase text-xs font-medium tracking-wide">
             <BarChart3 size={16} className="text-emerald-500" />
             Traction Signal Matrix
           </div>
@@ -67,10 +66,10 @@ const Page5 = ({
         <div className="w-full max-w-xl space-y-12">
           {/* Header */}
           <div className="space-y-2">
-            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">
+            <span className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
               Step 05 / 08
             </span>
-            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">
+            <h1 className="text-4xl font-semibold text-zinc-900 special-font tracking-tight">
               Proof of concept.
             </h1>
           </div>
@@ -78,7 +77,7 @@ const Page5 = ({
           <div className="space-y-10">
             {/* User Count */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+              <label className="text-xs font-medium text-zinc-400 uppercase tracking-wide flex items-center gap-2">
                 <UsersIcon size={12} /> User Count
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -86,7 +85,7 @@ const Page5 = ({
                   <button
                     key={range}
                     onClick={() => setUserCount(range)}
-                    className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border text-left flex items-center justify-between ${
+                    className={`px-6 py-4 rounded-lg text-xs font-medium uppercase tracking-wide transition-all border text-left flex items-center justify-between ${
                       userCount === range
                         ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200"
                         : "bg-white text-zinc-500 border-zinc-100 hover:border-zinc-300"
@@ -103,7 +102,7 @@ const Page5 = ({
 
             {/* Revenue */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+              <label className="text-xs font-medium text-zinc-400 uppercase tracking-wide flex items-center gap-2">
                 <DollarSign size={12} /> Revenue
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -111,7 +110,7 @@ const Page5 = ({
                   <button
                     key={range}
                     onClick={() => setRevenue(range)}
-                    className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border text-left flex items-center justify-between ${
+                    className={`px-6 py-4 rounded-lg text-xs font-medium uppercase tracking-wide transition-all border text-left flex items-center justify-between ${
                       revenue === range
                         ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200"
                         : "bg-white text-zinc-500 border-zinc-100 hover:border-zinc-300"
@@ -131,7 +130,7 @@ const Page5 = ({
           <div className="pt-10 flex items-center justify-between border-t border-zinc-100">
             <Link
               href={`/onboarding/setup?page=${Number(position) - 1}`}
-              className="group flex items-center gap-3 text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:text-zinc-900 transition-colors"
+              className="group flex items-center gap-3 text-xs font-medium text-zinc-400 uppercase tracking-wide hover:text-zinc-900 transition-colors"
             >
               <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center group-hover:bg-zinc-100 transition-colors">
                 <ChevronLeft size={16} />
@@ -145,7 +144,7 @@ const Page5 = ({
                   ? `/onboarding/setup?page=${Number(position) + 1}`
                   : "#"
               }
-              className={`group flex items-center gap-3 px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+              className={`group flex items-center gap-3 px-8 py-3 rounded-lg text-sm font-semibold tracking-wide uppercase transition-all ${
                 isComplete
                   ? "bg-zinc-900 text-white shadow-xl shadow-zinc-200 hover:bg-black"
                   : "bg-zinc-100 text-zinc-300 cursor-not-allowed"

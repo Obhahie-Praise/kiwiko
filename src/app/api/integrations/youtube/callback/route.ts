@@ -1,6 +1,5 @@
 import { google } from "googleapis";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/dal";
 import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 
@@ -28,9 +27,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Invalid State Format", { status: 400 });
   }
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user?.id || (userIdFromState && session.user.id !== userIdFromState)) {
     console.error("YouTube OAuth: Unauthorized or Invalid State Match", { 
@@ -71,6 +68,8 @@ export async function GET(request: NextRequest) {
       console.error("YouTube OAuth Token Exchange Failed:", tokens);
       return new NextResponse(`OAuth Token Exchange Failed: ${tokens.error_description || tokens.error || "Unknown error"}`, { status: 400 });
     }
+
+    console.log("YouTube OAuth: Received tokens with scopes:", tokens.scope);
 
     const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
     oauth2Client.setCredentials(tokens);

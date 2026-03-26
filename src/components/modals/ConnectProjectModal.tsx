@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../lightswind/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../lightswind/tabs";
-import { Check, Copy, Terminal, Code2, Globe, Server } from "lucide-react";
+import { Check, Copy, Terminal, Code2, Globe, Server, Loader2 } from "lucide-react";
 import { buttonVariants } from "../lightswind/button";
 import { cn } from "@/lib/utils";
 
@@ -21,11 +21,21 @@ export const ConnectProjectModal = ({
   secretKey,
 }: ConnectProjectModalProps) => {
   const [copied, setCopied] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
     setTimeout(() => setCopied(null), 2000);
+  };
+
+  const handleConnect = async () => {
+    setIsConnecting(true);
+    // Simulate connection or wait for user to be ready
+    setTimeout(() => {
+      setIsConnecting(false);
+      onOpenChange(false);
+    }, 1500);
   };
 
   const domain = typeof window !== "undefined" ? window.location.origin : "https://kiwiko.io";
@@ -97,10 +107,10 @@ fetch("${domain}/api/ingest", {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <div className="w-12 h-12 rounded-2xl bg-zinc-900 flex items-center justify-center mb-4">
-            <Code2 size={24} className="text-white" />
+          <div className="w-10 h-10 rounded-lg bg-zinc-900 flex items-center justify-center mb-4">
+            <Code2 size={20} className="text-white" />
           </div>
-          <DialogTitle className="text-2xl font-bold hero-font">Connect Kiwiko to your website</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold special-font tracking-wide">Connect Kiwiko to your website</DialogTitle>
           <DialogDescription className="text-zinc-500 mt-2">
             Install the tracking script to start collecting real-time analytics. Your keys are unique to this project.
           </DialogDescription>
@@ -108,7 +118,7 @@ fetch("${domain}/api/ingest", {
 
         <div className="mt-8">
           <Tabs defaultValue="nextjs">
-            <TabsList className="bg-zinc-100 p-1 rounded-xl w-full justify-start gap-1">
+            <TabsList className="bg-zinc-100 p-1 rounded-lg w-full justify-start gap-1">
               <TabsTrigger value="html" className="flex items-center gap-2">
                 <Globe size={14} /> HTML
               </TabsTrigger>
@@ -174,10 +184,12 @@ fetch("${domain}/api/ingest", {
             <p className="text-[10px] text-zinc-500">Read our full integration guide</p>
           </div>
           <button
-            onClick={() => onOpenChange(false)}
-            className={cn(buttonVariants({ variant: "default" }), "bg-zinc-900 text-white hover:bg-zinc-800 rounded-xl px-8")}
+            onClick={handleConnect}
+            disabled={isConnecting}
+            className={cn(buttonVariants({ variant: "default" }), "bg-zinc-900 text-white hover:bg-zinc-800 rounded-lg font-medium px-8 flex items-center gap-2")}
           >
-            Got it, I'm connected
+            {isConnecting && <Loader2 className="w-4 h-4 animate-spin" />}
+            {isConnecting ? "Connecting..." : "Got it, I'm connected"}
           </button>
         </div>
       </DialogContent>

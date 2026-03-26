@@ -3,8 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
-import { Phone, Video, MoreVertical, Loader2 } from "lucide-react";
+import { Phone, Video, MoreVertical, Loader2, Sparkles } from "lucide-react";
 import { getAblyChat } from "@/lib/ably";
+import { chatWithKiwikoAgentAction, getKiwikoAgentHistoryAction } from "@/actions/ai.actions";
+import AIToolModal from "./AIToolModal";
+import Image from "next/image";
 
 // ----------------------------------------------------------------
 // Mock history generator (used as fallback and for the AI agent)
@@ -48,7 +51,7 @@ const generateMockHistory = (contact: any) => {
       {
         id: "ai1",
         user: "Kiwiko Agent",
-        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Kiwiko",
+        avatar: "/kiwiko-agent.svg",
         text: "Hi! I'm Kiwiko Agent. I can help you with project insights, drafts, and more. What do you need today?",
         time: "Just now",
         mine: false,
@@ -169,6 +172,9 @@ export default function ChatWindow({
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [botStatus, setBotStatus] = useState<"thinking" | "preparing_tools" | "performing_task" | null>(null);
+  const [activeToolCall, setActiveToolCall] = useState<any>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const roomRef = useRef<any>(null);
   const subRef = useRef<any>(null);
@@ -176,6 +182,7 @@ export default function ChatWindow({
   // ── Ably / mock integration ──────────────────────────────────
   useEffect(() => {
     if (!activeContact) return;
+    let isMounted = true;
 
     // Teardown previous room
     subRef.current?.unsubscribe?.();
@@ -183,28 +190,48 @@ export default function ChatWindow({
     subRef.current = null;
     roomRef.current = null;
 
-    // Mock contacts — no real-time needed
-    if (
-      activeContact.id === "ai-agent" ||
-      !projectId ||
-      !currentUserId
-    ) {
-      setMessages(generateMockHistory(activeContact));
-      return;
-    }
-
-    const chat = getAblyChat();
-    if (!chat) {
-      // Ably key not configured — graceful mock fallback
-      setMessages(generateMockHistory(activeContact));
-      return;
-    }
-
-    let isMounted = true;
-    setIsLoading(true);
-    setMessages([]);
-
     const setupRoom = async () => {
+      // If AI Agent, load custom server-side history and skip Ably
+      if (activeContact?.id === "ai-agent") {
+        if (isMounted) setMessages([]);
+        if (projectId) {
+          getKiwikoAgentHistoryAction(projectId).then(res => {
+            if (isMounted && res.success && res.data) {
+              const historyMessages: Message[] = res.data.map((m: any) => ({
+                id: m.id,
+                user: m.role === "user" ? "You" : "Kiwiko Agent",
+                avatar: m.role === "user" ? "https://images.unsplash.com/photo-1607746882042-944635dfe10e" : activeContact.avatar,
+                text: m.content,
+                time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                mine: m.role === "user"
+              }));
+              
+              setMessages(historyMessages);
+            }
+          });
+        }
+        return;
+      }
+
+      // Mock contacts — no real-time needed (for non-AI, non-Ably cases)
+      if (!projectId || !currentUserId) {
+        if (isMounted) setMessages(generateMockHistory(activeContact));
+        return;
+      }
+
+      // 1) Set up Ably client & room (Only for real users)
+      const chat = getAblyChat();
+      if (!chat) {
+        // Ably key not configured — graceful mock fallback
+        if (isMounted) setMessages(generateMockHistory(activeContact));
+        return;
+      }
+
+      if (isMounted) {
+        setIsLoading(true);
+        setMessages([]);
+      }
+
       try {
         const roomId =
           activeContact.id === "group"
@@ -214,12 +241,12 @@ export default function ChatWindow({
                 .join("-")}`;
 
         const room = await chat.rooms.get(roomId);
+        if (!isMounted) return;
         roomRef.current = room;
 
         // Attach is required before reading history or subscribing
         await room.attach();
 
-        // Fetch prior messages
         // Fetch prior messages
         const { items } = await (room.messages as any).get({ limit: 50 });
 
@@ -274,19 +301,72 @@ export default function ChatWindow({
     if (!text.trim()) return;
 
     if (activeContact.id === "ai-agent") {
-      // Local mock only for now
-      setMessages((prev: any[]) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          user: "You",
-          avatar:
-            "https://images.unsplash.com/photo-1607746882042-944635dfe10e",
-          text,
-          time: "Just now",
-          mine: true,
-        },
-      ]);
+      const userMsg: Message = {
+        id: crypto.randomUUID(),
+        user: "You",
+        avatar: "https://images.unsplash.com/photo-1607746882042-944635dfe10e",
+        text,
+        time: "Just now",
+        mine: true,
+      };
+      
+      setMessages((prev) => [...prev, userMsg]);
+      setIsTyping(true);
+      setBotStatus("thinking");
+
+      try {
+        if (!projectId) throw new Error("Missing projectId");
+        const res = await chatWithKiwikoAgentAction(projectId, text);
+        if (activeContact.id !== "ai-agent") return;
+
+        if (res.success && res.text) {
+          if (res.toolCall) {
+            setBotStatus("preparing_tools");
+            setTimeout(() => {
+              if (activeContact.id === "ai-agent") {
+                setIsTyping(false);
+                setBotStatus(null);
+                setMessages(prev => [...prev, {
+                  id: crypto.randomUUID(),
+                  user: "Kiwiko Agent",
+                  avatar: activeContact.avatar,
+                  text: res.text!,
+                  time: "Just now",
+                  mine: false,
+                }]);
+                setActiveToolCall(res.toolCall);
+              }
+            }, 800);
+          } else {
+            setIsTyping(false);
+            setBotStatus(null);
+            setMessages(prev => [...prev, {
+              id: crypto.randomUUID(),
+              user: "Kiwiko Agent",
+              avatar: activeContact.avatar,
+              text: res.text!,
+              time: "Just now",
+              mine: false,
+            }]);
+          }
+        } else {
+          throw new Error(res.error || "Failed to get response");
+        }
+      } catch (error) {
+        console.error("AI Chat Error:", error);
+        if (activeContact.id === "ai-agent") {
+          setIsTyping(false);
+          setBotStatus(null);
+          setMessages(prev => [...prev, {
+            id: crypto.randomUUID(),
+            user: "Kiwiko Agent",
+            avatar: activeContact.avatar,
+            text: "Sorry, I encountered an error. Please try again or check your connection.",
+            time: "Just now",
+            mine: false,
+          }]);
+        }
+      }
       return;
     }
 
@@ -338,10 +418,10 @@ export default function ChatWindow({
             )}
           </div>
           <div>
-            <h3 className="font-semibold text-lg text-zinc-900 leading-tight capitalize">
+            <h3 className="special-font tracking-wide font-semibold text-zinc-900 leading-tight capitalize">
               {activeContact.name}
             </h3>
-            <p className="text-sm text-zinc-500">{activeContact.role}</p>
+            <p className="text-xs text-zinc-500">{activeContact.role}</p>
           </div>
         </div>
 
@@ -366,11 +446,63 @@ export default function ChatWindow({
             <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
           </div>
         )}
+        {/* Empty State for AI Agent */}
+        {!isLoading && activeContact.id === 'ai-agent' && messages.length === 0 && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in-95 duration-500 bg-white z-10">
+            <div className="w-16 h-16 bg-white rounded-2xl shadow-xl shadow-zinc-200/50 flex items-center justify-center border border-zinc-100 mb-6">
+              {/* <Sparkles className="w-8 h-8 text-indigo-500" /> */}
+              <Image src="/neutral-logo.svg" alt="Kiwiko Agent" width={64} height={64} className="rounded-full" />
+            </div>
+            <h2 className="text-3xl font-semibold text-zinc-900 mb-2 special-font">
+              Meet the Kiwiko Agent
+            </h2>
+            <p className="text-xs font-medium text-zinc-500 max-w-[400px] mb-8 leading-tight">
+              I'm an AI assistant built right into your workspace. I can help analyze your metrics, compose emails, draft project updates, and schedule meetings. What shall we tackle today?
+            </p>
+            <div className="flex justify-center flex-wrap gap-2">
+               {/* <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 border border-zinc-200 bg-zinc-50 shadow-sm rounded-full px-3 py-1.5 flex items-center gap-1.5"><Sparkles size={12} className="text-indigo-500"/> Context Aware</span>
+               <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 border border-zinc-200 bg-zinc-50 shadow-sm rounded-full px-3 py-1.5 flex items-center gap-1.5">Agentic Tools</span>
+               <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 border border-zinc-200 bg-zinc-50 shadow-sm rounded-full px-3 py-1.5 flex items-center gap-1.5">Secure Memory</span> */}
+               <p className="text-sm font-semibold text-zinc-500 max-w-[400px] mb-8">Ask about your startup</p>
+            </div>
+          </div>
+        )}
+
         {messages.map((m: any) => (
           <MessageBubble key={m.id} message={m} />
         ))}
+        {isTyping && (
+          <div className="flex gap-3 mb-4 max-w-[80%] opacity-90 animate-in slide-in-from-left-2 duration-300">
+             <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 mt-1 border border-zinc-200">
+                <img src={activeContact.avatar} alt="Bot" className="w-full h-full object-cover" />
+             </div>
+             <div className="bg-zinc-100 text-zinc-900 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex flex-col gap-2 min-w-[140px]">
+                <div className="flex items-center gap-2">
+                   <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-400" />
+                   <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+                      {botStatus === "thinking" && "Kiwiko is thinking..."}
+                      {botStatus === "preparing_tools" && "Preparing tools..."}
+                      {botStatus === "performing_task" && "Performing task..."}
+                      {!botStatus && "Typing..."}
+                   </span>
+                </div>
+                <div className="flex gap-1.5 ml-0.5">
+                   <span className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                   <span className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                   <span className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce"></span>
+                </div>
+             </div>
+          </div>
+        )}
         <div ref={bottomRef} className="h-1" />
       </div>
+
+      <AIToolModal 
+        isOpen={!!activeToolCall}
+        toolCall={activeToolCall}
+        projectId={projectId || ""}
+        onClose={() => setActiveToolCall(null)}
+      />
 
       {/* INPUT */}
       <div className="shrink-0 p-4 bg-white border-t border-zinc-100">

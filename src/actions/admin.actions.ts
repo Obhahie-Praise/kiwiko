@@ -3,11 +3,10 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { getSession } from "@/lib/dal";
 
 export async function getWaitlistStatsAction() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   // Basic security check - in development, we might want to skip this or ensure it works
   // if (!session?.user) {
@@ -107,9 +106,7 @@ export async function getWaitlistStatsAction() {
 }
 
 export async function getWaitlistEntriesAction(page = 1, pageSize = 50) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   // if (!session?.user) {
   //   throw new Error("Unauthorized");

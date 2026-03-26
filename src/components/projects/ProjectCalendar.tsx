@@ -15,6 +15,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 import AddEventModal from "./AddEventModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -306,6 +307,7 @@ type TabMode  = "upcoming" | "past";
 
 export default function ProjectCalendar({ projectId }: { projectId: string }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [view, setView]     = useState<ViewMode>("month");
   const [cursor, setCursor] = useState(new Date());
@@ -353,6 +355,10 @@ export default function ProjectCalendar({ projectId }: { projectId: string }) {
       kind: newEvent.kind,
     });
     if (res.success) {
+      toast.success({
+        title: "Event Created",
+        description: `Successfully added "${newEvent.title}" to the calendar.`,
+      });
       // Trigger a refresh of the page data and the activity table
       window.dispatchEvent(new Event("refresh-activities"));
       router.refresh();

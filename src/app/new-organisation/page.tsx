@@ -1,26 +1,16 @@
-import React from 'react';
 import NewOrgForm from '@/components/organization/NewOrgForm';
 import Navbar from '@/components/common/Navbar';
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import prisma from "@/lib/prisma";
+import { getFullUserContext } from "@/lib/dal";
 
 const NewOrganisationPage = async () => {
-    const session = await auth.api.getSession({
-       headers: await headers()
-    });
+    const userContext = await getFullUserContext();
   
-    if (!session?.user?.id) {
+    if (!userContext) {
        redirect("/sign-in");
     }
   
-    const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
-        include: { memberships: { include: { organization: true } } }
-    });
-  
-    const organizations = user?.memberships.map(m => m.organization) || [];
+    const organizations = userContext.memberships.map((m: any) => m.organization) || [];
 
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col">
@@ -30,7 +20,7 @@ const NewOrganisationPage = async () => {
           The user is creating a NEW one, so maybe show "Create Organization" or "Select Org"?
           Let's pass organizations only. Navbar handles default. 
       */}
-      <Navbar showNewOrgButton={false} organizations={organizations} user={session.user} />
+      <Navbar showNewOrgButton={false} organizations={organizations} user={userContext as any} />
       <div className="flex-1 py-12 px-4 sm:px-6 lg:px-8 flex justify-center overflow-y-auto">
         <NewOrgForm />
       </div>

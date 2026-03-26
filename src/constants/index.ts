@@ -185,6 +185,7 @@ import {
   CircleDollarSign,
   UserRoundPen,
   LayoutDashboard,
+  Sparkles,
 } from "lucide-react";
 
 export const sidebarNav = [
@@ -195,10 +196,10 @@ export const sidebarNav = [
     description: "Your startup dashboard",
   },
   {
-    label: "Discover",
-    href: "/discover",
-    icon: Compass,
-    description: "Explore founders and startups",
+    label: "Updates",
+    href: "/updates",
+    icon: Sparkles,
+    description: "Manual progress updates",
   },
   {
     label: "Funding",
@@ -293,7 +294,7 @@ export const completeOnboarding = [
   },
 ];
 
-import { Code2, Megaphone, Users, Eye, Sparkles } from "lucide-react";
+import { Code2, Megaphone, Users, Eye } from "lucide-react";
 
 export const recentActivities = [
   {

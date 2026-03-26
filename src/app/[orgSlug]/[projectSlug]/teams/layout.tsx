@@ -4,8 +4,7 @@ import TeamHeader from "@/components/teams/board/TeamHeader";
 import TeamTabs from "@/components/teams/board/TeamTabs";
 import { getProjectHomeDataAction } from "@/actions/project.actions";
 import { notFound, redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/dal";
 
 export default async function TeamsLayout(
   props: {
@@ -14,7 +13,7 @@ export default async function TeamsLayout(
   }
 ) {
   const { orgSlug, projectSlug } = await props.params;
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user?.id) return redirect("/sign-in");
 
   const res = await getProjectHomeDataAction(orgSlug, projectSlug);

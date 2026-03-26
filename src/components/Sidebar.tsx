@@ -7,6 +7,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useProjectSlugs } from "@/hooks/useProjectSlugs";
+import { getUserContextAction } from "@/actions/project.actions";
+import { getNotificationsAction } from "@/actions/notification.actions";
 
 const Sidebar = () => {
   const currentPath = usePathname();
@@ -19,6 +21,31 @@ const Sidebar = () => {
 
   const { data: session } = useSession();
   const user = session?.user;
+
+  const [userOrgs, setUserOrgs] = useState<any[]>([]);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  useEffect(() => {
+    const fetchContext = async () => {
+        const res = await getUserContextAction();
+        if (res.success) setUserOrgs(res.data.organizations);
+    };
+    fetchContext();
+  }, []);
+
+  const currentOrg = userOrgs.find((o) => o.slug === orgSlug);
+  const currentProject = currentOrg?.projects.find((p: any) => p.slug === projectSlug);
+  const hasManualSignal = currentProject?.signals?.some((s: any) => s.signalType === "MANUAL");
+
+  useEffect(() => {
+    if (currentProject?.id) {
+       getNotificationsAction(currentProject.id).then((res) => {
+         if (res.success && res.data) {
+            setUnreadNotifications(res.data.filter((n: any) => !n.read).length);
+         }
+       });
+    }
+  }, [currentProject?.id]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -96,7 +123,10 @@ const Sidebar = () => {
       {/* Nav links */}
       <div className="px-2 py-3 flex-1 overflow-y-auto no-scrollbar">
         <div className="space-y-0.5">
-          {sidebarNav.map((item) => {
+          {sidebarNav.filter(item => {
+            if (item.label === "Updates") return hasManualSignal;
+            return true;
+          }).map((item) => {
             let linkHref = `/${orgSlug}/${projectSlug}${item.href}`;
             let isActive = false;
 
@@ -133,12 +163,24 @@ const Sidebar = () => {
                 {!isCollapsed && (
                   <span className="text-sm font-medium">{item.label}</span>
                 )}
-                {item.badge && !isCollapsed && (
+                
+                {/* Real Notification Badge */}
+                {item.label === "Notifications" && unreadNotifications > 0 && !isCollapsed && (
+                  <span className="ml-auto text-[10px] px-1.5 py-0.5 flex items-center justify-center text-white font-bold rounded-full bg-red-500">
+                    {unreadNotifications}
+                  </span>
+                )}
+                {item.label === "Notifications" && unreadNotifications > 0 && isCollapsed && (
+                  <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white" />
+                )}
+
+                {/* Legacy mock badge fallback (if not notifications) */}
+                {item.badge && item.label !== "Notifications" && !isCollapsed && (
                   <span className="ml-auto text-[10px] px-1.5 py-0.5 flex items-center justify-center text-white font-bold rounded-full bg-red-500">
                     {item.badge}
                   </span>
                 )}
-                {item.badge && isCollapsed && (
+                {item.badge && item.label !== "Notifications" && isCollapsed && (
                   <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white" />
                 )}
               </Link>

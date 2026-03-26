@@ -245,7 +245,7 @@ const ProjectInnerNav = () => {
 
         {session?.user && (
           <>
-            <NotificationsMenu />
+            <NotificationsMenu projectId={currentProject?.id} />
             <div className="h-4 w-px bg-zinc-200 mx-1" />
             <NavProfileDropdown session={session} orgSlug={orgSlug} />
           </>

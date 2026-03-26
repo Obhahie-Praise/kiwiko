@@ -1,12 +1,10 @@
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import ProjectsTable from "@/components/projects/project components/ProjectsTable";
 import Navbar from "@/components/common/Navbar";
 import Link from "next/link";
 import { Plus, FolderPlus, Search, Building2 } from "lucide-react";
 import React from "react";
+import { getFullUserContext, getOrganizationProjects } from "@/lib/dal";
 
 interface PageProps {
   params: Promise<{
@@ -17,40 +15,16 @@ interface PageProps {
 export default async function OrgProjectsPage({ params }: PageProps) {
   const { orgSlug } = await params;
   
-  const session = await auth.api.getSession({
-     headers: await headers()
-  });
+  const userContext = await getFullUserContext();
+  if (!userContext) redirect("/sign-in");
 
-  if (!session?.user?.id) {
-     redirect("/sign-in");
-  }
+  const organizations = userContext.memberships.map((m: any) => m.organization);
+  const currentOrg = organizations.find((o: any) => o.slug === orgSlug);
 
-  // Fetch user with organizations
-  const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-          memberships: {
-              include: {
-                  organization: true
-              }
-          }
-      }
-  });
+  if (!currentOrg) return notFound();
 
-  if (!user) redirect("/sign-in");
-
-  const organizations = user.memberships.map(m => m.organization);
-  const currentOrg = organizations.find(o => o.slug === orgSlug);
-
-  if (!currentOrg) {
-      return notFound();
-  }
-
-  // Fetch projects
-  const projects = await prisma.project.findMany({
-      where: { orgId: currentOrg.id },
-      orderBy: { updatedAt: 'desc' }
-  });
+  // Fetch projects using DAL
+  const projects = await getOrganizationProjects(currentOrg.id);
 
   // Map to Table format (preserving mock fields for UI compatibility for now)
   // Map to Table format
@@ -74,7 +48,7 @@ export default async function OrgProjectsPage({ params }: PageProps) {
       <Navbar 
         organizations={organizations} 
         currentOrg={currentOrg} 
-        user={session.user} 
+        user={userContext} 
       />
 
       <main className="flex mt-10 items-center justify-center pb-20">

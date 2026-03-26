@@ -60,16 +60,16 @@ const LastPage = ({ userRole }: { userRole: string }) => {
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black text-xl">
             FIN
           </div>
-          <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
+          <h2 className="text-4xl font-semibold text-white special-font tracking-tight leading-tight">
             One Last <br /> <span className="text-zinc-500">Step.</span>
           </h2>
-          <p className="text-zinc-400 font-bold text-lg leading-relaxed">
+          <p className="text-zinc-400 font-medium text-lg leading-relaxed">
             Accept our terms and initialize your protocol into the Kiwiko ecosystem.
           </p>
         </div>
 
         <div className="space-y-6 relative z-10">
-          <div className="flex items-center gap-3 text-zinc-500 uppercase text-[10px] font-black tracking-widest">
+          <div className="flex items-center gap-3 text-zinc-500 uppercase text-xs font-medium tracking-wide">
             <ShieldCheck size={16} className="text-emerald-500" />
             Institutional Security Layer
           </div>
@@ -81,22 +81,22 @@ const LastPage = ({ userRole }: { userRole: string }) => {
         <div className="w-full max-w-xl space-y-12">
           {/* Header */}
           <div className="space-y-2 text-left">
-            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">
+            <span className="text-xs font-medium text-emerald-600 uppercase tracking-wide">
               Verification Protocol
             </span>
-            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">
+            <h1 className="text-4xl font-semibold text-zinc-900 special-font tracking-tight">
               Legal Consent.
             </h1>
           </div>
 
           <div className="space-y-6">
-            <p className="text-zinc-500 font-bold text-lg mb-8 leading-relaxed">
+            <p className="text-zinc-500 font-medium text-lg mb-8 leading-relaxed">
               Please review and accept our legal agreements to proceed.
             </p>
 
             <div
               onClick={() => setTermsAccepted(!termsAccepted)}
-              className={`flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${
+              className={`flex items-center gap-4 p-5 rounded-lg border transition-all cursor-pointer ${
                 termsAccepted
                   ? "bg-zinc-900 border-zinc-900 shadow-xl shadow-zinc-200"
                   : "bg-zinc-50 border-zinc-200 hover:border-zinc-300"
@@ -112,7 +112,7 @@ const LastPage = ({ userRole }: { userRole: string }) => {
                 {termsAccepted && <CheckCircle2 size={14} />}
               </div>
               <span
-                className={`text-[11px] font-black uppercase tracking-tight transition-colors ${
+                className={`text-xs font-medium uppercase tracking-wide transition-colors ${
                   termsAccepted ? "text-white" : "text-zinc-500"
                 }`}
               >
@@ -122,7 +122,7 @@ const LastPage = ({ userRole }: { userRole: string }) => {
 
             <div
               onClick={() => setPrivacyAccepted(!privacyAccepted)}
-              className={`flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${
+              className={`flex items-center gap-4 p-5 rounded-lg border transition-all cursor-pointer ${
                 privacyAccepted
                   ? "bg-zinc-900 border-zinc-900 shadow-xl shadow-zinc-200"
                   : "bg-zinc-50 border-zinc-200 hover:border-zinc-300"
@@ -138,7 +138,7 @@ const LastPage = ({ userRole }: { userRole: string }) => {
                 {privacyAccepted && <CheckCircle2 size={14} />}
               </div>
               <span
-                className={`text-[11px] font-black uppercase tracking-tight transition-colors ${
+                className={`text-xs font-medium uppercase tracking-wide transition-colors ${
                   privacyAccepted ? "text-white" : "text-zinc-500"
                 }`}
               >
@@ -148,7 +148,7 @@ const LastPage = ({ userRole }: { userRole: string }) => {
           </div>
 
           {error && (
-            <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-[10px] font-black uppercase tracking-widest italic">
+            <div className="p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-red-600 text-xs font-medium uppercase tracking-wide">
               <Info size={14} />
               {error}
             </div>
@@ -159,7 +159,7 @@ const LastPage = ({ userRole }: { userRole: string }) => {
             <button
               disabled={!isComplete || isLoading}
               onClick={handleFinalSubmit}
-              className={`group flex items-center gap-3 px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+              className={`group flex items-center gap-3 px-10 py-4 rounded-lg text-sm font-semibold tracking-wide uppercase transition-all ${
                 isComplete && !isLoading
                   ? "bg-zinc-900 text-white shadow-xl shadow-zinc-200 hover:bg-black scale-105 active:scale-95"
                   : "bg-zinc-100 text-zinc-300 cursor-not-allowed"

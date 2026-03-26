@@ -34,7 +34,7 @@ const Page6 = ({
       <div className="bg-white w-120 min-h-screen relative">
         <div className="mb-10 mt-20 px-6 space-y-20">
           <div className="">
-            <label htmlFor="revenue" className="text-2xl font-medium">
+            <label htmlFor="revenue" className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
               Team size
             </label>
             <div className="space-y-3 mt-3">
@@ -47,7 +47,7 @@ const Page6 = ({
                 <div
                   className={`${teamSize === "Solo" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
                 />
-                <p className="text-2xl font-medium">Solo</p>
+                <p className="text-lg font-medium text-zinc-900">Solo</p>
               </div>
               <div
                 className="flex items-center gap-2 cursor-pointer"
@@ -58,7 +58,7 @@ const Page6 = ({
                 <div
                   className={`${teamSize === "2-3" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
                 />
-                <p className="text-2xl font-medium">2-3</p>
+                <p className="text-lg font-medium text-zinc-900">2-3</p>
               </div>
               <div
                 className="flex items-center gap-2 cursor-pointer"
@@ -69,12 +69,12 @@ const Page6 = ({
                 <div
                   className={`${teamSize === "4+" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
                 />
-                <p className="text-2xl font-medium">4+</p>
+                <p className="text-lg font-medium text-zinc-900">4+</p>
               </div>
             </div>
           </div>
           <div className="flex flex-col space-y-2">
-            <label htmlFor="the-solution" className="text-2xl font-medium">
+            <label htmlFor="the-solution" className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
               Are you leading development on this project?
             </label>
             <div className="space-y-3 mt-3">
@@ -87,7 +87,7 @@ const Page6 = ({
                 <div
                   className={`${leaderStatus === "Yes" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
                 />
-                <p className="text-2xl font-medium">Yes</p>
+                <p className="text-lg font-medium text-zinc-900">Yes</p>
               </div>
                 <div
                 className="flex items-center gap-2 cursor-pointer"
@@ -98,7 +98,7 @@ const Page6 = ({
                 <div
                   className={`${leaderStatus === "No" ? " bg-black border-zinc-400" : "bg-white border-black"} w-5 h-5 border-2 rounded-full`}
                 />
-                <p className="text-2xl font-medium">No</p>
+                <p className="text-lg font-medium text-zinc-900">No</p>
               </div>
             </div>
           </div>

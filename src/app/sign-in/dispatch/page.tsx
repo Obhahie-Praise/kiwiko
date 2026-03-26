@@ -1,12 +1,9 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/dal";
 import prisma from "@/lib/prisma";
 
 export default async function SignInDispatchPage() {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     // If no session is found, something went wrong with the authentication flow
     // Redirect back to sign-in instead of onboarding

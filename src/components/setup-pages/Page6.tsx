@@ -36,16 +36,16 @@ const Page6 = ({
         
         <div className="space-y-4 relative z-10">
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black">P6</div>
-          <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
-            Team  <br /> <span className="text-zinc-500">Structure.</span>
+          <h2 className="text-4xl font-semibold text-white special-font tracking-tight leading-tight">
+            Team <br /> <span className="text-zinc-500">Structure.</span>
           </h2>
-          <p className="text-zinc-400 font-bold text-lg leading-relaxed">
+          <p className="text-zinc-400 font-medium text-lg leading-relaxed">
             Define your operational unit. The strength of the architecture is limited by the talent of its builders.
           </p>
         </div>
 
         <div className="space-y-6 relative z-10">
-           <div className="flex items-center gap-3 text-zinc-500 uppercase text-[10px] font-black tracking-widest">
+           <div className="flex items-center gap-3 text-zinc-500 uppercase text-xs font-medium tracking-wide">
               <Users size={16} className="text-emerald-500" />
               Organizational Blueprint
            </div>
@@ -57,14 +57,14 @@ const Page6 = ({
         <div className="w-full max-w-xl space-y-12">
           {/* Header */}
           <div className="space-y-2">
-            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">Step 06 / 08</span>
-            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Team Status.</h1>
+            <span className="text-xs font-medium text-emerald-600 uppercase tracking-wide">Step 06 / 08</span>
+            <h1 className="text-4xl font-semibold text-zinc-900 special-font tracking-tight">Team Status.</h1>
           </div>
 
           <div className="space-y-10">
             {/* Team Size */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+              <label className="text-xs font-medium text-zinc-400 uppercase tracking-wide flex items-center gap-2">
                 <Users size={12} /> Team Size
               </label>
               <div className="grid grid-cols-3 gap-3">
@@ -72,7 +72,7 @@ const Page6 = ({
                   <button
                     key={size}
                     onClick={() => setTeamSize(size)}
-                    className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border text-center ${
+                    className={`px-6 py-4 rounded-lg text-xs font-medium uppercase tracking-wide transition-all border text-center ${
                       teamSize === size 
                         ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200" 
                         : "bg-white text-zinc-500 border-zinc-100 hover:border-zinc-300"
@@ -86,13 +86,13 @@ const Page6 = ({
 
             {/* Leader Status */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+              <label className="text-xs font-medium text-zinc-400 uppercase tracking-wide flex items-center gap-2">
                 <ShieldCheck size={12} /> Development Lead
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setLeaderStatus("Yes")}
-                  className={`px-6 py-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border text-left flex items-center justify-between group ${
+                  className={`px-6 py-6 rounded-lg text-xs font-medium uppercase tracking-wide transition-all border text-left flex items-center justify-between group ${
                     leaderStatus === "Yes" 
                       ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200" 
                       : "bg-white text-zinc-500 border-zinc-100 hover:border-zinc-300"
@@ -107,7 +107,7 @@ const Page6 = ({
 
                 <button
                   onClick={() => setLeaderStatus("No")}
-                  className={`px-6 py-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border text-left flex items-center justify-between group ${
+                  className={`px-6 py-6 rounded-lg text-xs font-medium uppercase tracking-wide transition-all border text-left flex items-center justify-between group ${
                     leaderStatus === "No" 
                       ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200" 
                       : "bg-white text-zinc-500 border-zinc-100 hover:border-zinc-300"
@@ -127,7 +127,7 @@ const Page6 = ({
           <div className="pt-10 flex items-center justify-between border-t border-zinc-100">
             <Link
               href={`/onboarding/setup?page=${Number(position) - 1}`}
-              className="group flex items-center gap-3 text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:text-zinc-900 transition-colors"
+              className="group flex items-center gap-3 text-xs font-medium text-zinc-400 uppercase tracking-wide hover:text-zinc-900 transition-colors"
             >
               <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center group-hover:bg-zinc-100 transition-colors">
                 <ChevronLeft size={16} />
@@ -137,7 +137,7 @@ const Page6 = ({
 
             <Link
               href={isComplete ? `/onboarding/setup?page=${Number(position) + 1}` : "#"}
-              className={`group flex items-center gap-3 px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+              className={`group flex items-center gap-3 px-8 py-3 rounded-lg text-sm font-semibold tracking-wide uppercase transition-all ${
                 isComplete 
                   ? "bg-zinc-900 text-white shadow-xl shadow-zinc-200 hover:bg-black" 
                   : "bg-zinc-100 text-zinc-300 cursor-not-allowed"

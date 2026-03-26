@@ -1,8 +1,7 @@
 import ChatLayout from "@/components/teams/chat/ChatLayout";
 import { mockMessages } from "@/constants/index";
 import { getProjectHomeDataAction } from "@/actions/project.actions";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/dal";
 import { notFound } from "next/navigation";
 
 export default async function TeamsChatPage(
@@ -13,7 +12,7 @@ export default async function TeamsChatPage(
   const res = await getProjectHomeDataAction(orgSlug, projectSlug);
   if (!res.success || !res.data) return notFound();
 
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   const currentUserId = session?.user?.id;
 
   const activeMembers = res.data.project.members
@@ -56,7 +55,7 @@ export default async function TeamsChatPage(
         id: "ai-agent",
         name: "Kiwiko Agent",
         role: "AI Bot",
-        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Kiwiko",
+        avatar: "/kiwiko-agent.svg",
         isOnline: true,
         time: "Now",
         lastMessageAt: Date.now()

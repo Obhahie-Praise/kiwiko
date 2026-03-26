@@ -59,6 +59,8 @@ export async function getYouTubeChannelStats(connectedAccountId: string): Promis
     const oauth2Client = new google.auth.OAuth2();
     oauth2Client.setCredentials({ access_token: accessToken });
 
+    console.log("YouTube Action: Fetching stats with token (first 10 chars):", accessToken.substring(0, 10));
+
     const youtube = google.youtube({ version: "v3", auth: oauth2Client });
     const response = await youtube.channels.list({
       part: ["statistics", "snippet"],
@@ -102,6 +104,8 @@ export async function getLatestUploads(channelId: string, connectedAccountId: st
 
     const oauth2Client = new google.auth.OAuth2();
     oauth2Client.setCredentials({ access_token: accessToken });
+
+    console.log("YouTube Action: Fetching uploads with token (first 10 chars):", accessToken.substring(0, 10));
 
     const youtube = google.youtube({ version: "v3", auth: oauth2Client });
     

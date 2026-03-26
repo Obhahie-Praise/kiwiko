@@ -15,7 +15,7 @@ export default function ChatSidebar({ contacts, active, setActive }: { contacts:
     <div className="w-[320px] border-r border-zinc-200 bg-white flex flex-col h-full shrink-0">
       {/* Header */}
       <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-zinc-900">Chats</h2>
+        <h2 className="text-xl font-semibold special-font tracking-wide text-black">Chats</h2>
         <button className="text-zinc-400 hover:text-zinc-600 transition">
           <MoreVertical size={20} />
         </button>
@@ -30,7 +30,7 @@ export default function ChatSidebar({ contacts, active, setActive }: { contacts:
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm rounded-xl pl-10 pr-4 py-2.5 outline-none focus:ring-2 focus:ring-black focus:bg-white transition"
+            className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm rounded-lg pl-10 pr-4 py-2 outline-none focus:ring focus:ring-black focus:bg-white transition"
           />
         </div>
       </div>
@@ -41,7 +41,7 @@ export default function ChatSidebar({ contacts, active, setActive }: { contacts:
           <button
             key={c.id}
             onClick={() => setActive(c.id)}
-            className={`w-full text-left p-3 rounded-2xl flex items-start gap-3 transition
+            className={`w-full text-left p-3 rounded-lg flex items-start gap-3 transition
             ${
               active === c.id
                 ? "bg-zinc-100"
@@ -63,7 +63,7 @@ export default function ChatSidebar({ contacts, active, setActive }: { contacts:
             {/* Content */}
             <div className="flex-1 min-w-0">
                <div className="flex justify-between items-center mb-0.5">
-                  <h3 className="capitalize font-medium text-zinc-900 truncate pr-2">{c.name}</h3>
+                  <h3 className="capitalize text-sm font-semibold text-black truncate pr-2">{c.name}</h3>
                   <span className="text-[11px] font-medium text-zinc-400 whitespace-nowrap">{c.time}</span>
                </div>
                <p className="text-xs text-zinc-500 truncate">{c.role}</p>

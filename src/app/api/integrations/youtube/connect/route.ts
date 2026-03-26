@@ -1,15 +1,12 @@
 import { google } from "googleapis";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/dal";
 import { NextResponse, NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const returnTo = searchParams.get("returnTo");
   
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user?.id) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -27,8 +24,10 @@ export async function GET(request: NextRequest) {
   const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
 
   const scopes = [
-    "https://www.googleapis.com/auth/youtube.readonly",
+    "openid",
+    "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/youtube.readonly",
   ];
 
   // Encode state as JSON to pass multiple values (userId + optional returnTo)

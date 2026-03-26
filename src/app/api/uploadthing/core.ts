@@ -1,12 +1,10 @@
-// app/api/uploadthing/core.ts
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { auth } from "@/lib/auth"; // your auth function
-import { headers } from "next/headers";
+import { getSession } from "@/lib/dal";
 
 const f = createUploadthing();
 
 const handleAuth = async () => {
-  const session = await auth.api.getSession({headers: await headers()})
+  const session = await getSession();
 
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -144,6 +142,20 @@ export const ourFileRouter = {
     })
     .onUploadComplete(async ({ file }) => {
       return { url: file.url };
+    }),
+
+  // 📝 PROJECT UPDATE IMAGE
+  projectUpdateUploader: f({
+    image: { maxFileSize: "4MB", maxFileCount: 1 },
+  })
+    .middleware(async () => {
+      return await handleAuth();
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      return {
+        uploadedBy: metadata.userId,
+        url: file.url,
+      };
     }),
 
 } satisfies FileRouter;

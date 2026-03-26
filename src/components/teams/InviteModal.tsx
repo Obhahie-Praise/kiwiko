@@ -43,10 +43,10 @@ export default function InviteMember({ projectId, orgSlug }: { projectId: string
 
       {open && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 space-y-4">
+          <div className="bg-white rounded-lg w-full max-w-md p-6 space-y-4">
             {/* HEADER */}
             <div className="flex justify-between items-center">
-              <h2 className="font-semibold text-lg">Invite teammate</h2>
+              <h2 className="font-semibold text-xl special-font tracking-wide">Invite Team Member</h2>
               <button onClick={() => setOpen(false)}>
                 <X size={18} />
               </button>

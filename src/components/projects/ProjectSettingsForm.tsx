@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import UploadDropzone from "@/components/ui/upload/UploadDropZone";
-import { Loader2, Plus, X, Save, Zap, Building2, ArrowLeft, AlertTriangle, Briefcase, Link as LinkIcon, Users, Github, Instagram, Linkedin, Twitter, Youtube, Check, Search, Sparkles, FileText, Info, Lock, Facebook, Mail, Crown } from "lucide-react";
+import { Loader2, Plus, X, Save, Zap, Building2, ArrowLeft, AlertTriangle, Briefcase, Link as LinkIcon, Users, Github, Instagram, Linkedin, Twitter, Youtube, Check, Search, Sparkles, FileText, Info, Lock, Facebook, Mail, Crown, Terminal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { updateProjectSettingsAction, inviteProjectMemberAction } from "@/actions/project.actions";
 import { getUserGithubRepos } from "@/actions/github.actions";
@@ -13,6 +13,7 @@ import { Tooltip } from "../lightswind/tooltip";
 import { SignalType } from "@/generated/prisma";
 import { useProjectSlugs } from "@/hooks/useProjectSlugs";
 import { signIn } from "@/lib/auth-client";
+import { ConnectProjectModal } from "../modals/ConnectProjectModal";
 
 interface ProjectSettingsFormProps {
   project: any;
@@ -25,6 +26,7 @@ const ProjectSettingsForm = ({ project }: ProjectSettingsFormProps) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [showConnectModal, setShowConnectModal] = useState(false);
 
   // Form State
   const [name, setName] = useState(project.name);
@@ -897,6 +899,43 @@ const ProjectSettingsForm = ({ project }: ProjectSettingsFormProps) => {
                 </div>
                 )}
             </div>
+          <div className="bg-zinc-900 rounded-[2rem] border border-zinc-800 shadow-xl overflow-hidden p-8 space-y-6 relative group">
+            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Zap size={120} className="text-amber-400 fill-amber-400" />
+            </div>
+            
+            <div className="relative z-10">
+              <h2 className="text-sm font-black text-amber-400 uppercase tracking-[0.2em] flex items-center gap-2 mb-2">
+                <Zap size={14} className="fill-amber-400" />
+                Kiwiko Engine
+              </h2>
+              <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter mb-4">
+                Active Tracking Integration
+              </h3>
+              
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Public Key</p>
+                  <code className="text-xs font-mono text-emerald-400 truncate block">{project.publicKey}</code>
+                </div>
+                <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Secret Key</p>
+                  <code className="text-xs font-mono text-white/40 truncate block">••••••••••••••••</code>
+                </div>
+              </div>
+
+              <p className="text-zinc-400 text-sm font-medium leading-relaxed mb-6 max-w-lg">
+                Your project is ready to receive data. Integrate the Kiwiko tracking script into your application to start monitoring growth signals in real-time.
+              </p>
+
+              <button 
+                onClick={() => setShowConnectModal(true)}
+                className="w-full md:w-auto px-8 py-3 bg-white text-zinc-900 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-amber-400 transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <Terminal size={14} />
+                View Integration Guide
+              </button>
+            </div>
           </div>
         </div>
         
@@ -927,6 +966,13 @@ const ProjectSettingsForm = ({ project }: ProjectSettingsFormProps) => {
             </div>
         </div>
       </div>
+      <ConnectProjectModal 
+        open={showConnectModal} 
+        onOpenChange={setShowConnectModal}
+        publicKey={project.publicKey}
+        secretKey={project.secretKey}
+      />
+    </div>
     </div>
   );
 };

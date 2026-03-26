@@ -1,37 +1,18 @@
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Box, Globe, Shield, Users } from "lucide-react";
+import { getSession, getUserWithProjectMemberships } from "@/lib/dal";
 
 export default async function MyProjectsPage() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
-
+    const session = await getSession();
     if (!session?.user?.id) {
         redirect("/sign-in");
     }
 
-    // Fetch projects where the user is a member
-    const userWithProjects = await prisma.user.findUnique({
-        where: { id: session.user.id },
-        include: {
-            projectMemberships: {
-                include: {
-                    project: {
-                        include: {
-                            organization: true
-                        }
-                    }
-                }
-            }
-        }
-    });
+    const userWithProjects = await getUserWithProjectMemberships();
 
-    const projects = userWithProjects?.projectMemberships.map(m => ({
+    const projects = userWithProjects?.projectMemberships.map((m: any) => ({
         ...m.project,
         role: m.role
     })) || [];

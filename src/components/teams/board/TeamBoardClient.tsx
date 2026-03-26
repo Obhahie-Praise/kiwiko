@@ -39,7 +39,7 @@ export default function TeamBoardClient({
     <div className="space-y-8 p-6">
       {/* FOUNDER */}
       {founder && (
-        <div className="border rounded-2xl p-6 bg-black text-white flex items-center justify-between">
+        <div className="border rounded-lg p-6 bg-black text-white flex items-center justify-between">
           <div className="flex items-center gap-4 relative">
             <img src={founder.avatar} className="w-14 h-14 rounded-full" />
             <div className="bg-yellow-50 rounded-full p-1 absolute -top-1 -left-1 ">
@@ -63,7 +63,7 @@ export default function TeamBoardClient({
           <button
             key={m.id}
             onClick={() => handleEditClick(m)}
-            className="border rounded-2xl p-4 bg-white hover:shadow-md transition text-left relative focus:outline-none focus:ring-2 focus:ring-zinc-200"
+            className="border rounded-lg p-4 bg-white hover:shadow-md transition text-left relative focus:outline-none focus:ring-2 focus:ring-zinc-200"
           >
             <div className="flex items-center gap-3">
               <img
@@ -132,9 +132,9 @@ function EditMemberModal({ member, projectId, onClose }: { member: TeamMember, p
 
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-white rounded-lg w-full max-w-md shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex items-center justify-between p-4 border-b">
-                    <h3 className="font-semibold text-lg text-zinc-900">Edit Team Member</h3>
+                    <h3 className="font-semibold special-font text-xl tracking-wide text-black">Edit Team Member</h3>
                     <button onClick={onClose} className="p-1 hover:bg-zinc-100 rounded-lg text-zinc-500 transition">
                        ✕
                     </button>

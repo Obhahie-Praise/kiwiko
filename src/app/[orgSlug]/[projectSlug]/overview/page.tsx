@@ -1,4 +1,4 @@
-import { getSession } from "@/constants/getSession";
+import { getSession } from "@/lib/dal";
 import { Users, Eye, GitCommit, Check, Calendar } from "lucide-react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -12,7 +12,7 @@ import RefreshButton from "@/components/projects/RefreshButton";
 import { Suspense } from "react";
 import OverviewLoading from "@/components/projects/OverviewLoading";
 
-const OverviewPage = async ({ params }: { params: { orgSlug: string, projectSlug: string } }) => {
+const OverviewPage = async ({ params }: { params: Promise<{ orgSlug: string, projectSlug: string }> }) => {
   const { orgSlug, projectSlug } = await params;
   const session = await getSession();
   

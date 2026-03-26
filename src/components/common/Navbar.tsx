@@ -1,6 +1,6 @@
 "use client";
 
-import { getSession } from "@/constants/getSession";
+import { getSession } from "@/lib/dal";
 import { ChevronsUpDown, Check, Building2, Plus, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

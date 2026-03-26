@@ -3,9 +3,10 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
+import { getSession } from "@/lib/dal";
 
 export async function getChatMessagesAction(projectId: string, receiverId?: string) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
   try {
@@ -37,7 +38,7 @@ export async function sendChatMessageAction(
   receiverId?: string,
   attachments?: { file?: any, link?: any, folder?: any, image?: string }
 ) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
   try {

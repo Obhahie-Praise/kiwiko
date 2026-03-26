@@ -21,10 +21,10 @@ const Page1 = ({
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
             Onboarding Phase
           </div> */}
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic leading-[0.85] text-zinc-900">
-            Continue as. . . <br /> <span className="text-zinc-400"></span>
+          <h1 className="text-5xl md:text-7xl font-semibold tracking-tight special-font leading-[0.9] text-zinc-900">
+            Continue as. . . <br /> <span className="text-zinc-500"></span>
           </h1>
-          <p className="text-zinc-500 font-bold text-xl max-w-lg mx-auto leading-relaxed">
+          <p className="text-zinc-500 font-medium text-lg max-w-lg mx-auto leading-relaxed">
             Select your operational role within the Kiwiko.
           </p>
         </div>
@@ -44,16 +44,16 @@ const Page1 = ({
               <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center text-white rotate-3 group-hover:rotate-12 transition-transform duration-500">
                 <Briefcase size={32} />
               </div>
-              <h3 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">
-                startup <br /> <span className="text-zinc-400">investor</span>
+              <h3 className="text-4xl font-semibold text-zinc-900 special-font tracking-tight">
+                Startup <br /> <span className="text-zinc-400">Investor</span>
               </h3>
-              <p className="text-zinc-500 font-bold text-lg leading-relaxed">
+              <p className="text-zinc-500 font-medium text-lg leading-relaxed">
                 Analyze high-conviction signals, track execution, and allocate capital to verified ventures.
               </p>
             </div>
 
             <div className="flex items-center justify-between relative z-10">
-              <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Investor</span>
+              <span className="text-xs font-medium text-zinc-400 tracking-wide uppercase">Investor</span>
               <div className="w-12 h-12 rounded-full bg-zinc-50 border border-zinc-100 flex items-center justify-center text-zinc-300 group-hover:bg-zinc-900 group-hover:text-white transition-all duration-500">
                 <ChevronRight size={24} />
               </div>
@@ -73,16 +73,16 @@ const Page1 = ({
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-zinc-900 -rotate-3 group-hover:rotate-6 transition-transform duration-500">
                 <Users size={32} />
               </div>
-              <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter">
-                startup <br /> <span className="text-zinc-500">founder</span>
+              <h3 className="text-4xl font-semibold text-white special-font tracking-tight">
+                Startup <br /> <span className="text-zinc-500">Founder</span>
               </h3>
-              <p className="text-zinc-400 font-bold text-lg leading-relaxed">
+              <p className="text-zinc-400 font-medium text-lg leading-relaxed">
                 Ship at terminal velocity, verify your reality with data, and build atop institutional infrastructure.
               </p>
             </div>
 
             <div className="flex items-center justify-between relative z-10 text-white">
-              <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">founder</span>
+              <span className="text-xs font-medium text-zinc-400 tracking-wide uppercase">founder</span>
               <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 group-hover:bg-white group-hover:text-zinc-900 transition-all duration-500">
                 <ChevronRight size={24} />
               </div>

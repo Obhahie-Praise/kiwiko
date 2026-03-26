@@ -1,28 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import SetupProgress from "@/components/setup-pages/SetupProgress";
+import { getFullUserContext } from "@/lib/dal";
 
 export default async function OnboardingSetupLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+  const userContext = await getFullUserContext();
 
-  if (session?.user?.id) {
-    const memberships = await prisma.membership.findMany({
-      where: { userId: session.user.id },
-      take: 1
-    });
-
-    if (memberships.length > 0) {
+  if (userContext) {
+    if (userContext.memberships.length > 0) {
       // User has already completed onboarding and has an organization
       console.log("OnboardingSetupLayout: User has memberships, redirecting to dispatch");
       redirect("/sign-in/dispatch");
@@ -41,7 +32,7 @@ export default async function OnboardingSetupLayout({
       <div className="fixed top-8 left-8 z-50">
         <Link href="/" className="flex items-center gap-2 group">
            <Image src="/neutral-logo.svg" alt="logo" width={28} height={28} className="group-hover:rotate-12 transition-transform duration-500" />
-           <p className="text-xl font-black italic tracking-tighter uppercase text-zinc-900">Kiwiko</p>
+           <p className="text-xl font-semibold italic tracking-wide special-font text-zinc-900">Kiwiko</p>
         </Link>
       </div>
 

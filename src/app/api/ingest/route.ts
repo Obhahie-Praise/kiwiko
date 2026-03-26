@@ -101,6 +101,25 @@ export async function POST(req: NextRequest) {
       }
     });
 
+    // 4. Notify project members
+    const members = await prisma.projectMember.findMany({
+      where: { projectId: project.id },
+      select: { userId: true }
+    });
+
+    await Promise.all(
+      members.map(m => prisma.notification.create({
+        data: {
+          projectId: project.id,
+          userId: m.userId,
+          type: "event_created",
+          title: "External Event Tracked",
+          message: `Event "${eventName}" was tracked via Kiwiko Engine.`,
+          metadata: { eventId: event.id, eventName }
+        }
+      }))
+    );
+
     return NextResponse.json({ success: true, id: event.id });
 
   } catch (error) {

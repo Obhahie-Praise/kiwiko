@@ -36,7 +36,7 @@ export default async function TeamsBoardPage(
   return (
     <div className="min-h-screen">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-zinc-900">Team Board</h2>
+        <h2 className="text-xl special-font tracking-wide font-semibold text-black">Team Board</h2>
         <p className="text-sm text-zinc-500 mt-1">Manage your founding team and their project roles.</p>
       </div>
       <TeamBoardClient members={allMembers} projectId={res.data.project.id} />

@@ -36,16 +36,16 @@ const Page4 = ({
         
         <div className="space-y-4 relative z-10">
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-zinc-900 italic font-black">P4</div>
-          <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
+          <h2 className="text-4xl font-semibold text-white special-font tracking-tight leading-tight">
             Current <br /> <span className="text-zinc-500">Progress.</span>
           </h2>
-          <p className="text-zinc-400 font-bold text-lg leading-relaxed">
+          <p className="text-zinc-400 font-medium text-lg leading-relaxed">
             Tell us what you've built and how far you've come.
           </p>
         </div>
 
         <div className="space-y-6 relative z-10">
-           <div className="flex items-center gap-3 text-zinc-500 uppercase text-[10px] font-black tracking-widest">
+           <div className="flex items-center gap-3 text-zinc-500 uppercase text-xs font-medium tracking-wide">
               <Activity size={16} className="text-emerald-500" />
               Live Momentum Sensor
            </div>
@@ -57,14 +57,14 @@ const Page4 = ({
         <div className="w-full max-w-xl space-y-12">
           {/* Header */}
           <div className="space-y-2">
-            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] italic">Step 04 / 08</span>
-            <h1 className="text-4xl font-black text-zinc-900 uppercase italic tracking-tighter">Current stage.</h1>
+            <span className="text-xs font-medium text-emerald-600 uppercase tracking-wide">Step 04 / 08</span>
+            <h1 className="text-4xl font-semibold text-zinc-900 special-font tracking-tight">Current stage.</h1>
           </div>
 
           <div className="space-y-10">
             {/* Stage Selection */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+              <label className="text-xs font-medium text-zinc-400 uppercase tracking-wide flex items-center gap-2">
                 <Activity size={12} />Stage
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -72,7 +72,7 @@ const Page4 = ({
                   <button
                     key={s}
                     onClick={() => setStage(s)}
-                    className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border text-left flex items-center justify-between ${
+                    className={`px-6 py-4 rounded-lg text-xs font-medium uppercase tracking-wide transition-all border text-left flex items-center justify-between ${
                       stage === s 
                         ? "bg-zinc-900 text-white border-zinc-900 shadow-xl shadow-zinc-200" 
                         : "bg-white text-zinc-500 border-zinc-100 hover:border-zinc-300"
@@ -87,7 +87,7 @@ const Page4 = ({
 
             {/* Product Link */}
             <div className="space-y-2.5">
-              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+              <label className="text-xs font-medium text-zinc-400 uppercase tracking-wide flex items-center gap-2">
                 <LinkIcon size={12} /> Project link
               </label>
               <div className="relative group">
@@ -97,10 +97,10 @@ const Page4 = ({
                   value={linkToProduct}
                   onChange={(e) => setLinkToProduct(e.target.value)}
                   placeholder="e.g. protocol.kiwiko.io"
-                  className="w-full pl-14 pr-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-bold text-zinc-900"
+                  className="w-full pl-14 pr-6 py-4 bg-zinc-50 border border-zinc-200 rounded-lg outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium text-zinc-900"
                 />
               </div>
-              <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Public access link to your current build or repository.</p>
+              <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide">Public access link to your current build or repository.</p>
             </div>
           </div>
 
@@ -108,7 +108,7 @@ const Page4 = ({
           <div className="pt-10 flex items-center justify-between border-t border-zinc-100">
             <Link
               href={`/onboarding/setup?page=${Number(position) - 1}`}
-              className="group flex items-center gap-3 text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:text-zinc-900 transition-colors"
+              className="group flex items-center gap-3 text-xs font-medium text-zinc-400 uppercase tracking-wide hover:text-zinc-900 transition-colors"
             >
               <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center group-hover:bg-zinc-100 transition-colors">
                 <ChevronLeft size={16} />
@@ -118,7 +118,7 @@ const Page4 = ({
 
             <Link
               href={isComplete ? `/onboarding/setup?page=${Number(position) + 1}` : "#"}
-              className={`group flex items-center gap-3 px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+              className={`group flex items-center gap-3 px-8 py-3 rounded-lg text-sm font-semibold tracking-wide uppercase transition-all ${
                 isComplete 
                   ? "bg-zinc-900 text-white shadow-xl shadow-zinc-200 hover:bg-black" 
                   : "bg-zinc-100 text-zinc-300 cursor-not-allowed"

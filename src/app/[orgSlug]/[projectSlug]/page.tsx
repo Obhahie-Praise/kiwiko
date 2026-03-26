@@ -1,9 +1,7 @@
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import Navbar from "@/components/common/Navbar";
 import ProjectSettingsForm from "@/components/projects/ProjectSettingsForm";
+import { getFullUserContext, getProject } from "@/lib/dal";
 
 interface PageProps {
   params: Promise<{
@@ -15,50 +13,16 @@ interface PageProps {
 export default async function ProjectSettingsPage({ params }: PageProps) {
   const { orgSlug, projectSlug } = await params;
   
-  const session = await auth.api.getSession({
-     headers: await headers()
-  });
+  const userContext = await getFullUserContext();
+  if (!userContext) redirect("/sign-in");
 
-  if (!session?.user?.id) {
-     redirect("/sign-in");
-  }
-
-  // Fetch user details for Navbar
-  const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-          memberships: {
-              include: {
-                  organization: true
-              }
-          }
-      }
-  });
-
-  if (!user) redirect("/sign-in");
-  const organizations = user.memberships.map(m => m.organization);
-  const currentOrg = organizations.find(o => o.slug === orgSlug);
+  const organizations = userContext.memberships.map((m: any) => m.organization);
+  const currentOrg = organizations.find((o: any) => o.slug === orgSlug);
 
   if (!currentOrg) return notFound();
 
-  // Fetch Project
-  const project = await prisma.project.findUnique({
-      where: {
-          orgId_slug: {
-              orgId: currentOrg.id,
-              slug: projectSlug
-          }
-      },
-      include: {
-          invites: true,
-          members: {
-              include: {
-                  user: true
-              }
-          },
-          signals: true
-      }
-  });
+  // Fetch Project using DAL
+  const project = await getProject(projectSlug, currentOrg.id);
 
   if (!project) return notFound();
 
@@ -67,7 +31,7 @@ export default async function ProjectSettingsPage({ params }: PageProps) {
        <Navbar 
          organizations={organizations} 
          currentOrg={currentOrg} 
-         user={session.user} 
+         user={userContext} 
        />
        
        <main className="flex justify-center pt-10 px-6">

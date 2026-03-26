@@ -27,7 +27,7 @@ export default function ChatInput({ onSend }: any) {
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            className="flex-1 bg-transparent border-none outline-none text-[15px] placeholder:text-zinc-400"
+            className="flex-1 bg-transparent border-none outline-none text-sm placeholder:text-zinc-400"
           />
           <div className="flex items-center gap-3 text-zinc-400 pr-1">
              <button className="hover:text-zinc-700 transition"><Paperclip size={18} /></button>

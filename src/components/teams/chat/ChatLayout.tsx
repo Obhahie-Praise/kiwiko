@@ -13,7 +13,7 @@ export default function ChatLayout({
   const [activeContactId, setActiveContactId] = useState(contacts[0]?.id || null);
 
   return (
-    <div className="flex h-[85vh] bg-white rounded-2xl overflow-hidden">
+    <div className="flex h-[85vh] bg-white rounded-lg overflow-hidden">
       <ChatSidebar contacts={contacts} active={activeContactId} setActive={setActiveContactId} />
       <div className="flex-1 flex flex-col min-w-0 bg-white">
         <ChatWindow 

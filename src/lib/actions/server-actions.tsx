@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import React, { SetStateAction } from "react";
 import { customAlphabet } from "nanoid";
 
+import { getSession } from "../dal";
+
 export interface StartupOnboarding {
   consent: boolean;
   userRole: string;
@@ -18,9 +20,7 @@ export const submitStartupOnboarding = async (
   data: StartupOnboarding
 ): Promise<SubmitSetupResult> => {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) {
       return { success: false, error: "Not authenticated" };
@@ -104,7 +104,7 @@ export const submitStartupOnboarding = async (
 };
 
 export const authCallBack = async () => {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
 
   if (!session?.user?.id) {
     redirect("/sign-in");

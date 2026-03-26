@@ -5,7 +5,7 @@ export default function TeamHeader({ team, orgSlug }: { team: any; orgSlug: stri
   return (
     <header className="bg-white border-b px-6 py-4 flex items-center justify-between">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
+        <h1 className="text-2xl font-semibold special-font tracking-wide flex items-center gap-2">
           {team.name}
           {team.role === "OWNER" || team.role === "FOUNDER" ? (
             <Crown size={16} className="text-yellow-500" />

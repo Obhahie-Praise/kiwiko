@@ -1,16 +1,36 @@
 "use client";
-import { notifications } from "@/constants";
 import { Bell } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useClickOutside } from "@/hooks/useClickOutside";
+import { getNotificationsAction, markNotificationAsReadAction } from "@/actions/notification.actions";
+import { formatDistanceToNow } from "date-fns";
 
-const NotificationsMenu = () => {
+const NotificationsMenu = ({ projectId }: { projectId?: string }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(menuRef, () => setIsOpen(false));
 
-  const unreadCount = notifications.filter((n) => !n.seen).length;
+  useEffect(() => {
+    if (!isOpen) return; // Fetch when opening or periodically
+    const fetchNotifications = async () => {
+      const res = await getNotificationsAction(projectId || "");
+      if (res.success && res.data) {
+        setNotifications(res.data);
+      }
+    };
+    fetchNotifications();
+  }, [isOpen, projectId]);
+
+  const handleMarkAsRead = async (id: string) => {
+    await markNotificationAsReadAction(id);
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <div className="relative" ref={menuRef}>
@@ -40,21 +60,30 @@ const NotificationsMenu = () => {
 
           {/* List */}
           <ul className="max-h-64 overflow-y-auto divide-y divide-zinc-50">
+            {notifications.length === 0 ? (
+              <li className="px-4 py-6 text-center text-zinc-500 text-sm">
+                No new notifications
+              </li>
+            ) : null}
             {notifications.map((n) => (
               <li
                 key={n.id}
+                onClick={() => handleMarkAsRead(n.id)}
                 className={`px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-zinc-50 transition-colors ${
-                  !n.seen ? "bg-zinc-50/80" : ""
+                  !n.read ? "bg-zinc-50/80" : ""
                 }`}
               >
-                {!n.seen && (
+                {!n.read && (
                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
                 )}
-                <div className={`flex-1 min-w-0 ${n.seen ? "pl-[18px]" : ""}`}>
-                  <p className={`text-sm leading-snug truncate ${n.seen ? "text-zinc-500" : "font-semibold text-zinc-800"}`}>
+                <div className={`flex-1 min-w-0 ${n.read ? "pl-[18px]" : ""}`}>
+                  <p className={`text-sm leading-snug ${n.read ? "text-zinc-500" : "font-semibold text-zinc-800"}`}>
                     {n.title}
                   </p>
-                  <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1">{n.createdAt}</p>
+                  <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{n.message}</p>
+                  <p className="text-[10px] text-zinc-400 mt-1 uppercase tracking-wider font-semibold">
+                    {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
+                  </p>
                 </div>
               </li>
             ))}

@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { getGithubAccessToken } from "@/lib/github-utils";
+import { getSession, getOrgMembership } from "@/lib/dal";
 import { revalidatePath } from "next/cache";
 
 export type ActionResponse<T = any> = 
@@ -24,9 +25,7 @@ export interface GithubRepo {
 }
 
 export async function getUserGithubRepos(): Promise<ActionResponse<GithubRepo[]>> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
@@ -125,7 +124,7 @@ export async function connectGithubRepoToProject(
   projectId: string, 
   repoFullName: string
 ): Promise<ActionResponse<boolean>> {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
   try {
@@ -136,9 +135,7 @@ export async function connectGithubRepoToProject(
 
     if (!project) return { success: false, error: "Project not found" };
 
-    const membership = await prisma.membership.findUnique({
-      where: { userId_orgId: { userId: session.user.id, orgId: project.orgId } }
-    });
+    const membership = await getOrgMembership(project.orgId);
 
     if (!membership) return { success: false, error: "Access denied" };
 
@@ -159,7 +156,7 @@ export async function connectGithubRepoToProject(
 }
 
 export async function syncProjectGithubMetrics(projectId: string): Promise<ActionResponse<boolean>> {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
   try {

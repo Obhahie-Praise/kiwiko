@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import NavProfileDropdown from "../NavProfileDropdown";
 import { getUserContextAction } from "@/actions/project.actions";
+import { getNotificationsAction } from "@/actions/notification.actions";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useSession } from "@/lib/auth-client";
 import { useProjectSlugs } from "@/hooks/useProjectSlugs";
@@ -32,6 +33,7 @@ const ProjectNavbar = () => {
   const [isProjectMenuOpen, setIsProjectMenuOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   const orgMenuRef = useRef<HTMLDivElement>(null);
   const projectMenuRef = useRef<HTMLDivElement>(null);
@@ -70,12 +72,13 @@ const ProjectNavbar = () => {
     router.push(`/${orgSlug}/${newProjectSlug}/overview`);
   };
 
-  // Mock Notifications
-  const mockNotifs = [
-    { id: 1, text: "New contributor joined your project", time: "2m ago", read: false },
-    { id: 2, text: "Data sync completed successfully", time: "1h ago", read: true },
-    { id: 3, text: "Pitch deck updated by moderator", time: "5h ago", read: true },
-  ];
+  useEffect(() => {
+    if (currentProject?.id) {
+      getNotificationsAction(currentProject.id).then((res) => {
+        if (res.success && res.data) setNotifications(res.data);
+      });
+    }
+  }, [currentProject?.id]);
 
   return (
     <nav className="h-14 bg-white border-b border-zinc-200 flex items-center justify-between px-4 sticky top-0 z-100 w-full shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
@@ -219,7 +222,7 @@ const ProjectNavbar = () => {
             }`}
           >
             <Bell size={20} />
-            {mockNotifs.some(n => !n.read) && (
+            {notifications.some(n => !n.read) && (
               <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 border-2 border-white rounded-full" />
             )}
           </button>
@@ -227,21 +230,38 @@ const ProjectNavbar = () => {
           {isNotifOpen && (
             <div className="absolute top-11 right-0 w-80 bg-white border border-zinc-200 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="px-4 py-3 flex items-center justify-between border-b border-zinc-50 mb-1">
-                <span className="font-black text-sm uppercase tracking-tight">Updates</span>
+                <span className="font-black text-sm uppercase tracking-tight">Recent Activity</span>
                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">Live</span>
               </div>
-              <div className="space-y-1 py-1">
-                {mockNotifs.map((n) => (
-                  <button key={n.id} className="w-full text-left px-4 py-3 rounded-xl hover:bg-zinc-50 transition-colors group">
-                    <p className="text-sm font-bold text-zinc-900 leading-tight mb-1">{n.text}</p>
-                    <span className="text-[10px] font-medium text-zinc-400">{n.time}</span>
-                    {!n.read && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 ml-2" />}
-                  </button>
-                ))}
+              <div className="space-y-1 py-1 max-h-[300px] overflow-y-auto hidden-scrollbar">
+                {notifications.slice(0, 5).map((n) => {
+                  let dateStr = "Recently";
+                  try {
+                    const d = new Date(n.createdAt);
+                    if (!isNaN(d.getTime())) {
+                       dateStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    }
+                  } catch(e) {}
+
+                  return (
+                    <Link href={`/${orgSlug}/${projectSlug}/notifications`} key={n.id} onClick={() => setIsNotifOpen(false)} className="w-full text-left px-4 py-3 rounded-xl hover:bg-zinc-50 transition-colors group block">
+                      <p className="text-sm font-bold text-zinc-900 leading-tight mb-1 truncate">{n.title}</p>
+                      <span className="text-[10px] font-medium text-zinc-400">{dateStr}</span>
+                      {!n.read && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 ml-2" />}
+                    </Link>
+                  );
+                })}
+                {notifications.length === 0 && (
+                  <div className="px-4 py-6 text-center text-zinc-400 text-sm font-medium">No new notifications</div>
+                )}
               </div>
-              <button className="w-full py-2 text-xs font-black text-zinc-400 hover:text-zinc-900 transition-colors border-t border-zinc-50 mt-1 uppercase tracking-widest text-center">
-                Clear All
-              </button>
+              <Link 
+                href={`/${orgSlug}/${projectSlug}/notifications`} 
+                onClick={() => setIsNotifOpen(false)}
+                className="block w-full py-2 text-xs font-black text-zinc-400 hover:text-zinc-900 transition-colors border-t border-zinc-50 mt-1 uppercase tracking-widest text-center"
+              >
+                View Inbox
+              </Link>
             </div>
           )}
         </div>

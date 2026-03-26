@@ -249,12 +249,12 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
             <div className="mb-8">
                 <Link 
                     href={`/${orgSlug}/projects`} 
-                    className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-800 transition-colors mb-4"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-800 transition-colors mb-4"
                 >
                     <ArrowLeft size={16} />
                     Back to Projects
                 </Link>
-                <h1 className="text-2xl font-semibold text-zinc-900">Create New Project</h1>
+                <h1 className="text-2xl special-font tracking-wide font-semibold text-zinc-900">Create New Project</h1>
                 <p className="text-zinc-500 mt-1">Define your startup's core vision and assemble your dream team.</p>
             </div>
 
@@ -270,7 +270,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                         initialImage={bannerUrl}
                     />
                     <div className="absolute top-4 right-4 z-20">
-                        <span className="px-2 py-1 bg-black/50 backdrop-blur-md text-[10px] text-white rounded-md font-bold uppercase tracking-widest">
+                        <span className="px-2 py-1 bg-black/50 backdrop-blur-md text-[10px] text-white rounded-md font-semibold tracking-widest">
                             Project Banner
                         </span>
                     </div>
@@ -278,7 +278,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
 
                 {/* Section: Basic Info */}
                 <div className="p-6 border-b border-zinc-100">
-                    <h2 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <h2 className="font-semibold text-zinc-900 special-font tracking-wide mb-6 flex items-center gap-2">
                         <FileText size={16} className="text-zinc-400" />
                         Basic Information
                     </h2>
@@ -379,7 +379,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
 
                 {/* Section: Startup Metadata */}
                 <div className="p-6 border-b border-zinc-100 bg-zinc-50/30">
-                    <h2 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <h2 className="font-semibold text-zinc-900 special-font tracking-wide mb-6 flex items-center gap-2">
                         <Target size={16} className="text-zinc-400" />
                         Startup Core
                     </h2>
@@ -395,7 +395,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                                 value={problem}
                                 onChange={(e) => setProblem(e.target.value)}
                                 placeholder="What profound problem are you solving?"
-                                className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 focus:border-zinc-400 transition-all placeholder:text-zinc-400 resize-none"
+                                className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 focus:border-zinc-400 transition-all placeholder:text-zinc-400 min-h-[100px]"
                             />
                         </div>
 
@@ -409,7 +409,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                                 value={solution}
                                 onChange={(e) => setSolution(e.target.value)}
                                 placeholder="How does your project solve this problem uniquely?"
-                                className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 focus:border-zinc-400 transition-all placeholder:text-zinc-400 resize-none"
+                                className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-zinc-200 focus:border-zinc-400 transition-all placeholder:text-zinc-400 min-h-[100px]"
                             />
                         </div>
 
@@ -490,7 +490,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
 
                 {/* Section: Assemblers / Team */}
                 <div className="p-6 border-b border-zinc-100">
-                    <h2 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <h2 className="font-semibold text-zinc-900 special-font tracking-wide mb-6 flex items-center gap-2">
                         <Users size={16} className="text-zinc-400" />
                         Project Team
                     </h2>
@@ -539,7 +539,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
 
                 {/* Section: Links */}
                 <div className="p-6 border-b border-zinc-100 bg-zinc-50/10">
-                    <h2 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <h2 className="font-semibold text-zinc-900 special-font tracking-wide mb-6 flex items-center gap-2">
                         <Globe size={16} className="text-zinc-400" />
                         Relevant Links
                     </h2>
@@ -575,7 +575,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
 
                 {/* Section: Connect Signals */}
                 <div className="p-6 bg-zinc-50/10">
-                    <h2 className="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <h2 className="font-semibold text-zinc-900 special-font tracking-wide mb-6 flex items-center gap-2">
                         <Sparkles size={16} className="text-zinc-400" />
                         Connect Signals
                     </h2>
@@ -790,7 +790,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                                             <button 
                                                 type="button"
                                                 onClick={() => fetchRepos()}
-                                                className="px-4 py-2 bg-zinc-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all"
+                                                className="px-4 py-2 bg-zinc-900 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all"
                                             >
                                                 Retry Connection
                                             </button>
@@ -819,7 +819,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                                                     key={repo.id}
                                                     type="button"
                                                     onClick={() => setSelectedRepo(selectedRepo === repo.full_name ? null : repo.full_name)}
-                                                    className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all text-left ${
+                                                    className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all text-left ${
                                                         selectedRepo === repo.full_name
                                                             ? "border-zinc-900 bg-zinc-900 text-white shadow-md scale-[1.01]"
                                                             : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
@@ -853,7 +853,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowAllRepos(true)}
-                                                    className="w-full py-2.5 bg-zinc-100 rounded-xl text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-zinc-900 transition-all"
+                                                    className="w-full py-2.5 bg-zinc-100 rounded-lg text-xs font-semibold text-zinc-600 hover:text-zinc-900 transition-all"
                                                 >
                                                     See All ({allFilteredRepos.length})
                                                 </button>
@@ -866,50 +866,6 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                     </div>
                 </div>
 
-                {/* Section: Integrate Kiwiko */}
-                <div className={`p-6 border-t border-zinc-100 transition-all duration-500 ${generatedKeys ? 'bg-zinc-900' : 'bg-zinc-50/30'}`}>
-                    <h2 className={`text-sm font-semibold uppercase tracking-wider mb-4 flex items-center gap-2 ${generatedKeys ? 'text-white' : 'text-zinc-400'}`}>
-                        <Zap size={16} className={generatedKeys ? "text-amber-400 fill-amber-400" : "text-zinc-300"} />
-                        Integrate Kiwiko
-                    </h2>
-
-                    {!generatedKeys ? (
-                        <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-dashed border-zinc-200">
-                            <Info size={16} className="text-zinc-300 shrink-0" />
-                            <p className="text-xs font-medium text-zinc-400">Create the project first to enable integration</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="p-3 bg-white/10 rounded-xl">
-                                    <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Status</p>
-                                    <p className="text-sm font-bold text-emerald-400">Ready to Connect</p>
-                                </div>
-                                <div className="p-3 bg-white/10 rounded-xl">
-                                    <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Keys</p>
-                                    <p className="text-sm font-bold text-white">Generated ✓</p>
-                                </div>
-                            </div>
-                            <p className="text-xs text-white/60 leading-relaxed">
-                                Your project keys are ready. Click Connect to view the integration snippet and add it to your website.
-                            </p>
-                        </div>
-                    )}
-
-                    <button
-                        type="button"
-                        onClick={() => generatedKeys && setShowConnectModal(true)}
-                        disabled={!generatedKeys}
-                        className={`mt-4 w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-                            generatedKeys
-                                ? 'bg-white text-zinc-900 hover:bg-zinc-100 shadow-xl'
-                                : 'bg-zinc-200 text-zinc-400 cursor-not-allowed opacity-40'
-                        }`}
-                    >
-                        <Zap size={16} className={generatedKeys ? "text-amber-500" : ""} />
-                        {generatedKeys ? "Connect — View Integration Guide" : "Awaiting Project Creation"}
-                    </button>
-                </div>
             </div>
 
             <div className="bg-zinc-50 px-6 py-4 flex items-center justify-end gap-3 border border-zinc-200 border-t-0 rounded-b-xl">

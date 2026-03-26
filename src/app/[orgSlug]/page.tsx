@@ -1,4 +1,3 @@
-import React from "react";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/common/Navbar";
@@ -6,8 +5,7 @@ import OrgControlCenter from "@/components/organization/OrgControlCenter";
 import ProjectPublicView from "@/components/projects/ProjectPublicView";
 import prisma from "@/lib/prisma";
 import { organizations, projects } from "@/constants";
-import { auth } from "@/lib/auth"; // Assuming auth is available here
-import { headers } from "next/headers";
+import { getSession, getOrganization } from "@/lib/dal";
 import { 
   getProjectRepoDetails, 
   getProjectGithubBranches, 
@@ -25,9 +23,7 @@ export async function generateMetadata({ params }: any) {
 export default async function PublicProjectProfilePage({ params }: any) {
   const { orgSlug } = await params;
 
-  const session = await auth.api.getSession({
-     headers: await headers()
-  });
+  const session = await getSession();
 
   // Fetch user's organizations for Navbar - Only owned ones!
   let userOrgs: any[] = [];
@@ -37,14 +33,8 @@ export default async function PublicProjectProfilePage({ params }: any) {
     });
   }
   
-  // 1. Try to find Organization in DB
-  const org = await prisma.organization.findUnique({
-    where: { slug: orgSlug },
-    include: {
-      memberships: true,
-      invites: true,
-    },
-  });
+  // 1. Try to find Organization in DB using DAL
+  const org = await getOrganization(orgSlug);
 
   if (org) {
     // SECURITY: Only allow owner to see the control center
@@ -66,8 +56,8 @@ export default async function PublicProjectProfilePage({ params }: any) {
         });
 
         const members = [
-          ...org.memberships.map((m) => {
-            const u = users.find((user) => user.id === m.userId);
+          ...org.memberships.map((m: any) => {
+            const u = users.find((user: any) => user.id === m.userId);
             return {
               id: m.userId,
               email: u?.email || "Unknown",
@@ -78,7 +68,7 @@ export default async function PublicProjectProfilePage({ params }: any) {
               status: "active" as const,
             };
           }),
-          ...org.invites.map((i) => ({
+          ...org.invites.map((i: any) => ({
             id: i.id,
             email: i.email,
             role: i.role,
@@ -98,7 +88,7 @@ export default async function PublicProjectProfilePage({ params }: any) {
 
         return (
           <div className="min-h-screen bg-white">
-            <Navbar organizations={userOrgs} currentOrg={org} user={session?.user} />
+            <Navbar organizations={userOrgs} currentOrg={org} user={session?.user as any} />
             <main className="pt-12 px-6">
               <OrgControlCenter orgId={org.id} initialData={initialData} />
             </main>

@@ -1,13 +1,14 @@
 "use server";
  
 import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { PrismaClient, SignalType } from "../generated/prisma";
+import prisma, { PrismaClient } from "@/lib/prisma";
+import { SignalType } from "../generated/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import crypto from "node:crypto";
 import { sendTeamInviteEmail } from "@/app/api/send/send";
 import { getGithubAccessToken } from "@/lib/github-utils";
+import { getSession, getOrgMembership, getProject } from "@/lib/dal";
 
 // Standardized role mapping helper
 function mapRole(uiRole: string): string {
@@ -32,9 +33,7 @@ export type ActionResponse<T = any> =
   | { success: false; error: string };
 
 export async function createProjectAction(formData: FormData): Promise<ActionResponse<{ projectId: string; slug: string; invites: any[]; publicKey: string; secretKey: string }>> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
@@ -96,14 +95,7 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
   }
 
   // Verify the user is a member of the organization
-  const membership = await prisma.membership.findUnique({
-    where: {
-      userId_orgId: {
-        userId,
-        orgId,
-      },
-    },
-  });
+  const membership = await getOrgMembership(orgId);
 
   if (!membership) {
     return { success: false, error: "You are not a member of this organization" };
@@ -300,9 +292,7 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
 }
 
 export async function deleteProjectAction(projectId: string, orgSlug: string): Promise<ActionResponse<boolean>> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
@@ -317,14 +307,7 @@ export async function deleteProjectAction(projectId: string, orgSlug: string): P
       return { success: false, error: "Project not found" };
   }
 
-  const membership = await prisma.membership.findUnique({
-      where: {
-          userId_orgId: {
-              userId: session.user.id,
-              orgId: project.orgId
-          }
-      }
-  });
+  const membership = await getOrgMembership(project.orgId);
 
   if (!membership) {
       return { success: false, error: "Membership not found" };
@@ -354,9 +337,7 @@ export async function deleteProjectAction(projectId: string, orgSlug: string): P
 }
 
 export async function updateProjectSettingsAction(formData: FormData): Promise<ActionResponse<boolean>> {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
@@ -371,9 +352,7 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
     if (!project) return { success: false, error: "Project not found" };
 
     // Verify permissions
-    const membership = await prisma.membership.findUnique({
-        where: { userId_orgId: { userId: session.user.id, orgId: project.orgId } }
-    });
+    const membership = await getOrgMembership(project.orgId);
 
     if (!membership || (membership.role !== "OWNER" && membership.role !== "ADMIN")) {
         return { success: false, error: "Insufficient permissions" };
@@ -551,9 +530,7 @@ export async function updateProjectSettingsAction(formData: FormData): Promise<A
 }
 
 export async function inviteProjectMemberAction(projectId: string, email: string, role: string): Promise<ActionResponse<{email: string; token: string; project: any}>> {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
@@ -647,9 +624,7 @@ export async function editProjectMemberAction(
     isPendingInvite: boolean,
     updatedData: { role: string; email: string }
 ): Promise<ActionResponse<boolean>> {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
@@ -660,9 +635,7 @@ export async function editProjectMemberAction(
 
     if (!project) return { success: false, error: "Project not found" };
 
-    const membership = await prisma.membership.findUnique({
-        where: { userId_orgId: { userId: session.user.id, orgId: project.orgId } }
-    });
+    const membership = await getOrgMembership(project.orgId);
 
     if (!membership || !["OWNER", "ADMIN"].includes(membership.role)) {
         return { success: false, error: "Insufficient permissions to edit members" };
@@ -754,9 +727,7 @@ export async function editProjectMemberAction(
 }
 
 export async function getUserContextAction(): Promise<ActionResponse<{ organizations: any[] }>> {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
@@ -775,7 +746,12 @@ export async function getUserContextAction(): Promise<ActionResponse<{ organizat
                         id: true,
                         name: true,
                         slug: true,
-                        logoUrl: true
+                        logoUrl: true,
+                        signals: {
+                            select: {
+                                signalType: true
+                            }
+                        }
                     },
                     orderBy: {
                         updatedAt: 'desc'
@@ -787,6 +763,35 @@ export async function getUserContextAction(): Promise<ActionResponse<{ organizat
             }
         });
 
+        // Check for onboarding notifications
+        const notificationCount = await prisma.notification.count({
+            where: { userId: session.user.id }
+        });
+
+        if (notificationCount === 0) {
+            // Seed welcome notifications
+            await prisma.notification.createMany({
+                data: [
+                    {
+                        userId: session.user.id,
+                        projectId: null,
+                        type: "WELCOME",
+                        title: "Welcome to Kiwiko!",
+                        message: "We're excited to have you here. Kiwiko is your command center for startup growth and investor relations. Start by creating or joining a project.",
+                        read: false,
+                    },
+                    {
+                        userId: session.user.id,
+                        projectId: null,
+                        type: "POLICY",
+                        title: "Guidelines & Policies",
+                        message: "Please follow our community guidelines to ensure a great experience for everyone on the platform.",
+                        read: false,
+                    }
+                ]
+            });
+        }
+
         return { success: true, data: { organizations } };
     } catch (error) {
         console.error("Failed to fetch user context:", error);
@@ -794,7 +799,73 @@ export async function getUserContextAction(): Promise<ActionResponse<{ organizat
     }
 }
 
-export async function getProjectHomeDataAction(orgSlug: string, projectSlug: string): Promise<ActionResponse<{ project: any; organization: any; membership: any }>> {
+export async function createProjectUpdateAction(formData: FormData): Promise<ActionResponse<any>> {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+
+    const projectId = formData.get("projectId") as string;
+    const title = formData.get("title") as string;
+    const details = formData.get("details") as string;
+    const imageUrl = formData.get("imageUrl") as string || null;
+
+    if (!projectId || !title || !details) {
+        return { success: false, error: "Project ID, title, and details are required" };
+    }
+
+    try {
+        const project = await prisma.project.findUnique({
+            where: { id: projectId },
+        });
+
+        if (!project) return { success: false, error: "Project not found" };
+
+        const membership = await prisma.projectMember.findFirst({
+            where: { projectId, userId: session.user.id }
+        });
+
+        if (!membership) return { success: false, error: "You are not a member of this project" };
+
+        const update = await prisma.projectUpdate.create({
+            data: {
+                projectId,
+                title,
+                details,
+                imageUrl,
+            }
+        });
+
+        // Notify project members
+        const members = await prisma.projectMember.findMany({
+            where: { projectId, userId: { not: session.user.id } },
+            select: { userId: true }
+        });
+
+        await Promise.all(
+            members.map(m => prisma.notification.create({
+                data: {
+                    projectId,
+                    userId: m.userId,
+                    type: "project_update",
+                    title: "New Project Update",
+                    message: `${session.user.name || "A team member"} posted a new update: ${title}`,
+                    metadata: { updateId: update.id }
+                }
+            }))
+        );
+
+        revalidatePath(`/(project)/[orgSlug]/[projectSlug]/updates`, "page");
+        
+        return { success: true, data: update };
+    } catch (error) {
+        console.error("Failed to create project update:", error);
+        return { success: false, error: "Failed to create project update" };
+    }
+}
+
+export async function getProjectUpdatesAction(projectId: string): Promise<ActionResponse<any[]>> {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -802,32 +873,33 @@ export async function getProjectHomeDataAction(orgSlug: string, projectSlug: str
     if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
     try {
+        const updates = await prisma.projectUpdate.findMany({
+            where: { projectId },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        return { success: true, data: updates };
+    } catch (error) {
+        console.error("Failed to fetch project updates:", error);
+        return { success: false, error: "Failed to fetch project updates" };
+    }
+}
+
+export async function getProjectHomeDataAction(orgSlug: string, projectSlug: string): Promise<ActionResponse<{ project: any; organization: any; membership: any }>> {
+    const session = await getSession();
+    if (!session?.user?.id) return { success: false, error: "Unauthorized" };
+
+    try {
         const [project, membership] = await Promise.all([
-            prisma.project.findFirst({
-                where: { 
-                    slug: projectSlug,
-                    organization: { slug: orgSlug }
-                },
-                include: {
-                    organization: true,
-                    members: {
-                        include: {
-                            user: true
-                        }
-                    },
-                    invites: true
-                }
-            }),
-            prisma.membership.findFirst({
-                where: {
-                    userId: session.user.id,
-                    organization: { slug: orgSlug }
-                }
-            })
+            getProject(projectSlug),
+            getOrgMembership(orgSlug)
         ]);
 
         if (!project) return { success: false, error: "Project not found" };
         if (!project.organization) return { success: false, error: "Organization not found" };
+        // Basic security check: ensure the project belongs to the org specified in the slug
+        // (though getProject already checks membership, we want to be sure about the org context)
+        if (project.organization.slug !== orgSlug) return { success: false, error: "Forbidden" };
 
         return { 
             success: true, 

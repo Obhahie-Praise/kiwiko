@@ -6,6 +6,7 @@ import * as React from "react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { getSession } from "@/lib/dal";
 
 export async function revalidateInboxAction(orgSlug: string, projectSlug: string) {
   revalidatePath(`/${orgSlug}/${projectSlug}/inbox`);
@@ -65,7 +66,7 @@ export async function moveEmailsToTrashAction(emailIds: string[], projectId: str
 }
 
 export async function getProjectTrashedEmailsAction(projectId: string) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
   try {
@@ -226,7 +227,7 @@ export async function sendComposeEmailAction(
   subject: string,
   content: string
 ) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
   try {
@@ -286,7 +287,7 @@ export async function sendComposeEmailAction(
 }
 
 export async function getProjectEmailsAction(projectId: string) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
   try {

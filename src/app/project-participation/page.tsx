@@ -1,16 +1,13 @@
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getSession, getFullUserContext } from "@/lib/dal";
+import prisma from "@/lib/prisma";
 import ProjectsTable from "@/components/projects/project components/ProjectsTable";
 import Navbar from "@/components/common/Navbar";
 import { FolderPlus, Users } from "lucide-react";
 import React from "react";
 
 export default async function ProjectParticipationPage() {
-  const session = await auth.api.getSession({
-     headers: await headers()
-  });
+  const session = await getSession();
 
   if (!session?.user?.id) {
      redirect("/sign-in");
@@ -29,26 +26,16 @@ export default async function ProjectParticipationPage() {
       orderBy: { project: { updatedAt: 'desc' } }
   });
 
-  // Fetch all organizations the user is part of (for the Navbar)
-  const userWithOrgs = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-          memberships: {
-              include: {
-                  organization: true
-              }
-          }
-      }
-  });
-
-  const organizations = userWithOrgs?.memberships.map(m => m.organization) || [];
+  // Fetch user context from DAL
+  const userContext = await getFullUserContext();
+  const organizations = userContext?.memberships.map((m: any) => m.organization) || [];
 
   // Map to Table format
-  const mappedProjects = projectMemberships.map(pm => ({
+  const mappedProjects = projectMemberships.map((pm: any) => ({
       id: pm.project.id,
       name: pm.project.name,
       slug: pm.project.slug,
-      orgSlug: pm.project.organization.slug, // Added for dynamic routing
+      orgSlug: pm.project.organization.slug, 
       logoUrl: pm.project.logoUrl,
       branch: "main", 
       stage: pm.project.stage || "Idea", 
@@ -64,7 +51,7 @@ export default async function ProjectParticipationPage() {
     <div className="min-h-screen bg-zinc-50/50">
       <Navbar 
         organizations={organizations} 
-        user={session.user} 
+        user={userContext as any} 
         showNewOrgButton={false}
       />
 

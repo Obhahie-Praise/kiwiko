@@ -4,9 +4,10 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { getSession } from "@/lib/dal";
 
 export async function getCalendarEventsAction(projectId: string) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
   try {
@@ -55,7 +56,7 @@ export async function addCalendarEventAction(
     location?: string;
   }
 ) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user?.id) return { success: false, error: "Unauthorized" };
 
   try {
