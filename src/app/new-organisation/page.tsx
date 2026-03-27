@@ -7,7 +7,7 @@ const NewOrganisationPage = async () => {
     const userContext = await getFullUserContext();
   
     if (!userContext) {
-       redirect("/sign-in");
+       redirect("/sign-in?callbackUrl=/new-organisation");
     }
   
     const organizations = userContext.memberships.map((m: any) => m.organization) || [];

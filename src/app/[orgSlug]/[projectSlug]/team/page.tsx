@@ -1,7 +1,9 @@
-import React from "react";
+import { redirect } from "next/navigation";
 import { UsersRound, Settings2, ShieldCheck } from "lucide-react";
 
-const TeamsBasePage = () => {
+const TeamsBasePage = async ({ params }: { params: Promise<{ orgSlug: string, projectSlug: string }> }) => {
+  const { orgSlug, projectSlug } = await params;
+  redirect(`/${orgSlug}/${projectSlug}/team/board`);
   return (
     <div className="w-full py-20 flex flex-col items-center justify-center text-center px-4">
       <div className="w-20 h-20 bg-zinc-100 rounded-3xl flex items-center justify-center mb-8 text-zinc-400">

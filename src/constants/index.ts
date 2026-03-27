@@ -222,7 +222,7 @@ export const sidebarNav = [
   },
   {
     label: "Teams",
-    href: "/teams",
+    href: "/team",
     icon: UsersRound,
     description: "Your team, members and roles",
   },

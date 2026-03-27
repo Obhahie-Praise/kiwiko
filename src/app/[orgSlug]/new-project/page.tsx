@@ -14,7 +14,10 @@ const NewProjectPage = async ({ params }: PageProps) => {
   const { orgSlug } = await params;
   
   const userContext = await getFullUserContext();
-  if (!userContext) redirect("/sign-in");
+  if (!userContext) {
+    await setContextCookie(orgSlug);
+    redirect("/sign-in?projects"); 
+  }
 
   const userOrgs = userContext.memberships.map((m: any) => m.organization) || [];
 

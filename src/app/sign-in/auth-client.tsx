@@ -6,7 +6,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { organizations } from "@/constants";
 
-const AuthClient = () => {
+const AuthClient = ({ callbackUrl }: { callbackUrl?: string }) => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [seePassword, setSeePassword] = useState(false);
@@ -27,8 +27,9 @@ const AuthClient = () => {
       return;
     }
 
-    // Successful sign-in – redirect to dispatch for dynamic organization routing
-    router.push("/sign-in/dispatch");
+    // Successful sign-in – redirect to callbackUrl or dispatch
+    const finalCallbackUrl = callbackUrl || new URLSearchParams(window.location.search).get("callbackUrl") || "/sign-in/dispatch";
+    router.push(finalCallbackUrl);
     setIsAuthenticating(false);
   };
   return (

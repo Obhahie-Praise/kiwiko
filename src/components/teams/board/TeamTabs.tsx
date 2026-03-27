@@ -23,7 +23,7 @@ export default function TeamTabs() {
   const pathname = usePathname();
   const { orgSlug, projectSlug } = useProjectSlugs();
 
-  const getHref = (segment: string) => `/${orgSlug}/${projectSlug}/teams/${segment}`;
+  const getHref = (segment: string) => `/${orgSlug}/${projectSlug}/team/${segment}`;
 
   return (
     <nav className="flex gap-8 px-8 border-b border-zinc-100 bg-white sticky top-0 z-10 overflow-x-auto no-scrollbar">

@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/dal";
+import { getSession, setContextCookie } from "@/lib/dal";
 import { Users, Eye, GitCommit, Check, Calendar } from "lucide-react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -12,12 +12,15 @@ import RefreshButton from "@/components/projects/RefreshButton";
 import { Suspense } from "react";
 import OverviewLoading from "@/components/projects/OverviewLoading";
 
-const OverviewPage = async ({ params }: { params: Promise<{ orgSlug: string, projectSlug: string }> }) => {
-  const { orgSlug, projectSlug } = await params;
+const OverviewPage = async (
+  props: { params: Promise<{ orgSlug: string; projectSlug: string }> }
+) => {
+  const { orgSlug, projectSlug } = await props.params;
   const session = await getSession();
   
-  if (!session?.user) {
-    redirect("/sign-in");
+  if (!session?.user?.id) {
+    await setContextCookie(orgSlug, projectSlug);
+    return redirect("/sign-in?overview");
   }
 
   const contextRes = await getProjectHomeDataAction(orgSlug, projectSlug);
@@ -133,7 +136,7 @@ async function OverviewContent({ project, userId, orgSlug, projectSlug }: any) {
       <div className="bg-white border-[0.2px] border-zinc-200 rounded-lg col-span-4 p-5 h-full">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold text-zinc-900 special-font tracking-wide">Team</h3>
-          <Link href={`/${orgSlug}/${projectSlug}/teams`} className="text-sm text-zinc-500 hover:text-zinc-900 transition">
+          <Link href={`/${orgSlug}/${projectSlug}/team`} className="text-sm text-zinc-500 hover:text-zinc-900 transition">
             Manage
           </Link>
         </div>
@@ -178,7 +181,7 @@ async function OverviewContent({ project, userId, orgSlug, projectSlug }: any) {
               </div>
             ))}
 
-            <Link href={`/${orgSlug}/${projectSlug}/teams`} className="flex items-center justify-between opacity-90 hover:opacity-100 transition-opacity">
+            <Link href={`/${orgSlug}/${projectSlug}/team`} className="flex items-center justify-between opacity-90 hover:opacity-100 transition-opacity">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full border border-dashed border-zinc-300 flex items-center justify-center text-zinc-600">
                   +

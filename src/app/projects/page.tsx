@@ -5,7 +5,7 @@ export default async function ProjectsRedirect() {
   const userContext = await getFullUserContext();
 
   if (!userContext) {
-      redirect("/sign-in");
+      redirect("/sign-in?callbackUrl=/projects");
   }
 
   if (userContext.memberships.length === 0) {

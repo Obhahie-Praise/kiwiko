@@ -12,11 +12,16 @@ interface PageProps {
   }>;
 }
 
+import { getFullUserContext, setContextCookie } from "@/lib/dal";
+
 export default async function OrgProjectsPage({ params }: PageProps) {
   const { orgSlug } = await params;
   
   const userContext = await getFullUserContext();
-  if (!userContext) redirect("/sign-in");
+  if (!userContext) {
+    await setContextCookie(orgSlug);
+    redirect("/sign-in?projects");
+  }
 
   const organizations = userContext.memberships.map((m: any) => m.organization);
   const currentOrg = organizations.find((o: any) => o.slug === orgSlug);

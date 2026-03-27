@@ -1,6 +1,5 @@
 "use server";
 
-import { cache } from "react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
@@ -9,7 +8,7 @@ import { redirect } from "next/navigation";
 /**
  * Request-memoized session fetcher.
  */
-export const getSession = cache(async () => {
+export const getSession = async () => {
     try {
         const session = await auth.api.getSession({
             headers: await headers(),
@@ -19,22 +18,22 @@ export const getSession = cache(async () => {
         console.error("Error fetching session:", error);
         return null;
     }
-});
+};
 
 /**
  * Request-memoized user fetcher. 
  * Use this to get the current authenticated user and their metadata.
  */
-export const getCurrentUser = cache(async () => {
+export const getCurrentUser = async () => {
     const session = await getSession();
     if (!session?.user) return null;
     return session.user;
-});
+};
 
 /**
  * Request-memoized user fetcher with full context (memberships and organizations).
  */
-export const getFullUserContext = cache(async () => {
+export const getFullUserContext = async () => {
     const session = await getSession();
     if (!session?.user?.id) return null;
 
@@ -48,12 +47,12 @@ export const getFullUserContext = cache(async () => {
             }
         }
     });
-});
+};
 
 /**
  * Request-memoized user fetcher with project memberships.
  */
-export const getUserWithProjectMemberships = cache(async () => {
+export const getUserWithProjectMemberships = async () => {
     const session = await getSession();
     if (!session?.user?.id) return null;
 
@@ -71,7 +70,7 @@ export const getUserWithProjectMemberships = cache(async () => {
             }
         }
     });
-});
+};
 
 /**
  * Ensures user is authenticated, otherwise redirects or returns null.
@@ -87,7 +86,7 @@ export const verifyAuth = async () => {
 /**
  * Request-memoized organization fetcher.
  */
-export const getOrganization = cache(async (orgIdOrSlug: string) => {
+export const getOrganization = async (orgIdOrSlug: string) => {
     const user = await getCurrentUser();
     if (!user) return null;
 
@@ -110,12 +109,12 @@ export const getOrganization = cache(async (orgIdOrSlug: string) => {
             invites: true
         }
     });
-});
+};
 
 /**
  * Request-memoized project fetcher.
  */
-export const getProject = cache(async (projectIdOrSlug: string, orgId?: string) => {
+export const getProject = async (projectIdOrSlug: string, orgId?: string) => {
     const user = await getCurrentUser();
     if (!user) return null;
 
@@ -145,12 +144,12 @@ export const getProject = cache(async (projectIdOrSlug: string, orgId?: string) 
             invites: true
         }
     });
-});
+};
 
 /**
  * Checks if user is a member of an organization and returns their role.
  */
-export const getOrgMembership = cache(async (orgIdOrSlug: string) => {
+export const getOrgMembership = async (orgIdOrSlug: string) => {
     const user = await getCurrentUser();
     if (!user) return null;
 
@@ -168,12 +167,12 @@ export const getOrgMembership = cache(async (orgIdOrSlug: string) => {
             organization: true
         }
     });
-});
+};
 
 /**
  * Request-memoized organization projects fetcher.
  */
-export const getOrganizationProjects = cache(async (orgId: string) => {
+export const getOrganizationProjects = async (orgId: string) => {
     const user = await getCurrentUser();
     if (!user) return [];
 
@@ -192,4 +191,30 @@ export const getOrganizationProjects = cache(async (orgId: string) => {
             updatedAt: 'desc'
         }
     });
-});
+};
+
+/**
+ * Sets a context cookie for the current organization and project.
+ * This is used for aesthetic sign-in redirects.
+ */
+export const setContextCookie = async (orgSlug: string, projectSlug?: string) => {
+    const { cookies } = await import("next/headers");
+    (await cookies()).set("last_context", JSON.stringify({ orgSlug, projectSlug }), {
+        maxAge: 60 * 60 * 24, // 24 hours
+        path: "/",
+    });
+};
+
+/**
+ * Gets the last stored context from cookies.
+ */
+export const getContextCookie = async () => {
+    const { cookies } = await import("next/headers");
+    const cookie = (await cookies()).get("last_context");
+    if (!cookie) return null;
+    try {
+        return JSON.parse(cookie.value);
+    } catch {
+        return null;
+    }
+};

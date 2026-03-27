@@ -103,26 +103,29 @@ const resources = [
 
 const ResourcesPage = () => {
   return (
-    <div className="min-h-screen bg-zinc-50/30">
-      {/* Header Section */}
-      <nav className="px-3 py-2 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b bg-white/50 backdrop-blur-md sticky top-0 z-20">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-xl uppercase font-bold italic text-zinc-900 tracking-tight">Venture Resources</h1>
+    <div className="min-h-screen bg-zinc-50/20">
+      <main className="p-8 max-w-7xl mx-auto">
+        {/* New Hero Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold text-zinc-900 special-font tracking-tight">
+              Venture Resources
+            </h1>
+            <p className="text-zinc-500 font-medium max-w-md">
+              Manage your technical stack, infrastructure, and social presence.
+            </p>
+          </div>
+
+          <div className="relative group w-full md:w-96">
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
+            <input 
+              type="text" 
+              placeholder="Search tools, platforms, or repos..."
+              className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-400 transition-all font-medium shadow-sm hover:border-zinc-300"
+            />
           </div>
         </div>
 
-        <div className="relative group max-w-md w-full">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
-          <input 
-            type="text" 
-            placeholder="Search tools, platforms, or repos..."
-            className="w-full pl-11 pr-4 py-2.5 bg-white border border-zinc-200 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-400 transition-all font-medium"
-          />
-        </div>
-      </nav>
-
-      <main className="p-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {resources.map((resource) => (
             <a 
@@ -130,24 +133,24 @@ const ResourcesPage = () => {
               href={resource.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="group bg-white border border-zinc-200 rounded-[2rem] p-6 hover:shadow-2xl hover:shadow-zinc-200/50 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
+              className="group bg-white border border-zinc-200 rounded-[2.5rem] p-7 hover:shadow-2xl hover:shadow-zinc-200/50 hover:-translate-y-1 transition-all duration-500 flex flex-col h-full animate-in fade-in zoom-in-95 duration-700"
             >
-              <div className="flex items-start justify-between mb-6">
-                <div className={`p-4 rounded-2xl shadow-sm ${resource.color}`}>
-                  <resource.icon size={24} />
+              <div className="flex items-start justify-between mb-8">
+                <div className={`p-5 rounded-2xl shadow-sm ${resource.color} transition-transform group-hover:scale-110 duration-500`}>
+                  <resource.icon size={28} />
                 </div>
-                <div className="p-2 rounded-full bg-zinc-50 text-zinc-300 group-hover:text-zinc-900 group-hover:bg-zinc-100 transition-all duration-300">
-                  <ExternalLink size={14} />
+                <div className="p-2.5 rounded-full bg-zinc-50 text-zinc-300 group-hover:text-zinc-900 group-hover:bg-zinc-100 transition-all duration-300">
+                  <ExternalLink size={16} />
                 </div>
               </div>
 
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-3">
                   <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{resource.category}</span>
-                  <div className="w-1 h-1 bg-zinc-200 rounded-full" />
-                  <span className="text-[10px] font-bold text-emerald-600 tracking-wide uppercase">{resource.badge}</span>
+                  <div className="w-1.5 h-1.5 bg-zinc-200 rounded-full" />
+                  <span className="text-[10px] font-bold text-emerald-600 tracking-wide uppercase border border-emerald-100 bg-emerald-50/50 px-2 py-0.5 rounded-full">{resource.badge}</span>
                 </div>
-                <h3 className="text-xl font-bold text-zinc-900 mb-3 group-hover:text-zinc-900 transition-colors uppercase tracking-tight">
+                <h3 className="text-2xl font-bold text-zinc-900 mb-4 group-hover:text-zinc-900 transition-colors special-font tracking-tight">
                   {resource.name}
                 </h3>
                 <p className="text-sm text-zinc-500 leading-relaxed font-medium">
@@ -156,51 +159,53 @@ const ResourcesPage = () => {
               </div>
 
               <div className="mt-8 pt-6 border-t border-zinc-50 flex items-center justify-between">
-                <span className="text-xs font-bold text-zinc-400 group-hover:text-zinc-900 transition-colors">Launch Resource</span>
-                <div className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 group-hover:bg-zinc-900 group-hover:text-white transition-all scale-0 group-hover:scale-100">
-                  <Zap size={14} fill="currentColor" />
+                <span className="text-sm font-bold text-zinc-400 group-hover:text-zinc-900 transition-all duration-300 italic group-hover:not-italic">Launch Resource</span>
+                <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 group-hover:bg-zinc-900 group-hover:text-white transition-all scale-0 group-hover:scale-100 duration-500 shadow-xl shadow-zinc-900/20">
+                  <Zap size={16} fill="currentColor" />
                 </div>
               </div>
             </a>
           ))}
 
           {/* New Resource Suggestion Card */}
-          <div className="border-2 border-dashed border-zinc-200 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-zinc-400 transition-all">
-            <div className="w-16 h-16 bg-zinc-50 rounded-full flex items-center justify-center text-zinc-400 mb-6 group-hover:scale-110 transition-transform">
-              <Layers size={32} />
+          <div className="border-2 border-dashed border-zinc-200 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-50/10 transition-all duration-500 animate-in fade-in zoom-in-95 duration-1000">
+            <div className="w-20 h-20 bg-zinc-50 rounded-full flex items-center justify-center text-zinc-400 mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-emerald-500/20">
+              <Plus size={36} />
             </div>
-            <h4 className="text-lg font-bold text-zinc-900 mb-2">Add New Resource</h4>
-            <p className="text-xs text-zinc-500 font-medium">
+            <h4 className="text-xl font-bold text-zinc-900 mb-2 special-font">New Resource</h4>
+            <p className="text-xs text-zinc-500 font-medium max-w-[180px]">
               Integrate another tool or platform into your venture stack.
             </p>
           </div>
         </div>
 
         {/* Footer info box */}
-        <div className="mt-16 bg-zinc-900 rounded-[3rem] p-10 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative">
-          <div className="relative z-10">
-            <h2 className="text-3xl font-bold text-white mb-4 tracking-tight">Proprietary Stack Control</h2>
-            <p className="text-zinc-400 max-w-xl text-lg font-medium leading-relaxed">
+        <div className="mt-20 bg-zinc-950 rounded-[3.5rem] p-12 flex flex-col md:flex-row items-center justify-between gap-10 overflow-hidden relative shadow-2xl shadow-zinc-900/30">
+          <div className="relative z-10 w-full md:w-2/3">
+            <h2 className="text-4xl font-bold text-white mb-6 tracking-tight special-font italic">
+              Proprietary Stack Control
+            </h2>
+            <p className="text-zinc-400 max-w-xl text-lg font-medium leading-relaxed opacity-80">
               These resources are strictly audited and managed by the founding team. 
               The infrastructure is optimized for extreme execution and radical transparency.
             </p>
-            <div className="flex items-center gap-4 mt-8">
-              <button className="bg-white text-black font-bold px-6 py-3 rounded-2xl text-sm hover:bg-zinc-200 transition-colors shadow-xl">
+            <div className="flex flex-col sm:flex-row items-center gap-4 mt-10">
+              <button className="w-full sm:w-auto bg-white text-zinc-950 font-bold px-8 py-4 rounded-2xl text-sm hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]">
                 Audit Entire Stack
               </button>
-              <button className="border border-zinc-700 text-zinc-300 font-bold px-6 py-3 rounded-2xl text-sm hover:bg-zinc-800 transition-colors">
+              <button className="w-full sm:w-auto border border-zinc-800 text-zinc-400 font-bold px-8 py-4 rounded-2xl text-sm hover:bg-zinc-900 hover:text-white transition-all">
                 View Access Logs
               </button>
             </div>
           </div>
           
-          <div className="md:w-1/3 flex justify-center opacity-20 relative z-0">
-             <Cpu size={240} className="text-white" />
+          <div className="md:w-1/3 flex justify-center opacity-10 relative z-0 transition-all group-hover:opacity-20">
+             <Cpu size={280} className="text-white animate-pulse duration-[4000ms]" />
           </div>
 
           {/* Decorative gradients */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 blur-[120px] rounded-full" />
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-emerald-500/20 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/20 blur-[180px] rounded-full translate-y-1/2 -translate-x-1/2 opacity-50" />
         </div>
       </main>
     </div>

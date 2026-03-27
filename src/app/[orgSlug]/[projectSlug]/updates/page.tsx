@@ -1,5 +1,5 @@
 import { getProjectHomeDataAction, getProjectUpdatesAction } from "@/actions/project.actions";
-import { getSession } from "@/lib/dal";
+import { getSession, setContextCookie } from "@/lib/dal";
 import { redirect } from "next/navigation";
 import UpdateForm from "@/components/projects/UpdateForm";
 import UpdateList from "@/components/projects/UpdateList";
@@ -11,7 +11,8 @@ export default async function ProjectUpdatesPage({ params }: { params: Promise<{
     const session = await getSession();
     
     if (!session?.user) {
-        redirect("/sign-in");
+        await setContextCookie(orgSlug, projectSlug);
+        redirect("/sign-in?updates");
     }
 
     const contextRes = await getProjectHomeDataAction(orgSlug, projectSlug);

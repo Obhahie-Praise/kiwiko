@@ -478,8 +478,8 @@ export default function ChatWindow({
              </div>
              <div className="bg-zinc-100 text-zinc-900 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex flex-col gap-2 min-w-[140px]">
                 <div className="flex items-center gap-2">
-                   <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-400" />
-                   <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+                   <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-700" />
+                   <span className="text-xs font-semibold tracking-wider text-zinc-600">
                       {botStatus === "thinking" && "Kiwiko is thinking..."}
                       {botStatus === "preparing_tools" && "Preparing tools..."}
                       {botStatus === "performing_task" && "Performing task..."}

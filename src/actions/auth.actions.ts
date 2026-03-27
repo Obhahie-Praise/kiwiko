@@ -2,9 +2,39 @@
 
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import crypto from "node:crypto";
+import { getContextCookie } from "@/lib/dal";
 
+/**
+ * Resolves a shorthand sign-in query param into a full redirect path.
+ */
+export async function resolveShorthandAction(shorthand: string) {
+    const context = await getContextCookie();
+    if (!context) return { success: false, error: "No context found" };
+
+    const { orgSlug, projectSlug } = context;
+
+    const routes: Record<string, string> = {
+        "overview": `/${orgSlug}/${projectSlug}/overview`,
+        "board": `/${orgSlug}/${projectSlug}/team/board`,
+        "chat": `/${orgSlug}/${projectSlug}/team/chat`,
+        "tasks": `/${orgSlug}/${projectSlug}/team/tasks`,
+        "contributions": `/${orgSlug}/${projectSlug}/team/contributions`,
+        "updates": `/${orgSlug}/${projectSlug}/updates`,
+        "projects": `/${orgSlug}/projects`
+    };
+
+    const target = routes[shorthand];
+    if (target) {
+        return { success: true, data: target };
+    }
+
+    return { success: false, error: "Invalid shorthand" };
+}
+
+/**
+ * Handles sign-in specifically for team members via email invite.
+ */
 export async function teamInviteSignInAction(email: string) {
     try {
         console.log(`Team sign-in request for: ${email}`);

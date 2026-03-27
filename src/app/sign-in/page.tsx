@@ -3,9 +3,9 @@ import { ArrowLeft, GithubIcon, LoaderCircle, ShieldCheck, Zap, Globe, Fingerpri
 import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AuthClient from "./auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { organizations } from "@/constants";
 import TeamSignInForm from "@/components/auth/TeamSignInForm";
 
@@ -13,7 +13,25 @@ const SignInPage = () => {
   const [isGoogleAuthenticating, setIsGoogleAuthenticating] = useState(false);
   const [isGithubAuthenticating, setIsGithubAuthenticating] = useState(false);
   const [activeTab, setActiveTab] = useState<"standard" | "team">("standard");
+  const searchParams = useSearchParams();
+  const [callbackUrl, setCallbackUrl] = useState(searchParams.get("callbackUrl") || "/sign-in/dispatch");
   const router = useRouter();
+
+  // Handle shorthand redirects (e.g. ?overview)
+  useEffect(() => {
+    const shorthands = ["overview", "board", "chat", "tasks", "contributions", "updates", "projects"];
+    const activeShorthand = shorthands.find(s => searchParams.has(s));
+    
+    if (activeShorthand) {
+      import("@/actions/auth.actions").then(mod => {
+        mod.resolveShorthandAction(activeShorthand).then(res => {
+          if (res.success && res.data) {
+            setCallbackUrl(res.data);
+          }
+        });
+      });
+    }
+  }, [searchParams]);
 
   const handleSocial = async (provider: "google" | "github") => {
     try {
@@ -25,7 +43,7 @@ const SignInPage = () => {
       
       const result = await signIn.social({ 
         provider,
-        callbackURL: "/sign-in/dispatch"
+        callbackURL: callbackUrl
       });
       
     } catch (error) {
@@ -168,7 +186,7 @@ const SignInPage = () => {
               </div>
 
               <div className="bg-white p-6 rounded-[2rem] border-0.5 border-zinc-200 shadow-sm">
-                 <AuthClient />
+                 <AuthClient callbackUrl={callbackUrl} />
               </div>
             </div>
           ) : (

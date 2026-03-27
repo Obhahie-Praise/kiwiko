@@ -7,7 +7,7 @@ import { getSession, getUserWithProjectMemberships } from "@/lib/dal";
 export default async function MyProjectsPage() {
     const session = await getSession();
     if (!session?.user?.id) {
-        redirect("/sign-in");
+        redirect("/sign-in?callbackUrl=/my-projects");
     }
 
     const userWithProjects = await getUserWithProjectMemberships();

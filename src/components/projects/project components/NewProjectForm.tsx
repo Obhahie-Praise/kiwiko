@@ -478,8 +478,8 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                                         <span className="font-bold text-zinc-900">{name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}</span>
                                     </div>
                                     {name && (
-                                        <div className="absolute right-2 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] rounded-full font-medium flex items-center gap-1 uppercase tracking-tight">
-                                            <Check size={10} /> Validated
+                                        <div className="absolute right-2 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] rounded-full font-semibold flex items-center gap-1">
+                                            <Check size={10} strokeWidth={3} /> Available
                                         </div>
                                     )}
                                 </div>
@@ -757,7 +757,7 @@ const NewProjectForm = ({ orgId }: NewProjectFormProps) => {
                                  <div className="flex items-center justify-between">
                                     <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Select Repository</p>
                                     {selectedRepo && (
-                                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] rounded-full font-bold uppercase tracking-tight flex items-center gap-1">
+                                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] rounded-full font-semibold flex items-center gap-1">
                                             <Check size={10} /> {selectedRepo}
                                         </span>
                                     )}

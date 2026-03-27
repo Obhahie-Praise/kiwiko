@@ -1,10 +1,10 @@
-// app/[orgSlug]/[projectSlug]/teams/layout.tsx
+// app/[orgSlug]/[projectSlug]/team/layout.tsx
 import { ReactNode } from "react";
 import TeamHeader from "@/components/teams/board/TeamHeader";
 import TeamTabs from "@/components/teams/board/TeamTabs";
 import { getProjectHomeDataAction } from "@/actions/project.actions";
 import { notFound, redirect } from "next/navigation";
-import { getSession } from "@/lib/dal";
+import { getSession, setContextCookie } from "@/lib/dal";
 
 export default async function TeamsLayout(
   props: {
@@ -14,7 +14,10 @@ export default async function TeamsLayout(
 ) {
   const { orgSlug, projectSlug } = await props.params;
   const session = await getSession();
-  if (!session?.user?.id) return redirect("/sign-in");
+  if (!session?.user?.id) {
+    await setContextCookie(orgSlug, projectSlug);
+    return redirect("/sign-in?board");
+  }
 
   const res = await getProjectHomeDataAction(orgSlug, projectSlug);
   if (!res.success || !res.data) return notFound();

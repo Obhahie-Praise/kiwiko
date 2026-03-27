@@ -718,7 +718,7 @@ export async function editProjectMemberAction(
             }
         }
 
-        revalidatePath(`/${project.organization.slug}/${project.slug}/teams/board`);
+        revalidatePath(`/${project.organization.slug}/${project.slug}/team/board`);
         return { success: true, data: true };
     } catch (error) {
         console.error("Edit Project Member Error:", error);

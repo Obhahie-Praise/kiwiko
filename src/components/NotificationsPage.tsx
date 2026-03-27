@@ -103,7 +103,7 @@ export default function NotificationsPage({ initialNotifications }: { initialNot
       {/* Header Section */}
       <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-black special-font tracking-wide">Notifications</h1>
+          <h1 className="text-2xl font-semibold text-semibold special-font tracking-wide">Notifications</h1>
           <p className="text-zinc-500 text-sm font-medium">See your activity and alerts.</p>
         </div>
         
@@ -163,27 +163,27 @@ export default function NotificationsPage({ initialNotifications }: { initialNot
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-zinc-900" />
                 )}
                 
-                <div className="p-5 flex items-start gap-5">
+                <div className="p-4 flex items-start gap-5">
                   {/* Icon Area */}
-                  <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border transition-transform duration-300 group-hover:scale-110 shadow-sm ${colors}`}>
-                    <Icon size={20} />
+                  <div className={`shrink-0 w-6 h-6 rounded-lg flex items-center justify-center border transition-transform duration-300 group-hover:scale-110 shadow-sm mr-2 ${colors}`}>
+                    <Icon size={16} />
                   </div>
 
                   {/* Content Area */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
-                      <h3 className={`text-sm font-bold tracking-tight transition-colors ${n.read ? "text-zinc-700" : "text-zinc-900"}`}>
+                      <h3 className={`text-sm font-semibold tracking-wide special-font transition-colors ${n.read ? "text-zinc-700" : "text-zinc-900"}`}>
                         {n.title}
                       </h3>
                       <div className="flex items-center gap-3 shrink-0">
-                        <span suppressHydrationWarning className="flex items-center gap-1.2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest bg-zinc-50 px-2 py-0.5 rounded-full border border-zinc-100">
-                          <Clock size={10} className="mr-1" />
+                        <span suppressHydrationWarning className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-600 bg-zinc-50 px-2 py-0.5 rounded-full border border-zinc-100">
+                          <Clock size={12} className="mr-1" />
                           {isValidDate ? formatDistanceToNow(date, { addSuffix: false }) : "Recently"}
                         </span>
                         {!n.read && (
                           <button 
                             onClick={() => markAsRead(n.id)}
-                            className="bg-zinc-900 text-white p-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+                            className="bg-zinc-900 text-white p-1.2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
                             title="Mark as read"
                           >
                             <Check size={12} strokeWidth={3} />

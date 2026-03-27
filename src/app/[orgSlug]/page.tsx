@@ -5,7 +5,7 @@ import OrgControlCenter from "@/components/organization/OrgControlCenter";
 import ProjectPublicView from "@/components/projects/ProjectPublicView";
 import prisma from "@/lib/prisma";
 import { organizations, projects } from "@/constants";
-import { getSession, getOrganization } from "@/lib/dal";
+import { getSession, getOrganization, setContextCookie } from "@/lib/dal";
 import { 
   getProjectRepoDetails, 
   getProjectGithubBranches, 
@@ -45,7 +45,8 @@ export default async function PublicProjectProfilePage({ params }: any) {
             // Redirect to their own dashboard or projects
             // But wait, let's let the project check run first in case the orgSlug is actually a project slug
         } else {
-            return redirect("/sign-in");
+            await setContextCookie(orgSlug);
+            return redirect("/sign-in?projects");
         }
     } else {
         // Owner access - Render OrgControlCenter

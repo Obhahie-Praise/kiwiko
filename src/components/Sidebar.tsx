@@ -130,8 +130,8 @@ const Sidebar = () => {
             let linkHref = `/${orgSlug}/${projectSlug}${item.href}`;
             let isActive = false;
 
-            if (item.href === "/teams") {
-              linkHref = `/${orgSlug}/${projectSlug}/teams/board`;
+            if (item.href === "/team") {
+              linkHref = `/${orgSlug}/${projectSlug}/team/board`;
               const baseRoute = `/${orgSlug}/${projectSlug}${item.href}`;
               isActive = currentPath === baseRoute || currentPath.startsWith(`${baseRoute}/`);
             } else if (item.href === "/profile") {
